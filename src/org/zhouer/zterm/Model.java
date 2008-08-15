@@ -59,12 +59,15 @@ public class Model {
 	private String tmpLink; // 按滑鼠右鍵時滑鼠下的連結
 
 	private ZTerm view;
+	
+	private PreferencePane preferencePane;
 
 	private Model() {
 		this.sessions = Sessions.getInstance(); // 各個連線
 		this.resource = Resource.getInstance(); // 各種設定
 		this.conv = new Convertor(); // 轉碼用
 		this.clip = new Clip(); // 與系統剪貼簿溝通的橋樑
+		this.preferencePane = new PreferencePane();
 	}
 	
 	public void setLocale(final Locale locale) {
@@ -544,17 +547,16 @@ public class Model {
 		// FIXME: Linux Firefox 1.5.0.13pre cannot input Chinese after
 		// setVisible(true)
 		// FIXME: need confirmed.
-		final PreferencePane preferenceDialog = new PreferencePane();
-		final JDialog dialog = preferenceDialog.createDialog(this.view,
+		final JDialog dialog = preferencePane.createDialog(this.view,
 				Messages.getString("Preference.Title"));
 		dialog.setSize(620, 300);
 		dialog.setVisible(true);
 
-		if (preferenceDialog.getValue() != null) {
-			if (preferenceDialog.getValue() instanceof Integer) {
-				if (preferenceDialog.getValue().equals(
+		if (preferencePane.getValue() != null) {
+			if (preferencePane.getValue() instanceof Integer) {
+				if (preferencePane.getValue().equals(
 						new Integer(JOptionPane.OK_OPTION))) {
-					preferenceDialog.submit();
+					preferencePane.submit();
 				}
 			}
 		}
