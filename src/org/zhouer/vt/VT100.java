@@ -28,15 +28,15 @@ public class VT100 extends JComponent {
 			int prow;
 			boolean r = false;
 
-			VT100.this.text_blink_count++;
-			VT100.this.cursor_blink_count++;
+			text_blink_count++;
+			cursor_blink_count++;
 
 			// FIXME: magic number
 			// 游標閃爍
-			if (VT100.this.resource.getBooleanValue(Config.CURSOR_BLINK)) {
-				if (VT100.this.cursor_blink_count % 2 == 0) {
-					VT100.this.cursor_blink = !VT100.this.cursor_blink;
-					VT100.this.setRepaint(VT100.this.crow, VT100.this.ccol);
+			if (resource.getBooleanValue(Config.CURSOR_BLINK)) {
+				if (cursor_blink_count % 2 == 0) {
+					cursor_blink = !cursor_blink;
+					setRepaint(crow, ccol);
 					r = true;
 				}
 			}
@@ -44,14 +44,13 @@ public class VT100 extends JComponent {
 			// FIXME: magic number
 			// 文字閃爍
 			// 只需要檢查畫面上有沒有閃爍字，不需要全部都檢查
-			if (VT100.this.text_blink_count % 3 == 0) {
-				VT100.this.text_blink = !VT100.this.text_blink;
-				for (int i = 1; i <= VT100.this.maxrow; i++) {
-					for (int j = 1; j <= VT100.this.maxcol; j++) {
-						prow = VT100.this.physicalRow(i
-								- VT100.this.scrolluprow);
-						if ((VT100.this.attributes[prow][j - 1] & VT100.BLINK) != 0) {
-							VT100.this.setRepaintPhysical(prow, j - 1);
+			if (text_blink_count % 3 == 0) {
+				text_blink = !text_blink;
+				for (int i = 1; i <= maxrow; i++) {
+					for (int j = 1; j <= maxcol; j++) {
+						prow = physicalRow(i - scrolluprow);
+						if ((attributes[prow][j - 1] & VT100.BLINK) != 0) {
+							setRepaintPhysical(prow, j - 1);
 							r = true;
 						}
 					}
@@ -203,27 +202,27 @@ public class VT100 extends JComponent {
 			final BufferedImage b) {
 		super();
 
-		this.parent = p;
-		this.resource = c;
-		this.conv = cv;
-		this.bi = b;
+		parent = p;
+		resource = c;
+		conv = cv;
+		bi = b;
 
 		// 初始化一些變數、陣列
-		this.initValue();
-		this.initArray();
-		this.initOthers();
+		initValue();
+		initArray();
+		initOthers();
 	}
 
 	public void close() {
 		// TODO: 應該還有其他東西應該收尾
 
 		// 停止重繪用的 timer
-		this.ti.stop();
+		ti.stop();
 
 		// 停止反應來自使用者的事件
-		this.removeKeyListener(this.user);
-		this.removeMouseListener(this.user);
-		this.removeMouseMotionListener(this.user);
+		removeKeyListener(user);
+		removeMouseListener(user);
+		removeMouseMotionListener(user);
 	}
 
 	/**
@@ -237,32 +236,32 @@ public class VT100 extends JComponent {
 		int c, r;
 		int prow;
 
-		x -= this.transx;
-		y -= this.transy;
+		x -= transx;
+		y -= transy;
 
-		c = x / this.fontwidth + 1;
-		r = y / this.fontheight + 1;
+		c = x / fontwidth + 1;
+		r = y / fontheight + 1;
 
 		// 超出螢幕範圍
-		if ((r < 1) || (r > this.maxrow) || (c < 1) || (c > this.maxcol)) {
+		if ((r < 1) || (r > maxrow) || (c < 1) || (c > maxcol)) {
 			return false;
 		}
 
-		prow = this.physicalRow(r - this.scrolluprow);
+		prow = physicalRow(r - scrolluprow);
 
-		return this.isurl[prow][c - 1];
+		return isurl[prow][c - 1];
 	}
 
 	public String getEmulation() {
-		return this.emulation;
+		return emulation;
 	}
 
 	public String getEncoding() {
-		return this.encoding;
+		return encoding;
 	}
 
 	public int getKeypadMode() {
-		return this.keypadmode;
+		return keypadmode;
 	}
 
 	@Override
@@ -281,35 +280,34 @@ public class VT100 extends JComponent {
 		final Vector bg = new Vector(); // background color
 		boolean needNewLine;
 
-		for (i = 0; i < this.totalrow; i++) {
+		for (i = 0; i < totalrow; i++) {
 			needNewLine = false;
 
 			// 找到最後一個有資料的地方
-			for (last = this.totalcol - 1; last >= 0; last--) {
-				if (this.selected[i][last] && (this.mbc[i][last] != 0)) {
+			for (last = totalcol - 1; last >= 0; last--) {
+				if (selected[i][last] && (mbc[i][last] != 0)) {
 					break;
 				}
 			}
 
 			for (j = 0; j <= last; j++) {
-				if (this.selected[i][j]) {
-					if (this.mbc[i][j] == 0) {
+				if (selected[i][j]) {
+					if (mbc[i][j] == 0) {
 						// 後面還有資料，沒資料的部份用空白取代
 						a.addElement(new Byte((byte) 0));
 						b.addElement(new Byte((byte) ' '));
 						fg.addElement(new Byte(VT100.defFg));
 						bg.addElement(new Byte(VT100.defBg));
-					} else if (this.mbc[i][j] == 1) {
-						buf = this.conv.charToBytes(this.text[i][j],
-								this.encoding);
+					} else if (mbc[i][j] == 1) {
+						buf = conv.charToBytes(text[i][j], encoding);
 						for (k = 0; k < buf.length; k++) {
 							b.addElement(new Byte(buf[k]));
 							// XXX: 因為最多使用兩格儲存屬性，若超過 2 bytes, 則以第二 bytes 屬性取代之。
-							a.addElement(new Byte(this.attributes[i][j
+							a.addElement(new Byte(attributes[i][j
 									+ Math.min(k, 2)]));
-							fg.addElement(new Byte(this.fgcolors[i][j
+							fg.addElement(new Byte(fgcolors[i][j
 									+ Math.min(k, 2)]));
-							bg.addElement(new Byte(this.bgcolors[i][j
+							bg.addElement(new Byte(bgcolors[i][j
 									+ Math.min(k, 2)]));
 						}
 					}
@@ -324,7 +322,7 @@ public class VT100 extends JComponent {
 			}
 		}
 
-		return this.makePasteText(a, b, fg, bg);
+		return makePasteText(a, b, fg, bg);
 	}
 
 	/**
@@ -338,15 +336,15 @@ public class VT100 extends JComponent {
 		boolean firstLine = true;
 		final StringBuffer sb = new StringBuffer();
 
-		for (i = 0; i < this.totalrow; i++) {
+		for (i = 0; i < totalrow; i++) {
 
 			// 若整行都沒被選取，直接換下一行
-			for (j = 0; j < this.totalcol; j++) {
-				if (this.selected[i][j]) {
+			for (j = 0; j < totalcol; j++) {
+				if (selected[i][j]) {
 					break;
 				}
 			}
-			if (j == this.totalcol) {
+			if (j == totalcol) {
 				continue;
 			}
 
@@ -358,20 +356,20 @@ public class VT100 extends JComponent {
 			}
 
 			// 找到最後一個有資料的地方
-			for (j = this.totalcol - 1; j >= 0; j--) {
-				if (this.selected[i][j] && (this.mbc[i][j] != 0)) {
+			for (j = totalcol - 1; j >= 0; j--) {
+				if (selected[i][j] && (mbc[i][j] != 0)) {
 					break;
 				}
 			}
 
 			for (k = 0; k <= j; k++) {
 				// 只複製選取的部份
-				if (this.selected[i][k]) {
-					if (this.mbc[i][k] == 0) {
+				if (selected[i][k]) {
+					if (mbc[i][k] == 0) {
 						// 後面還有資料，雖然沒資料但先替換成空白
 						sb.append(" ");
-					} else if (this.mbc[i][k] == 1) {
-						sb.append(this.text[i][k]);
+					} else if (mbc[i][k] == 1) {
+						sb.append(text[i][k]);
 					}
 				}
 			}
@@ -394,26 +392,26 @@ public class VT100 extends JComponent {
 		int c, r;
 		int prow;
 
-		x -= this.transx;
-		y -= this.transy;
+		x -= transx;
+		y -= transy;
 
-		c = x / this.fontwidth + 1;
-		r = y / this.fontheight + 1;
+		c = x / fontwidth + 1;
+		r = y / fontheight + 1;
 
 		// 超出螢幕範圍
-		if ((r < 1) || (r > this.maxrow) || (c < 1) || (c > this.maxcol)) {
+		if ((r < 1) || (r > maxrow) || (c < 1) || (c > maxcol)) {
 			return new String();
 		}
 
-		prow = this.physicalRow(r - this.scrolluprow);
+		prow = physicalRow(r - scrolluprow);
 
 		// TODO: 可複製跨行的 url
-		for (i = c; (i > 0) && this.isurl[prow][i - 1]; i--) {
+		for (i = c; (i > 0) && isurl[prow][i - 1]; i--) {
 			;
 		}
-		for (i++; (i <= this.maxcol) && this.isurl[prow][i - 1]; i++) {
-			if (this.mbc[prow][i - 1] == 1) {
-				sb.append(this.text[prow][i - 1]);
+		for (i++; (i <= maxcol) && isurl[prow][i - 1]; i++) {
+			if (mbc[prow][i - 1] == 1) {
+				sb.append(text[prow][i - 1]);
 			}
 		}
 
@@ -427,7 +425,7 @@ public class VT100 extends JComponent {
 			tmp[i] = (byte) str.charAt(i);
 		}
 
-		this.parent.writeBytes(tmp, 0, tmp.length);
+		parent.writeBytes(tmp, 0, tmp.length);
 	}
 
 	/**
@@ -446,8 +444,8 @@ public class VT100 extends JComponent {
 			return;
 		}
 
-		autobreak = this.resource.getBooleanValue(Config.AUTO_LINE_BREAK);
-		breakcount = this.resource.getIntValue(Config.AUTO_LINE_BREAK_LENGTH);
+		autobreak = resource.getBooleanValue(Config.AUTO_LINE_BREAK);
+		breakcount = resource.getIntValue(Config.AUTO_LINE_BREAK_LENGTH);
 
 		if (autobreak) {
 			str = TextUtils.fmt(str, breakcount);
@@ -463,18 +461,18 @@ public class VT100 extends JComponent {
 			}
 		}
 
-		this.parent.writeChars(ca, 0, ca.length);
+		parent.writeChars(ca, 0, ca.length);
 	}
 
 	/**
 	 * 重設選取區域
 	 */
 	public void resetSelected() {
-		for (int i = 0; i < this.totalrow; i++) {
-			for (int j = 0; j < this.totalcol; j++) {
-				if (this.selected[i][j]) {
-					this.selected[i][j] = false;
-					this.setRepaintPhysical(i, j);
+		for (int i = 0; i < totalrow; i++) {
+			for (int j = 0; j < totalcol; j++) {
+				if (selected[i][j]) {
+					selected[i][j] = false;
+					setRepaintPhysical(i, j);
 				}
 			}
 		}
@@ -485,13 +483,13 @@ public class VT100 extends JComponent {
 		this.requestFocusInWindow();
 
 		// 至此應該所有的初始化動作都完成了
-		this.init_ready = true;
+		init_ready = true;
 
-		while (!this.parent.isClosed()) {
-			this.parse();
+		while (!parent.isClosed()) {
+			parse();
 
 			// buffer 裡的東西都處理完才重繪
-			if (this.isBufferEmpty()) {
+			if (isBufferEmpty()) {
 				this.repaint();
 			}
 		}
@@ -508,39 +506,39 @@ public class VT100 extends JComponent {
 		int i, beginx, endx;
 		int prow;
 
-		x -= this.transx;
-		y -= this.transy;
+		x -= transx;
+		y -= transy;
 
-		c = x / this.fontwidth + 1;
-		r = y / this.fontheight + 1;
+		c = x / fontwidth + 1;
+		r = y / fontheight + 1;
 
 		// 超出螢幕範圍
-		if ((c < 1) || (c > this.maxcol) || (r < 1) || (r > this.maxrow)) {
+		if ((c < 1) || (c > maxcol) || (r < 1) || (r > maxrow)) {
 			return;
 		}
 
-		prow = this.physicalRow(r - this.scrolluprow);
+		prow = physicalRow(r - scrolluprow);
 
 		// 往前找到第一個非空白的合法字元
 		for (beginx = c; beginx > 0; beginx--) {
-			if ((this.mbc[prow][beginx - 1] == 0)
-					|| ((this.mbc[prow][beginx - 1] == 1) && (this.text[prow][beginx - 1] == ' '))) {
+			if ((mbc[prow][beginx - 1] == 0)
+					|| ((mbc[prow][beginx - 1] == 1) && (text[prow][beginx - 1] == ' '))) {
 				break;
 			}
 		}
 		// 向後 ...
-		for (endx = c; endx <= this.maxcol; endx++) {
-			if ((this.mbc[prow][endx - 1] == 0)
-					|| ((this.mbc[prow][endx - 1] == 1) && (this.text[prow][endx - 1] == ' '))) {
+		for (endx = c; endx <= maxcol; endx++) {
+			if ((mbc[prow][endx - 1] == 0)
+					|| ((mbc[prow][endx - 1] == 1) && (text[prow][endx - 1] == ' '))) {
 				break;
 			}
 		}
 
-		this.resetSelected();
+		resetSelected();
 		// FIXME: 這裡還需要一些測試
 		for (i = beginx + 1; i < endx; i++) {
-			this.selected[prow][i - 1] = true;
-			this.setRepaintPhysical(prow, i - 1);
+			selected[prow][i - 1] = true;
+			setRepaintPhysical(prow, i - 1);
 		}
 	}
 
@@ -554,22 +552,22 @@ public class VT100 extends JComponent {
 		int c, r;
 		int prow;
 
-		x -= this.transx;
-		y -= this.transy;
+		x -= transx;
+		y -= transy;
 
-		c = x / this.fontwidth + 1;
-		r = y / this.fontheight + 1;
+		c = x / fontwidth + 1;
+		r = y / fontheight + 1;
 
 		// 超出螢幕範圍
-		if ((c < 1) || (c > this.maxcol) || (r < 1) || (r > this.maxrow)) {
+		if ((c < 1) || (c > maxcol) || (r < 1) || (r > maxrow)) {
 			return;
 		}
 
-		this.resetSelected();
-		prow = this.physicalRow(r - this.scrolluprow);
-		for (int i = 1; i < this.maxcol; i++) {
-			this.selected[prow][i - 1] = true;
-			this.setRepaintPhysical(prow, i - 1);
+		resetSelected();
+		prow = physicalRow(r - scrolluprow);
+		for (int i = 1; i < maxcol; i++) {
+			selected[prow][i - 1] = true;
+			setRepaintPhysical(prow, i - 1);
 		}
 	}
 
@@ -578,13 +576,13 @@ public class VT100 extends JComponent {
 		// layout manager 或其他人可能會透過 setBound 來改變 component 的大小，
 		// 此時要一併更新 component
 		super.setBounds(x, y, w, h);
-		this.updateSize();
+		updateSize();
 	}
 
 	@Override
 	public void setBounds(final Rectangle r) {
 		super.setBounds(r);
-		this.updateSize();
+		updateSize();
 	}
 
 	/**
@@ -594,7 +592,7 @@ public class VT100 extends JComponent {
 	 */
 	public void setEmulation(final String emu) {
 		// XXX: vt100 對各種 terminal type 的處理都相同，不需通知
-		this.emulation = emu;
+		emulation = emu;
 	}
 
 	/**
@@ -603,7 +601,7 @@ public class VT100 extends JComponent {
 	 * @param enc
 	 */
 	public void setEncoding(final String enc) {
-		this.encoding = enc;
+		encoding = enc;
 	}
 
 	/**
@@ -613,13 +611,12 @@ public class VT100 extends JComponent {
 	 *            行數
 	 */
 	public void setScrollUp(final int scroll) {
-		this.scrolluprow = scroll;
+		scrolluprow = scroll;
 		// System.out.println( "scroll up " + scroll + " lines" );
 		// TODO: 應改可以不用每次都重繪整個畫面
-		for (int i = 1; i <= this.maxrow; i++) {
-			for (int j = 1; j <= this.maxcol; j++) {
-				this.setRepaintPhysical(this.physicalRow(i - this.scrolluprow),
-						j - 1);
+		for (int i = 1; i <= maxrow; i++) {
+			for (int j = 1; j <= maxcol; j++) {
+				setRepaintPhysical(physicalRow(i - scrolluprow), j - 1);
 			}
 		}
 		this.repaint();
@@ -643,16 +640,16 @@ public class VT100 extends JComponent {
 		int prow;
 		boolean orig;
 
-		x1 -= this.transx;
-		y1 -= this.transy;
-		x2 -= this.transx;
-		y2 -= this.transy;
+		x1 -= transx;
+		y1 -= transy;
+		x2 -= transx;
+		y2 -= transy;
 
-		c1 = x1 / this.fontwidth + 1;
-		r1 = y1 / this.fontheight + 1;
+		c1 = x1 / fontwidth + 1;
+		r1 = y1 / fontheight + 1;
 
-		c2 = x2 / this.fontwidth + 1;
-		r2 = y2 / this.fontheight + 1;
+		c2 = x2 / fontwidth + 1;
+		r2 = y2 / fontheight + 1;
 
 		if (r1 > r2) {
 			tmp = r1;
@@ -670,29 +667,29 @@ public class VT100 extends JComponent {
 			}
 		}
 
-		this.resetSelected();
+		resetSelected();
 		// TODO: 只能選取當前畫面的內容，不會自動捲頁
-		for (i = 1; i <= this.maxrow; i++) {
-			for (j = 1; j <= this.maxcol; j++) {
+		for (i = 1; i <= maxrow; i++) {
+			for (j = 1; j <= maxcol; j++) {
 
-				prow = this.physicalRow(i - this.scrolluprow);
+				prow = physicalRow(i - scrolluprow);
 
-				orig = this.selected[prow][j - 1];
+				orig = selected[prow][j - 1];
 
 				if ((i > r1) && (i < r2)) {
-					this.selected[prow][j - 1] = true;
+					selected[prow][j - 1] = true;
 				} else if ((i == r1) && (i == r2)) {
-					this.selected[prow][j - 1] = (j >= c1) && (j <= c2);
+					selected[prow][j - 1] = (j >= c1) && (j <= c2);
 				} else if (i == r1) {
-					this.selected[prow][j - 1] = (j >= c1);
+					selected[prow][j - 1] = (j >= c1);
 				} else if (i == r2) {
-					this.selected[prow][j - 1] = (j <= c2);
+					selected[prow][j - 1] = (j <= c2);
 				} else {
-					this.selected[prow][j - 1] = false;
+					selected[prow][j - 1] = false;
 				}
 
-				if (this.selected[prow][j - 1] != orig) {
-					this.setRepaintPhysical(prow, j - 1);
+				if (selected[prow][j - 1] != orig) {
+					setRepaintPhysical(prow, j - 1);
 				}
 			}
 		}
@@ -710,69 +707,65 @@ public class VT100 extends JComponent {
 		int style;
 
 		// 微調
-		this.fonthorizontalgap = this.resource
-				.getIntValue(Config.FONT_HORIZONTAL_GAP);
-		this.fontverticalgap = this.resource
-				.getIntValue(Config.FONT_VERTICLAL_GAP);
-		this.fontdescentadj = this.resource
-				.getIntValue(Config.FONT_DESCENT_ADJUST);
+		fonthorizontalgap = resource.getIntValue(Config.FONT_HORIZONTAL_GAP);
+		fontverticalgap = resource.getIntValue(Config.FONT_VERTICLAL_GAP);
+		fontdescentadj = resource.getIntValue(Config.FONT_DESCENT_ADJUST);
 
 		// 設定 family
-		family = this.resource.getStringValue(Config.FONT_FAMILY);
+		family = resource.getStringValue(Config.FONT_FAMILY);
 
 		// 設定 size
-		this.fontsize = this.resource.getIntValue(Config.FONT_SIZE);
-		if (this.fontsize == 0) {
+		fontsize = resource.getIntValue(Config.FONT_SIZE);
+		if (fontsize == 0) {
 			// 按照螢幕的大小設定
-			fw = this.width / this.maxcol - this.fonthorizontalgap;
-			fh = this.height / this.maxrow - this.fontverticalgap;
+			fw = width / maxcol - fonthorizontalgap;
+			fh = height / maxrow - fontverticalgap;
 
 			if (fh > 2 * fw) {
 				fh = 2 * fw;
 			}
-			this.fontsize = fh;
+			fontsize = fh;
 		}
 
 		// 設定 style（bold, italy, plain）
 		style = Font.PLAIN;
-		if (this.resource.getBooleanValue(Config.FONT_BOLD)) {
+		if (resource.getBooleanValue(Config.FONT_BOLD)) {
 			style |= Font.BOLD;
 		}
-		if (this.resource.getBooleanValue(Config.FONT_ITALY)) {
+		if (resource.getBooleanValue(Config.FONT_ITALY)) {
 			style |= Font.ITALIC;
 		}
 
 		// 建立 font instance
-		this.font = new Font(family, style, this.fontsize);
+		font = new Font(family, style, fontsize);
 
-		fm = this.getFontMetrics(this.font);
+		fm = getFontMetrics(font);
 
 		// XXX: 這裡對 fontheight 與 fontwidth 的假設可能有問題
-		this.fontheight = this.fontsize;
-		this.fontwidth = this.fontsize / 2;
-		this.fontdescent = (int) (1.0 * fm.getDescent() / fm.getHeight() * this.fontsize);
+		fontheight = fontsize;
+		fontwidth = fontsize / 2;
+		fontdescent = (int) (1.0 * fm.getDescent() / fm.getHeight() * fontsize);
 
-		this.fontheight += this.fontverticalgap;
-		this.fontwidth += this.fonthorizontalgap;
-		this.fontdescent += this.fontdescentadj;
+		fontheight += fontverticalgap;
+		fontwidth += fonthorizontalgap;
+		fontdescent += fontdescentadj;
 
 		// 修改字型會影響 translate 的座標
-		this.transx = (this.width - this.fontwidth * this.maxcol) / 2;
-		this.transy = (this.height - this.fontheight * this.maxrow) / 2;
+		transx = (width - fontwidth * maxcol) / 2;
+		transy = (height - fontheight * maxrow) / 2;
 	}
 
 	public void updateImage(final BufferedImage b) {
-		this.bi = b;
+		bi = b;
 	}
 
 	/**
 	 * 重繪目前的畫面
 	 */
 	public void updateScreen() {
-		for (int i = 1; i <= this.maxrow; i++) {
-			for (int j = 1; j <= this.maxcol; j++) {
-				this.setRepaintPhysical(this.physicalRow(i - this.scrolluprow),
-						j - 1);
+		for (int i = 1; i <= maxrow; i++) {
+			for (int j = 1; j <= maxcol; j++) {
+				setRepaintPhysical(physicalRow(i - scrolluprow), j - 1);
 			}
 		}
 
@@ -780,11 +773,11 @@ public class VT100 extends JComponent {
 	}
 
 	public void updateSize() {
-		this.width = this.getWidth();
-		this.height = this.getHeight();
+		width = getWidth();
+		height = getHeight();
 
-		this.updateFont();
-		this.updateScreen();
+		updateFont();
+		updateScreen();
 	}
 
 	@Override
@@ -792,113 +785,113 @@ public class VT100 extends JComponent {
 		// 因為多個分頁共用一張 image, 因此只有在前景的分頁才有繪圖的權利，
 		// 不在前景時不重繪，以免干擾畫面。
 		// 初始化完成之前不重繪。
-		if (!this.parent.isTabForeground() || !this.init_ready) {
+		if (!parent.isTabForeground() || !init_ready) {
 			return;
 		}
 
 		// TODO: 考慮 draw 是否一定要擺在這邊，或是是否只在這裡呼叫？
 		// 偶爾呼叫一次而不只是在顯示前才呼叫應該可以增進顯示速度。
-		this.draw();
+		draw();
 
-		g.drawImage(this.bi, 0, 0, null);
+		g.drawImage(bi, 0, 0, null);
 	}
 
 	/**
 	 * 發出一個 bell
 	 */
 	private void bell() {
-		this.parent.bell();
+		parent.bell();
 	}
 
 	private void checkURL(final char c) {
 		final String W = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ;/?:@=&{}|^~[]`%#$-_.+!*'(),";
 
-		this.addurl = false;
-		switch (this.urlstate) {
+		addurl = false;
+		switch (urlstate) {
 		case 0:
-			this.probablyurl.removeAllElements();
+			probablyurl.removeAllElements();
 			if (c == 'h') {
-				this.urlstate = 1;
-				this.addurl = true;
+				urlstate = 1;
+				addurl = true;
 			}
 			break;
 		case 1:
 			if (c == 't') {
-				this.urlstate = 2;
-				this.addurl = true;
+				urlstate = 2;
+				addurl = true;
 			} else {
-				this.urlstate = 0;
+				urlstate = 0;
 			}
 			break;
 		case 2:
 			if (c == 't') {
-				this.urlstate = 3;
-				this.addurl = true;
+				urlstate = 3;
+				addurl = true;
 			} else {
-				this.urlstate = 0;
+				urlstate = 0;
 			}
 			break;
 		case 3:
 			if (c == 'p') {
-				this.urlstate = 4;
-				this.addurl = true;
+				urlstate = 4;
+				addurl = true;
 			} else {
-				this.urlstate = 0;
+				urlstate = 0;
 			}
 			break;
 		case 4:
 			if (c == ':') {
-				this.urlstate = 6;
-				this.addurl = true;
+				urlstate = 6;
+				addurl = true;
 			} else if (c == 's') {
-				this.urlstate = 5;
-				this.addurl = true;
+				urlstate = 5;
+				addurl = true;
 			} else {
-				this.urlstate = 0;
+				urlstate = 0;
 			}
 			break;
 		case 5:
 			if (c == ':') {
-				this.urlstate = 6;
-				this.addurl = true;
+				urlstate = 6;
+				addurl = true;
 			} else {
-				this.urlstate = 0;
+				urlstate = 0;
 			}
 			break;
 		case 6:
 			if (c == '/') {
-				this.urlstate = 7;
-				this.addurl = true;
+				urlstate = 7;
+				addurl = true;
 			} else {
-				this.urlstate = 0;
+				urlstate = 0;
 			}
 			break;
 		case 7:
 			if (c == '/') {
-				this.urlstate = 8;
-				this.addurl = true;
+				urlstate = 8;
+				addurl = true;
 			} else {
-				this.urlstate = 0;
+				urlstate = 0;
 			}
 			break;
 		case 8:
 			if (W.indexOf(c) != -1) {
-				this.urlstate = 9;
-				this.addurl = true;
+				urlstate = 9;
+				addurl = true;
 			} else {
-				this.urlstate = 0;
+				urlstate = 0;
 			}
 			break;
 		case 9:
 			if (W.indexOf(c) == -1) {
-				this.setURL();
-				this.urlstate = 0;
+				setURL();
+				urlstate = 0;
 			} else {
-				this.addurl = true;
+				addurl = true;
 			}
 			break;
 		default:
-			this.urlstate = 0;
+			urlstate = 0;
 		}
 	}
 
@@ -906,17 +899,17 @@ public class VT100 extends JComponent {
 			final int srccol) {
 		int pdstrow, psrcrow;
 
-		pdstrow = this.physicalRow(dstrow);
-		psrcrow = this.physicalRow(srcrow);
+		pdstrow = physicalRow(dstrow);
+		psrcrow = physicalRow(srcrow);
 
-		this.text[pdstrow][dstcol - 1] = this.text[psrcrow][srccol - 1];
-		this.mbc[pdstrow][dstcol - 1] = this.mbc[psrcrow][srccol - 1];
-		this.fgcolors[pdstrow][dstcol - 1] = this.fgcolors[psrcrow][srccol - 1];
-		this.bgcolors[pdstrow][dstcol - 1] = this.bgcolors[psrcrow][srccol - 1];
-		this.attributes[pdstrow][dstcol - 1] = this.attributes[psrcrow][srccol - 1];
-		this.isurl[pdstrow][dstcol - 1] = this.isurl[psrcrow][srccol - 1];
+		text[pdstrow][dstcol - 1] = text[psrcrow][srccol - 1];
+		mbc[pdstrow][dstcol - 1] = mbc[psrcrow][srccol - 1];
+		fgcolors[pdstrow][dstcol - 1] = fgcolors[psrcrow][srccol - 1];
+		bgcolors[pdstrow][dstcol - 1] = bgcolors[psrcrow][srccol - 1];
+		attributes[pdstrow][dstcol - 1] = attributes[psrcrow][srccol - 1];
+		isurl[pdstrow][dstcol - 1] = isurl[psrcrow][srccol - 1];
 
-		this.setRepaint(dstrow, dstcol);
+		setRepaint(dstrow, dstcol);
 	}
 
 	/**
@@ -929,11 +922,11 @@ public class VT100 extends JComponent {
 		// + ccol + ")" );
 
 		// 目前位置加 n 到行尾的字元往前移，後面則清除
-		for (int i = this.ccol; i <= this.maxcol; i++) {
-			if (i <= this.maxcol - n) {
-				this.copy(this.crow, i, this.crow, i + n);
+		for (int i = ccol; i <= maxcol; i++) {
+			if (i <= maxcol - n) {
+				copy(crow, i, crow, i + n);
 			} else {
-				this.reset(this.crow, i);
+				reset(crow, i);
 			}
 		}
 	}
@@ -950,21 +943,21 @@ public class VT100 extends JComponent {
 		// ccol + ")" );
 
 		// 刪除的部份超過 buttommargin, 從目前位置到 buttommargin 都清除
-		if (this.crow + n > this.buttommargin) {
-			for (i = this.crow; i <= this.buttommargin; i++) {
-				this.eraseline(i, 2);
+		if (crow + n > buttommargin) {
+			for (i = crow; i <= buttommargin; i++) {
+				eraseline(i, 2);
 			}
 			return;
 		}
 
 		// 目前行號加 n 到 buttommargin 全部往前移，後面則清除。
-		for (i = this.crow + n; i <= this.buttommargin; i++) {
-			for (j = this.leftmargin; j <= this.rightmargin; j++) {
-				this.copy(i - n, j, i, j);
+		for (i = crow + n; i <= buttommargin; i++) {
+			for (j = leftmargin; j <= rightmargin; j++) {
+				copy(i - n, j, i, j);
 			}
 		}
-		for (i = this.buttommargin - n + 1; i <= this.buttommargin; i++) {
-			this.eraseline(i, 2);
+		for (i = buttommargin - n + 1; i <= buttommargin; i++) {
+			eraseline(i, 2);
 		}
 	}
 
@@ -975,87 +968,86 @@ public class VT100 extends JComponent {
 		Graphics2D g;
 		boolean show_cursor, show_text, show_underline;
 
-		g = this.bi.createGraphics();
-		g.setFont(this.font);
+		g = bi.createGraphics();
+		g.setFont(font);
 
 		// 畫面置中
-		g.translate(this.transx, this.transy);
+		g.translate(transx, transy);
 
 		// 設定 Anti-alias
-		if (this.resource.getBooleanValue(Config.FONT_ANTIALIAS)) {
+		if (resource.getBooleanValue(Config.FONT_ANTIALIAS)) {
 			g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
 					RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		}
 
-		while (!this.repaintSet.isEmpty()) {
+		while (!repaintSet.isEmpty()) {
 			// 取得下一個需要重繪的位置
-			synchronized (this.repaintLock) {
-				v = this.repaintSet.remove();
+			synchronized (repaintLock) {
+				v = repaintSet.remove();
 				prow = v >> 8;
 				pcol = v & 0xff;
 			}
 
 			// 取得待重繪的字在畫面上的位置
 			// 加上捲動的判斷
-			row = this.logicalRow(prow);
+			row = logicalRow(prow);
 			col = pcol + 1;
 
 			// 若是需重繪的部份不在顯示範圍內則不理會
-			if ((row < 1) || (row > this.maxrow) || (col < 1)
-					|| (col > this.maxcol)) {
+			if ((row < 1) || (row > maxrow) || (col < 1) || (col > maxcol)) {
 				continue;
 			}
 
 			// 本次待繪字元的左上角座標
-			h = (row - 1) * this.fontheight;
-			w = (col - 1) * this.fontwidth;
+			h = (row - 1) * fontheight;
+			w = (col - 1) * fontwidth;
 
 			// 閃爍控制與色彩屬性
-			show_text = ((this.attributes[prow][pcol] & VT100.BLINK) == 0)
-					|| this.text_blink;
-			show_cursor = (this.physicalRow(this.crow) == prow)
-					&& (this.ccol == col) && this.cursor_blink;
-			show_underline = (this.attributes[prow][pcol] & VT100.UNDERLINE) != 0;
+			show_text = ((attributes[prow][pcol] & VT100.BLINK) == 0)
+					|| text_blink;
+			show_cursor = (physicalRow(crow) == prow) && (ccol == col)
+					&& cursor_blink;
+			show_underline = (attributes[prow][pcol] & VT100.UNDERLINE) != 0;
 
 			// 填滿背景色
-			g.setColor(this.getColor(prow, pcol, VT100.BACKGROUND));
-			g.fillRect(w, h, this.fontwidth, this.fontheight);
+			g.setColor(getColor(prow, pcol, VT100.BACKGROUND));
+			g.fillRect(w, h, fontwidth, fontheight);
 
 			// 如果是游標所在處就畫出游標
 			if (show_cursor) {
 				// TODO: 多幾種游標形狀
-				g.setColor(this.getColor(prow, pcol, VT100.CURSOR));
-				g.fillRect(w, h, this.fontwidth, this.fontheight);
+				g.setColor(getColor(prow, pcol, VT100.CURSOR));
+				g.fillRect(w, h, fontwidth, fontheight);
 			}
 
 			// 空白不重繪前景文字，離開
-			if (this.mbc[prow][pcol] == 0) {
+			if (mbc[prow][pcol] == 0) {
 				continue;
 			}
 
 			// 設為前景色
-			g.setColor(this.getColor(prow, pcol, VT100.FOREGROUND));
+			g.setColor(getColor(prow, pcol, VT100.FOREGROUND));
 
 			// 畫出文字
 			if (show_text) {
 				// 利用 clip 的功能，只畫出部份（半個）中文字。
 				// XXX: 每個中文都會畫兩次，又有 clip 的 overhead, 效率應該會受到蠻大的影響！
 				final Shape oldclip = g.getClip();
-				g.clipRect(w, h, this.fontwidth, this.fontheight);
-				g.drawString(Character.toString(this.text[prow][pcol
-						- this.mbc[prow][pcol] + 1]), w - this.fontwidth
-						* (this.mbc[prow][pcol] - 1), h + this.fontheight
-						- this.fontdescent);
+				final char character = text[prow][pcol - mbc[prow][pcol] + 1];
+				final int x = w - fontwidth * (mbc[prow][pcol] - 1);
+				final int y = h + fontheight - fontdescent;
+				g.clipRect(w, h, fontwidth, fontheight);
+				g.drawString(Character.toString(character), x, y);
 				g.setClip(oldclip);
 			}
 
 			// 畫出底線
-			if (show_underline || this.isurl[prow][pcol]) {
-				if (this.isurl[prow][pcol]) {
-					g.setColor(this.getColor(prow, pcol, VT100.URL));
+			if (show_underline || isurl[prow][pcol]) {
+				if (isurl[prow][pcol]) {
+					g.setColor(getColor(prow, pcol, VT100.URL));
 				}
-				g.drawLine(w, h + this.fontheight - 1, w + this.fontwidth - 1,
-						h + this.fontheight - 1);
+				g.drawLine(w, h + fontheight - 1, w + fontwidth - 1, h
+						+ fontheight - 1);
 			}
 		}
 
@@ -1075,25 +1067,25 @@ public class VT100 extends JComponent {
 
 		switch (mode) {
 		case 0:
-			begin = this.ccol;
-			end = this.rightmargin;
+			begin = ccol;
+			end = rightmargin;
 			break;
 		case 1:
-			begin = this.leftmargin;
-			end = this.ccol;
+			begin = leftmargin;
+			end = ccol;
 			break;
 		case 2:
-			begin = this.leftmargin;
-			end = this.rightmargin;
+			begin = leftmargin;
+			end = rightmargin;
 			break;
 		default:
-			begin = this.leftmargin;
-			end = this.rightmargin;
+			begin = leftmargin;
+			end = rightmargin;
 			break;
 		}
 
 		for (i = begin; i <= end; i++) {
-			this.reset(row, i);
+			reset(row, i);
 		}
 	}
 
@@ -1108,27 +1100,27 @@ public class VT100 extends JComponent {
 		// XXX: 這裡該用 maxrow 還是 buttommargin?
 		switch (mode) {
 		case 0:
-			this.eraseline(this.crow, mode);
-			begin = this.crow + 1;
-			end = this.maxrow;
+			eraseline(crow, mode);
+			begin = crow + 1;
+			end = maxrow;
 			break;
 		case 1:
-			this.eraseline(this.crow, mode);
+			eraseline(crow, mode);
 			begin = 1;
-			end = this.crow - 1;
+			end = crow - 1;
 			break;
 		case 2:
 			begin = 1;
-			end = this.maxrow;
+			end = maxrow;
 			break;
 		default:
 			begin = 1;
-			end = this.maxrow;
+			end = maxrow;
 			break;
 		}
 
 		for (i = begin; i <= end; i++) {
-			this.eraseline(i, 2);
+			eraseline(i, 2);
 		}
 	}
 
@@ -1136,22 +1128,22 @@ public class VT100 extends JComponent {
 		Color c;
 		boolean bold, reverse;
 
-		bold = (this.attributes[prow][pcol] & VT100.BOLD) != 0;
-		reverse = this.selected[prow][pcol]
-				^ ((this.attributes[prow][pcol] & VT100.REVERSE) != 0);
+		bold = (attributes[prow][pcol] & VT100.BOLD) != 0;
+		reverse = selected[prow][pcol]
+				^ ((attributes[prow][pcol] & VT100.REVERSE) != 0);
 
 		if (((mode == VT100.FOREGROUND) && !reverse)
 				|| ((mode == VT100.BACKGROUND) && reverse)) {
 			// 前景色
 			if (bold) {
-				c = VT100.highlight_colors[this.fgcolors[prow][pcol]];
+				c = VT100.highlight_colors[fgcolors[prow][pcol]];
 			} else {
-				c = VT100.normal_colors[this.fgcolors[prow][pcol]];
+				c = VT100.normal_colors[fgcolors[prow][pcol]];
 			}
 		} else if (((mode == VT100.BACKGROUND) && !reverse)
 				|| ((mode == VT100.FOREGROUND) && reverse)) {
 			// 背景色
-			c = VT100.normal_colors[this.bgcolors[prow][pcol]];
+			c = VT100.normal_colors[bgcolors[prow][pcol]];
 		} else if (mode == VT100.CURSOR) {
 			// 游標色
 			c = VT100.cursorColor;
@@ -1175,132 +1167,132 @@ public class VT100 extends JComponent {
 	private byte getNextByte() {
 		// buffer 用光了，再跟下層拿。
 		// 應該用 isBufferEmpty() 判斷的，但為了效率直接判斷。
-		if (this.nvtBufPos == this.nvtBufLen) {
-			this.nvtBufLen = this.parent.readBytes(this.nvtBuf);
+		if (nvtBufPos == nvtBufLen) {
+			nvtBufLen = parent.readBytes(nvtBuf);
 			// 連線終止或錯誤，應盡快結束 parse()
-			if (this.nvtBufLen == -1) {
+			if (nvtBufLen == -1) {
 				return 0;
 			}
-			this.nvtBufPos = 0;
+			nvtBufPos = 0;
 		}
 
-		return this.nvtBuf[this.nvtBufPos++];
+		return nvtBuf[nvtBufPos++];
 	}
 
 	private void initArray() {
 		int i, j;
 
 		// 從上層讀取資料用的 buffer
-		this.nvtBuf = new byte[4096];
-		this.nvtBufPos = this.nvtBufLen = 0;
+		nvtBuf = new byte[4096];
+		nvtBufPos = nvtBufLen = 0;
 
-		this.text = new char[this.totalrow][this.totalcol];
-		this.mbc = new int[this.totalrow][this.totalcol];
-		this.fgcolors = new byte[this.totalrow][this.totalcol];
-		this.bgcolors = new byte[this.totalrow][this.totalcol];
-		this.attributes = new byte[this.totalrow][this.totalcol];
-		this.selected = new boolean[this.totalrow][this.totalcol];
-		this.isurl = new boolean[this.totalrow][this.totalcol];
+		text = new char[totalrow][totalcol];
+		mbc = new int[totalrow][totalcol];
+		fgcolors = new byte[totalrow][totalcol];
+		bgcolors = new byte[totalrow][totalcol];
+		attributes = new byte[totalrow][totalcol];
+		selected = new boolean[totalrow][totalcol];
+		isurl = new boolean[totalrow][totalcol];
 
-		this.textBuf = new byte[4];
-		this.attrBuf = new byte[4];
-		this.fgBuf = new byte[4];
-		this.bgBuf = new byte[4];
-		this.textBufPos = 0;
+		textBuf = new byte[4];
+		attrBuf = new byte[4];
+		fgBuf = new byte[4];
+		bgBuf = new byte[4];
+		textBufPos = 0;
 
 		// 初始化記載重繪位置用 FIFOSet
 		// XXX: 假設 column 數小於 256
-		this.repaintSet = new FIFOSet(this.totalrow << 8);
-		this.repaintLock = new Object();
+		repaintSet = new FIFOSet(totalrow << 8);
+		repaintLock = new Object();
 
-		for (i = 0; i < this.totalrow; i++) {
-			for (j = 0; j < this.totalcol; j++) {
-				this.text[i][j] = ((char) 0);
-				this.mbc[i][j] = 0;
+		for (i = 0; i < totalrow; i++) {
+			for (j = 0; j < totalcol; j++) {
+				text[i][j] = ((char) 0);
+				mbc[i][j] = 0;
 
-				this.fgcolors[i][j] = VT100.defFg;
-				this.bgcolors[i][j] = VT100.defBg;
-				this.attributes[i][j] = VT100.defAttr;
-				this.isurl[i][j] = false;
+				fgcolors[i][j] = VT100.defFg;
+				bgcolors[i][j] = VT100.defBg;
+				attributes[i][j] = VT100.defAttr;
+				isurl[i][j] = false;
 			}
 		}
 
-		for (i = 1; i < this.maxrow; i++) {
-			for (j = 1; j < this.maxcol; j++) {
-				this.setRepaint(i, j);
+		for (i = 1; i < maxrow; i++) {
+			for (j = 1; j < maxcol; j++) {
+				setRepaint(i, j);
 			}
 		}
 	}
 
 	private void initOthers() {
 		// 進入 run() 以後才確定初始化完成
-		this.init_ready = false;
+		init_ready = false;
 
 		// 啟動閃爍控制 thread
-		this.ti = new Timer(250, new RepaintTask());
-		this.ti.start();
+		ti = new Timer(250, new RepaintTask());
+		ti.start();
 
 		// 取消 focus traversal key, 這樣才能收到 tab.
-		this.setFocusTraversalKeysEnabled(false);
+		setFocusTraversalKeysEnabled(false);
 
 		// Input Method Framework, set passive-client
-		this.enableInputMethods(true);
+		enableInputMethods(true);
 
 		// 設定預設大小
 		// FIXME: magic number
 		this.setSize(new Dimension(800, 600));
 
 		// User
-		this.user = new User(this.parent, this, this.resource);
+		user = new User(parent, this, resource);
 
-		this.addKeyListener(this.user);
-		this.addMouseListener(this.user);
-		this.addMouseMotionListener(this.user);
+		addKeyListener(user);
+		addMouseListener(user);
+		addMouseMotionListener(user);
 	}
 
 	private void initValue() {
 		// 讀入模擬終端機的大小，一般而言是 80 x 24
-		this.maxcol = this.resource.getIntValue(Config.TERMINAL_COLUMNS);
-		this.maxrow = this.resource.getIntValue(Config.TERMINAL_ROWS);
+		maxcol = resource.getIntValue(Config.TERMINAL_COLUMNS);
+		maxrow = resource.getIntValue(Config.TERMINAL_ROWS);
 
 		// 讀入 scroll buffer 行數
-		this.scrolllines = this.resource.getIntValue(Config.TERMINAL_SCROLLS);
+		scrolllines = resource.getIntValue(Config.TERMINAL_SCROLLS);
 
 		// 所需要的陣列大小
-		this.totalrow = this.maxrow + this.scrolllines;
-		this.totalcol = this.maxcol;
+		totalrow = maxrow + scrolllines;
+		totalcol = maxcol;
 
 		// 一開始環狀佇列的起始點在 0
-		this.toprow = 0;
+		toprow = 0;
 
 		// 預設 margin 為整個螢幕
-		this.topmargin = 1;
-		this.buttommargin = this.maxrow;
-		this.leftmargin = 1;
-		this.rightmargin = this.maxcol;
+		topmargin = 1;
+		buttommargin = maxrow;
+		leftmargin = 1;
+		rightmargin = maxcol;
 
 		// 游標起始位址在螢幕左上角處
-		this.ccol = this.crow = 1;
-		this.lcol = this.lrow = 1;
-		this.scol = this.srow = 1;
+		ccol = crow = 1;
+		lcol = lrow = 1;
+		scol = srow = 1;
 
 		// 設定目前色彩為預設值
-		this.cfgcolor = VT100.defFg;
-		this.cbgcolor = VT100.defBg;
-		this.cattribute = VT100.defAttr;
+		cfgcolor = VT100.defFg;
+		cbgcolor = VT100.defBg;
+		cattribute = VT100.defAttr;
 
-		this.urlstate = 0;
-		this.addurl = false;
-		this.probablyurl = new Vector();
+		urlstate = 0;
+		addurl = false;
+		probablyurl = new Vector();
 
-		this.text_blink_count = 0;
-		this.cursor_blink_count = 0;
-		this.text_blink = true;
-		this.cursor_blink = true;
+		text_blink_count = 0;
+		cursor_blink_count = 0;
+		text_blink = true;
+		cursor_blink = true;
 
-		this.linefull = false;
+		linefull = false;
 
-		this.keypadmode = VT100.NUMERIC_KEYPAD;
+		keypadmode = VT100.NUMERIC_KEYPAD;
 	}
 
 	/**
@@ -1312,11 +1304,11 @@ public class VT100 extends JComponent {
 		// System.out.println( "insert " + n + " space, at (" + crow + ", " +
 		// ccol + ")" );
 
-		for (int i = this.rightmargin; i >= this.ccol; i--) {
-			if (i >= this.ccol + n) {
-				this.copy(this.crow, i, this.crow, i - n);
+		for (int i = rightmargin; i >= ccol; i--) {
+			if (i >= ccol + n) {
+				copy(crow, i, crow, i - n);
 			} else {
-				this.reset(this.crow, i);
+				reset(crow, i);
 			}
 		}
 	}
@@ -1329,12 +1321,12 @@ public class VT100 extends JComponent {
 	 */
 	private void insertline(final int r, final int n) {
 		// System.out.println( "insert " + n + " line after " + r + " line");
-		for (int i = this.buttommargin; i >= r; i--) {
-			for (int j = this.leftmargin; j <= this.rightmargin; j++) {
+		for (int i = buttommargin; i >= r; i--) {
+			for (int j = leftmargin; j <= rightmargin; j++) {
 				if (i >= r + n) {
-					this.copy(i, j, i - n, j);
+					copy(i, j, i - n, j);
 				} else {
-					this.reset(i, j);
+					reset(i, j);
 				}
 			}
 		}
@@ -1346,62 +1338,60 @@ public class VT100 extends JComponent {
 		int prow;
 
 		// XXX: 表格內有些未知字元會填入 '?', 因此可能會有 c < 127 但 textBufPos > 1 的狀況。
-		c = this.conv.bytesToChar(this.textBuf, 0, this.textBufPos,
-				this.encoding);
+		c = conv.bytesToChar(textBuf, 0, textBufPos, encoding);
 		isWide = Convertor.isWideChar(c);
 
 		// 一般而言游標都在下一個字將會出現的地方，但若最後一個字在行尾（下一個字應該出現在行首），
 		// 游標會在最後一個字上，也就是當最後一個字出現在行尾時並不會影響游標位置，
 		// 游標會等到下一個字出現時才移到下一行。
-		if (this.linefull || (isWide && (this.ccol + 1 > this.rightmargin))) {
-			this.linefull = false;
-			this.ccol = this.leftmargin;
-			this.crow++;
-			if (this.crow > this.buttommargin) {
-				this.scrollpage(1);
-				this.crow--;
+		if (linefull || (isWide && (ccol + 1 > rightmargin))) {
+			linefull = false;
+			ccol = leftmargin;
+			crow++;
+			if (crow > buttommargin) {
+				scrollpage(1);
+				crow--;
 			}
 
 			// 游標會跳過行尾，所以需要手動 setRepaint
-			this.setRepaint(this.crow, this.leftmargin);
+			setRepaint(crow, leftmargin);
 		}
 
 		// 一個 char 可能對應數個 bytes, 但在顯示及儲存時最雙寬字多佔兩格，單寬字最多佔一格，
 		// 紀錄 char 後要把對應的屬性及色彩等資料從 buffer 複製過來，並設定重繪。
-		prow = this.physicalRow(this.crow);
-		this.text[prow][this.ccol - 1] = c;
+		prow = physicalRow(crow);
+		text[prow][ccol - 1] = c;
 
 		// 到這裡我們才知道字元真正被放到陣列中的位置，所以現在才紀錄 url 的位置
-		if (this.addurl) {
+		if (addurl) {
 			// XXX: 假設 column 數小於 256
-			this.probablyurl.addElement(new Integer((prow << 8)
-					| (this.ccol - 1)));
+			probablyurl.addElement(new Integer((prow << 8) | (ccol - 1)));
 		}
 
 		// 紀錄暫存的資料，寬字元每個字最多用兩個 bytes，一般字元每字一個 byte
-		for (int i = 0; i < (isWide ? Math.min(this.textBufPos, 2) : 1); i++) {
-			this.fgcolors[prow][this.ccol + i - 1] = this.fgBuf[i];
-			this.bgcolors[prow][this.ccol + i - 1] = this.bgBuf[i];
-			this.attributes[prow][this.ccol + i - 1] = this.attrBuf[i];
-			this.mbc[prow][this.ccol + i - 1] = i + 1;
+		for (int i = 0; i < (isWide ? Math.min(textBufPos, 2) : 1); i++) {
+			fgcolors[prow][ccol + i - 1] = fgBuf[i];
+			bgcolors[prow][ccol + i - 1] = bgBuf[i];
+			attributes[prow][ccol + i - 1] = attrBuf[i];
+			mbc[prow][ccol + i - 1] = i + 1;
 
 			// isurl 不同於 color 與 attribute, isurl 是在 setURL 內設定。
-			this.isurl[prow][this.ccol + i - 1] = false;
+			isurl[prow][ccol + i - 1] = false;
 
-			this.setRepaint(this.crow, this.ccol + i);
+			setRepaint(crow, ccol + i);
 		}
 
 		// 重設 textBufPos
-		this.textBufPos = 0;
+		textBufPos = 0;
 
 		// 控制碼不會讓游標跑到 rightmargin 以後的地方，只有一般字元會，所以在這裡判斷 linefull 就可以了。
-		this.ccol++;
+		ccol++;
 		if (isWide) {
-			this.ccol++;
+			ccol++;
 		}
-		if (this.ccol > this.rightmargin) {
-			this.linefull = true;
-			this.ccol--;
+		if (ccol > rightmargin) {
+			linefull = true;
+			ccol--;
 		}
 	}
 
@@ -1411,7 +1401,7 @@ public class VT100 extends JComponent {
 	 * @return
 	 */
 	private boolean isBufferEmpty() {
-		return (this.nvtBufPos == this.nvtBufLen);
+		return (nvtBufPos == nvtBufLen);
 	}
 
 	/**
@@ -1421,13 +1411,13 @@ public class VT100 extends JComponent {
 	 * @return
 	 */
 	private int logicalRow(final int prow) {
-		int row, tmptop = this.toprow - this.scrolluprow;
+		int row, tmptop = toprow - scrolluprow;
 		if (tmptop < 0) {
-			tmptop += this.totalrow;
+			tmptop += totalrow;
 		}
 		row = prow - tmptop + 1;
 		if (row < 1) {
-			row += this.totalrow;
+			row += totalrow;
 		}
 
 		return row;
@@ -1567,48 +1557,47 @@ public class VT100 extends JComponent {
 	private void parse() {
 		byte b;
 
-		b = this.getNextByte();
+		b = getNextByte();
 
 		// 先把原來的游標位置存下來
-		this.lcol = this.ccol;
-		this.lrow = this.crow;
+		lcol = ccol;
+		lrow = crow;
 
 		// 檢查讀入的字元是否為 url
-		this.checkURL((char) b);
+		checkURL((char) b);
 
 		// XXX: 若讀入的字元小於 32 則視為控制字元。其實應該用列舉的，但這麼寫比較漂亮。
 		if ((b >= 0) && (b < 32)) {
-			this.parse_control(b);
+			parse_control(b);
 		} else {
-			this.textBuf[this.textBufPos] = b;
-			this.attrBuf[this.textBufPos] = this.cattribute;
-			this.fgBuf[this.textBufPos] = this.cfgcolor;
-			this.bgBuf[this.textBufPos] = this.cbgcolor;
-			this.textBufPos++;
+			textBuf[textBufPos] = b;
+			attrBuf[textBufPos] = cattribute;
+			fgBuf[textBufPos] = cfgcolor;
+			bgBuf[textBufPos] = cbgcolor;
+			textBufPos++;
 
 			// 如果已經可以組成一個合法的字，就將字紀錄下來並移動游標
-			if (this.conv.isValidMultiBytes(this.textBuf, 0, this.textBufPos,
-					this.encoding)) {
-				this.insertTextBuf();
+			if (conv.isValidMultiBytes(textBuf, 0, textBufPos, encoding)) {
+				insertTextBuf();
 			}
 		}
 
 		// 舊的游標位置需要重繪
-		this.setRepaint(this.lrow, this.lcol);
-		if ((this.lcol != this.ccol) || (this.lrow != this.crow)) {
+		setRepaint(lrow, lcol);
+		if ((lcol != ccol) || (lrow != crow)) {
 
 			// 移動後游標應該是可見的
-			this.cursor_blink_count = 0;
-			this.cursor_blink = true;
+			cursor_blink_count = 0;
+			cursor_blink = true;
 
 			// 新的游標位置需要重繪
-			this.setRepaint(this.crow, this.ccol);
+			setRepaint(crow, ccol);
 
 			// XXX: 只要游標有移動過，就清空 textBuf, 以減少收到不完整的字所造成的異狀
-			this.textBufPos = 0;
+			textBufPos = 0;
 
 			// 只要游標有移動過，就一定不是 linefull
-			this.linefull = false;
+			linefull = false;
 		}
 	}
 
@@ -1624,35 +1613,34 @@ public class VT100 extends JComponent {
 		// case 5:
 		// case 6:
 		case 7: // BEL (Bell)
-			this.bell();
+			bell();
 			break;
 		case 8: // BS (Backspace)
-			if (this.linefull) {
-				this.linefull = false;
-			} else if (this.ccol > this.leftmargin) {
+			if (linefull) {
+				linefull = false;
+			} else if (ccol > leftmargin) {
 				// 收到 Backspace 不需要清除文字，只要往前就好
-				this.ccol--;
-			} else if ((this.ccol == this.leftmargin)
-					&& (this.crow > this.topmargin)) {
-				this.ccol = this.rightmargin;
-				this.crow--;
+				ccol--;
+			} else if ((ccol == leftmargin) && (crow > topmargin)) {
+				ccol = rightmargin;
+				crow--;
 			}
 			break;
 		case 9: // HT (Horizontal Tab)
-			this.ccol = ((this.ccol - 1) / 8 + 1) * 8 + 1;
+			ccol = ((ccol - 1) / 8 + 1) * 8 + 1;
 			break;
 		case 10: // LF (Line Feed)
-			this.crow++;
+			crow++;
 			// 到 buttommargin 就該捲頁
-			if (this.crow > this.buttommargin) {
-				this.scrollpage(1);
-				this.crow--;
+			if (crow > buttommargin) {
+				scrollpage(1);
+				crow--;
 			}
 			break;
 		// case 11:
 		// case 12:
 		case 13: // CR (Carriage Return)
-			this.ccol = this.leftmargin;
+			ccol = leftmargin;
 			break;
 		case 14: // SO (Shift Out)
 			// TODO:
@@ -1680,7 +1668,7 @@ public class VT100 extends JComponent {
 			System.out.println("SUB (not yet support)");
 			break;
 		case 27: // ESC (Escape)
-			this.parse_esc();
+			parse_esc();
 			break;
 		// case 28:
 		// case 29:
@@ -1704,7 +1692,7 @@ public class VT100 extends JComponent {
 		arg = -1;
 		argc = 0;
 		while (true) {
-			b = this.getNextByte();
+			b = getNextByte();
 
 			if (('0' <= b) && (b <= '9')) {
 				if (arg == -1) {
@@ -1734,18 +1722,18 @@ public class VT100 extends JComponent {
 			if (argv[0] == -1) {
 				argv[0] = 1;
 			}
-			this.crow = argv[0];
+			crow = argv[0];
 			break;
 		case 'h':
 			// System.out.println( "set mode" );
 			for (i = 0; i < argc; i++) {
-				this.set_mode(argv[i]);
+				set_mode(argv[i]);
 			}
 			break;
 		case 'l':
 			// System.out.println( "reset mode" );
 			for (i = 0; i < argc; i++) {
-				this.reset_mode(argv[i]);
+				reset_mode(argv[i]);
 			}
 			break;
 		case 'm':
@@ -1754,46 +1742,46 @@ public class VT100 extends JComponent {
 				if (argv[i] == -1) {
 					argv[i] = 0;
 				}
-				this.setColor(argv[i]);
+				setColor(argv[i]);
 			}
 			break;
 		case 'r':
-			this.setmargin(argv[0], argv[1]);
+			setmargin(argv[0], argv[1]);
 			// System.out.println( "Set scroll margin: " + argv[0] + ", " +
 			// argv[1] );
 			break;
 		case 's':
-			this.save_cursor_position();
+			save_cursor_position();
 			break;
 		case 'u':
-			this.restore_cursor_position();
+			restore_cursor_position();
 			break;
 		case 'A':
 			if (argv[0] == -1) {
 				argv[0] = 1;
 			}
-			this.crow = Math.max(this.crow - argv[0], this.topmargin);
+			crow = Math.max(crow - argv[0], topmargin);
 			// System.out.println( argv[0] + " A" );
 			break;
 		case 'B':
 			if (argv[0] == -1) {
 				argv[0] = 1;
 			}
-			this.crow = Math.min(this.crow + argv[0], this.buttommargin);
+			crow = Math.min(crow + argv[0], buttommargin);
 			// System.out.println( argv[0] + " B" );
 			break;
 		case 'C':
 			if (argv[0] == -1) {
 				argv[0] = 1;
 			}
-			this.ccol = Math.min(this.ccol + argv[0], this.rightmargin);
+			ccol = Math.min(ccol + argv[0], rightmargin);
 			// System.out.println( argv[0] + " C" );
 			break;
 		case 'D':
 			if (argv[0] == -1) {
 				argv[0] = 1;
 			}
-			this.ccol = Math.max(this.ccol - argv[0], this.leftmargin);
+			ccol = Math.max(ccol - argv[0], leftmargin);
 			// System.out.println( argv[0] + " D" );
 			break;
 		case 'H':
@@ -1809,54 +1797,52 @@ public class VT100 extends JComponent {
 				argv[1] = 1;
 			}
 
-			this.crow = Math.min(Math.max(argv[0], this.topmargin),
-					this.buttommargin);
-			this.ccol = Math.min(Math.max(argv[1], this.leftmargin),
-					this.rightmargin);
+			crow = Math.min(Math.max(argv[0], topmargin), buttommargin);
+			ccol = Math.min(Math.max(argv[1], leftmargin), rightmargin);
 			// System.out.println( argv[0] + " " + argv[1] + " H" );
 			break;
 		case 'J':
 			if (argv[0] == -1) {
 				argv[0] = 0;
 			}
-			this.erasescreen(argv[0]);
+			erasescreen(argv[0]);
 			// System.out.println( argv[0] + " J" );
 			break;
 		case 'K':
 			if (argv[0] == -1) {
 				argv[0] = 0;
 			}
-			this.eraseline(this.crow, argv[0]);
+			eraseline(crow, argv[0]);
 			// System.out.println( argv[0] + " K" );
 			break;
 		case 'L':
 			if (argv[0] == -1) {
 				argv[0] = 1;
 			}
-			this.insertline(this.crow, argv[0]);
+			insertline(crow, argv[0]);
 			// System.out.println( argv[0] + " L" );
 			break;
 		case 'M':
 			if (argv[0] == -1) {
 				argv[0] = 1;
 			}
-			this.delete_lines(argv[0]);
+			delete_lines(argv[0]);
 			break;
 		case 'P':
 			if (argv[0] == -1) {
 				argv[0] = 1;
 			}
-			this.delete_characters(argv[0]);
+			delete_characters(argv[0]);
 			break;
 		case '@':
 			if (argv[0] == -1) {
 				argv[0] = 1;
 			}
-			this.insert_space(argv[0]);
+			insert_space(argv[0]);
 			break;
 		case '>':
 			// TODO
-			b = this.getNextByte();
+			b = getNextByte();
 			if (b == 'c') {
 				System.out.println("Send Secondary Device Attributes String");
 			} else {
@@ -1874,40 +1860,40 @@ public class VT100 extends JComponent {
 	private void parse_esc() {
 		byte b;
 
-		b = this.getNextByte();
+		b = getNextByte();
 
 		switch (b) {
 		case 0x1b:
 			// XXX: 有些地方會出現 ESC ESC ...
-			this.parse_esc();
+			parse_esc();
 			break;
 		case '(': // 0x28
 		case ')': // 0x29
-			this.parse_scs(b);
+			parse_scs(b);
 			break;
 		case '7': // 0x37
-			this.save_cursor_position();
+			save_cursor_position();
 			break;
 		case '8': // 0x38
-			this.restore_cursor_position();
+			restore_cursor_position();
 			break;
 		case '=': // 0x3d
-			this.keypadmode = VT100.APPLICATION_KEYPAD;
+			keypadmode = VT100.APPLICATION_KEYPAD;
 			// System.out.println( "Set application keypad mode" );
 			break;
 		case '>': // 0x3e
-			this.keypadmode = VT100.NUMERIC_KEYPAD;
+			keypadmode = VT100.NUMERIC_KEYPAD;
 			// System.out.println( "Set numeric keypad mode" );
 			break;
 		case 'M': // 0x4d
-			this.reverseindex();
+			reverseindex();
 			// System.out.println( "Reverse index" );
 			break;
 		case '[': // 0x5b
-			this.parse_csi();
+			parse_csi();
 			break;
 		case ']':
-			this.parse_text_parameter();
+			parse_text_parameter();
 			break;
 		default:
 			System.out.println("Unknown control sequence: ESC " + (char) b);
@@ -1918,7 +1904,7 @@ public class VT100 extends JComponent {
 	private void parse_scs(final byte a) {
 		byte b;
 		// TODO:
-		b = this.getNextByte();
+		b = getNextByte();
 		System.out.println("ESC " + (char) a + " " + (char) b + "(SCS)");
 
 		if (a == '(') {
@@ -1963,30 +1949,30 @@ public class VT100 extends JComponent {
 		int f, count;
 
 		f = 0;
-		b = this.getNextByte();
+		b = getNextByte();
 		while (b != ';') {
 			f *= 10;
 			f += b - '0';
-			b = this.getNextByte();
+			b = getNextByte();
 		}
 
 		count = 0;
-		b = this.getNextByte();
+		b = getNextByte();
 		while (b != 0x07) {
 			text[count++] = b;
-			b = this.getNextByte();
+			b = getNextByte();
 		}
 
 		switch (f) {
 		case 0:
-			this.parent.setIconName(new String(text, 0, count));
-			this.parent.setWindowTitle(new String(text, 0, count));
+			parent.setIconName(new String(text, 0, count));
+			parent.setWindowTitle(new String(text, 0, count));
 			break;
 		case 1:
-			this.parent.setIconName(new String(text, 0, count));
+			parent.setIconName(new String(text, 0, count));
 			break;
 		case 2:
-			this.parent.setWindowTitle(new String(text, 0, count));
+			parent.setWindowTitle(new String(text, 0, count));
 			break;
 		default:
 			System.out.println("Set text parameters(not fully support)");
@@ -2002,30 +1988,30 @@ public class VT100 extends JComponent {
 	 */
 	private int physicalRow(final int row) {
 		// row 可能是負值，因此多加上一個 totalrow
-		return (this.toprow + row + this.totalrow - 1) % this.totalrow;
+		return (toprow + row + totalrow - 1) % totalrow;
 	}
 
 	private void reset(final int row, final int col) {
 		int prow;
 
-		prow = this.physicalRow(row);
+		prow = physicalRow(row);
 
-		this.text[prow][col - 1] = ((char) 0);
-		this.mbc[prow][col - 1] = 0;
+		text[prow][col - 1] = ((char) 0);
+		mbc[prow][col - 1] = 0;
 
-		this.fgcolors[prow][col - 1] = VT100.defFg;
-		this.bgcolors[prow][col - 1] = VT100.defBg;
-		this.attributes[prow][col - 1] = VT100.defAttr;
-		this.isurl[prow][col - 1] = false;
+		fgcolors[prow][col - 1] = VT100.defFg;
+		bgcolors[prow][col - 1] = VT100.defBg;
+		attributes[prow][col - 1] = VT100.defAttr;
+		isurl[prow][col - 1] = false;
 
-		this.setRepaint(row, col);
+		setRepaint(row, col);
 	}
 
 	private void reset_mode(final int m) {
 		// TODO
 		switch (m) {
 		case 1:
-			this.keypadmode = VT100.NUMERIC_KEYPAD;
+			keypadmode = VT100.NUMERIC_KEYPAD;
 			break;
 		case 12:
 			// TODO: stop blinking cursor, ignore
@@ -2040,8 +2026,8 @@ public class VT100 extends JComponent {
 	}
 
 	private void restore_cursor_position() {
-		this.ccol = this.scol;
-		this.crow = this.srow;
+		ccol = scol;
+		crow = srow;
 		// System.out.println( "Restore cursor position." );
 	}
 
@@ -2050,16 +2036,16 @@ public class VT100 extends JComponent {
 	 */
 	private void reverseindex() {
 		// System.out.println("reverse index at " + crow );
-		if (this.crow == this.topmargin) {
-			this.insertline(this.crow, 1);
+		if (crow == topmargin) {
+			insertline(crow, 1);
 		} else {
-			this.crow--;
+			crow--;
 		}
 	}
 
 	private void save_cursor_position() {
-		this.scol = this.ccol;
-		this.srow = this.crow;
+		scol = ccol;
+		srow = crow;
 		// System.out.println( "Save cursor position." );
 	}
 
@@ -2074,35 +2060,35 @@ public class VT100 extends JComponent {
 
 		// System.out.println("scroll " + line + " lines");
 
-		if ((this.topmargin == 1) && (this.buttommargin == this.maxrow)) {
-			this.toprow += line;
-			if (this.toprow >= this.totalrow) {
-				this.toprow %= this.totalrow;
+		if ((topmargin == 1) && (buttommargin == maxrow)) {
+			toprow += line;
+			if (toprow >= totalrow) {
+				toprow %= totalrow;
 			}
-			for (i = 1; i <= this.maxrow; i++) {
-				for (j = this.leftmargin; j <= this.rightmargin; j++) {
-					if (i <= this.buttommargin - line) {
-						this.setRepaint(i, j);
+			for (i = 1; i <= maxrow; i++) {
+				for (j = leftmargin; j <= rightmargin; j++) {
+					if (i <= buttommargin - line) {
+						setRepaint(i, j);
 					} else {
-						this.reset(i, j);
+						reset(i, j);
 					}
 				}
 			}
 		} else {
-			for (i = this.topmargin; i <= this.buttommargin; i++) {
-				for (j = this.leftmargin; j <= this.rightmargin; j++) {
-					if (i <= this.buttommargin - line) {
-						this.copy(i, j, i + line, j);
+			for (i = topmargin; i <= buttommargin; i++) {
+				for (j = leftmargin; j <= rightmargin; j++) {
+					if (i <= buttommargin - line) {
+						copy(i, j, i + line, j);
 					} else {
-						this.reset(i, j);
+						reset(i, j);
 					}
 				}
 			}
 		}
 
 		// 捲軸不是在最下方時要捲動捲軸，以免影響使用者看緩衝區的內容
-		if (this.scrolluprow != 0) {
-			this.parent.scroll(-line);
+		if (scrolluprow != 0) {
+			parent.scroll(-line);
 		}
 	}
 
@@ -2110,7 +2096,7 @@ public class VT100 extends JComponent {
 		// TODO
 		switch (m) {
 		case 1:
-			this.keypadmode = VT100.APPLICATION_KEYPAD;
+			keypadmode = VT100.APPLICATION_KEYPAD;
 			break;
 		case 12:
 			// TODO: start blinking cursor, ignore
@@ -2131,21 +2117,21 @@ public class VT100 extends JComponent {
 	 */
 	private void setColor(final int c) {
 		if (c == 0) {
-			this.cfgcolor = VT100.defFg;
-			this.cbgcolor = VT100.defBg;
-			this.cattribute = VT100.defAttr;
+			cfgcolor = VT100.defFg;
+			cbgcolor = VT100.defBg;
+			cattribute = VT100.defAttr;
 		} else if (c == 1) {
-			this.cattribute |= VT100.BOLD;
+			cattribute |= VT100.BOLD;
 		} else if (c == 4) {
-			this.cattribute |= VT100.UNDERLINE;
+			cattribute |= VT100.UNDERLINE;
 		} else if (c == 5) {
-			this.cattribute |= VT100.BLINK;
+			cattribute |= VT100.BLINK;
 		} else if (c == 7) {
-			this.cattribute ^= VT100.REVERSE;
+			cattribute ^= VT100.REVERSE;
 		} else if ((30 <= c) && (c <= 37)) {
-			this.cfgcolor = (byte) (c - 30);
+			cfgcolor = (byte) (c - 30);
 		} else if ((40 <= c) && (c <= 47)) {
-			this.cbgcolor = (byte) (c - 40);
+			cbgcolor = (byte) (c - 40);
 		}
 	}
 
@@ -2158,8 +2144,8 @@ public class VT100 extends JComponent {
 	 *            下邊界
 	 */
 	private void setmargin(final int top, final int buttom) {
-		this.topmargin = top;
-		this.buttommargin = buttom;
+		topmargin = top;
+		buttommargin = buttom;
 	}
 
 	/**
@@ -2169,14 +2155,13 @@ public class VT100 extends JComponent {
 	 * @param col
 	 */
 	private void setRepaint(final int row, final int col) {
-		if ((row < 1) || (row > this.maxrow) || (col < 1)
-				|| (col > this.maxcol)) {
+		if ((row < 1) || (row > maxrow) || (col < 1) || (col > maxcol)) {
 			return;
 		}
 
-		final int prow = this.physicalRow(row);
-		synchronized (this.repaintLock) {
-			this.repaintSet.add((prow << 8) | (col - 1));
+		final int prow = physicalRow(row);
+		synchronized (repaintLock) {
+			repaintSet.add((prow << 8) | (col - 1));
 		}
 	}
 
@@ -2187,13 +2172,13 @@ public class VT100 extends JComponent {
 	 * @param pcol
 	 */
 	private void setRepaintPhysical(final int prow, final int pcol) {
-		if ((prow < 0) || (prow >= this.totalrow) || (pcol < 0)
-				|| (pcol >= this.totalcol)) {
+		if ((prow < 0) || (prow >= totalrow) || (pcol < 0)
+				|| (pcol >= totalcol)) {
 			return;
 		}
 
-		synchronized (this.repaintLock) {
-			this.repaintSet.add((prow << 8) | pcol);
+		synchronized (repaintLock) {
+			repaintSet.add((prow << 8) | pcol);
 		}
 	}
 
@@ -2201,14 +2186,14 @@ public class VT100 extends JComponent {
 		int v, prow, pcol;
 		Iterator iter;
 
-		iter = this.probablyurl.iterator();
+		iter = probablyurl.iterator();
 		while (iter.hasNext()) {
 			v = ((Integer) iter.next()).intValue();
 			prow = v >> 8;
 			pcol = v & 0xff;
 
-			this.isurl[prow][pcol] = true;
-			this.setRepaintPhysical(prow, pcol);
+			isurl[prow][pcol] = true;
+			setRepaintPhysical(prow, pcol);
 		}
 	}
 }
@@ -2223,48 +2208,48 @@ class FIFOSet {
 	 *            Set 的值域 1...(range - 1)
 	 */
 	public FIFOSet(final int range) {
-		this.front = this.rear = 0;
+		front = rear = 0;
 
 		// 假設最多 256 column
-		this.contain = new boolean[range];
-		this.set = new int[range];
+		contain = new boolean[range];
+		set = new int[range];
 
-		for (int i = 0; i < this.contain.length; i++) {
-			this.contain[i] = false;
+		for (int i = 0; i < contain.length; i++) {
+			contain[i] = false;
 		}
 	}
 
 	public void add(final int v) {
-		if (this.contain[v] == true) {
+		if (contain[v] == true) {
 			return;
 		}
 
 		// XXX: 沒有檢查空間是否足夠
 
-		this.set[this.rear] = v;
-		this.contain[v] = true;
+		set[rear] = v;
+		contain[v] = true;
 
-		if (++this.rear == this.set.length) {
-			this.rear = 0;
+		if (++rear == set.length) {
+			rear = 0;
 		}
 	}
 
 	public boolean isEmpty() {
-		return (this.front == this.rear);
+		return (front == rear);
 	}
 
 	public int remove() {
 		int v;
 
-		if (this.front == this.rear) {
+		if (front == rear) {
 			throw new NoSuchElementException();
 		}
 
-		v = this.set[this.front];
-		this.contain[v] = false;
+		v = set[front];
+		contain[v] = false;
 
-		if (++this.front == this.set.length) {
-			this.front = 0;
+		if (++front == set.length) {
+			front = 0;
 		}
 
 		return v;
