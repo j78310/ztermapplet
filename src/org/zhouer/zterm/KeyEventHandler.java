@@ -39,7 +39,7 @@ public class KeyEventHandler implements KeyEventDispatcher {
 			} else if (keyEvent.getKeyCode() == KeyEvent.VK_S) {
 				this.view.siteText.setText("ssh://"); //$NON-NLS-1$
 				this.view.siteField.requestFocusInWindow();
-			} else if (keyEvent.getKeyCode() == KeyEvent.VK_T) {
+			} else if (keyEvent.getKeyCode() == KeyEvent.VK_L) {
 				this.view.siteText.setText("telnet://"); //$NON-NLS-1$
 				this.view.siteField.requestFocusInWindow();
 			} else if (keyEvent.getKeyCode() == KeyEvent.VK_P) {
