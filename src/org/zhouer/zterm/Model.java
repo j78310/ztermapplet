@@ -310,39 +310,21 @@ public class Model {
 				.getString("Model.Password_Text")); //$NON-NLS-1$ 
 		final JDialog dialog = passwordDialog.createDialog(view, Messages
 				.getString("Model.Password_Title")); //$NON-NLS-1$
-
-		final Thread focusThread = new Thread() {
+		
+		final Runnable focusPasswordField = new Runnable() {
 			public void run() {
-				while (!dialog.isVisible()) {
-					try {
-						Thread.sleep(100);
-					} catch (final InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-
-				while ((passwordDialog.passField.getPassword().length == 0)
-						&& dialog.isVisible()) {
-					if (dialog.isFocused()) {
-						passwordDialog.passField.requestFocusInWindow();
-					}
-
-					try {
-						Thread.sleep(100);
-					} catch (final InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
+				passwordDialog.passField.requestFocusInWindow();
 			}
 		};
 
-		focusThread.start();
+		SwingUtilities.invokeLater(focusPasswordField);
 		dialog.setVisible(true);
 
 		if (passwordDialog.getValue() != null) {
 			if (passwordDialog.getValue() instanceof Integer) {
 				if (passwordDialog.getValue().equals(
 						new Integer(JOptionPane.OK_OPTION))) {
+					
 					return passwordDialog.getPassword();
 				}
 			}
