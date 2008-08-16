@@ -95,22 +95,6 @@ public class PreferencePane extends JOptionPane implements
 		this.setMessage(panel);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.swing.JOptionPane#createDialog(java.awt.Component,
-	 *      java.lang.String)
-	 */
-	@Override
-	public JDialog createDialog(final Component component, final String title)
-			throws HeadlessException {
-		this.gp = new GeneralPanel(this.resource);
-		this.cp = new ConnectionPanel(this.resource);
-		this.ap = new ApperancePanel(this.resource);
-		this.fp = new FontPanel(this.resource);
-		return super.createDialog(component, title);
-	}
-
 	public void valueChanged(final TreeSelectionEvent tse) {
 
 		final DefaultMutableTreeNode node = (DefaultMutableTreeNode) this.categoryTree
@@ -208,7 +192,7 @@ public class PreferencePane extends JOptionPane implements
 				this.fp.fontHorizontalGapModel.getValue().toString());
 		this.resource.setValue(Config.FONT_DESCENT_ADJUST,
 				this.fp.fontDescentAdjustModel.getValue().toString());
-
+		
 		// 將修改寫回設定檔
 		this.resource.writeFile();
 
