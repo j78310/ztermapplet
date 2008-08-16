@@ -1,2 +1,2 @@
 1.15 RC2:
-[Confirmed] 調整 Descent 無反應
+[Resolved] 調整 Descent 無反應
