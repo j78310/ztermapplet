@@ -802,21 +802,28 @@ public class VT100 extends JComponent {
 	private boolean urlRecognizerHit = false;
 
 	private void checkURL(final char c) {
+		// 取得游標所處的實體座標
 		final int prow = physicalRow(lrow);
 		final int pcol = lcol - 1;
+
+		// 取得此列的字串，判斷游標所在位置是否應該畫上底線
 		final String message = String.valueOf(text[prow]);
 
+		// 判斷游標所處的實體座標是否落於一個 http://xxx.xxx 字串裡面
 		if (UrlRecognizer.isPartOfHttp(message, pcol)) {
 			probablyurl.addElement(new Integer((prow << 8) | pcol));
 			urlRecognizerHit = true;
 			return;
 		}
 
+		// 判斷上一次有沒有找到連結，而這一次卻沒有找到連結
 		if (urlRecognizerHit) {
 			setURL();
 			urlRecognizerHit = false;
 		}
 
+		// 窮舉法找 http://，記憶才開始讀到 "h", "ht", "htt", "http", "http:", "http:/"
+		// 的所在位置
 		if ((text[prow][pcol] == 'h') && (probablyurl.size() == 0)) {
 			probablyurl.addElement(new Integer((prow << 8) | pcol));
 			return;
