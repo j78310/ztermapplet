@@ -9,13 +9,18 @@ package org.zhouer.utils;
 public class UrlRecognizer {
 
 	/**
-	 * Detect a position of a message is a part of url.
+	 * Detect a position of a message is a part of HTTP.
 	 * 
-	 * @param message message that contains url
-	 * @param index index of message to be detected whether it is part of url
-	 * @return true, if the character corresponding to the index in the massage is a part of url; false, otherwise. 
+	 * For example, message = "Books, and Flowers: http://123456789", index = 5,
+	 * it should return false.
+	 * message = "Books, and Flowers: http://123456789", index = 30,
+	 * it should return true;
+	 * 
+	 * @param message message that contains HTTP
+	 * @param index index of message to be detected whether it is part of HTTP
+	 * @return true, if the character corresponding to the index in the massage is a part of HTTP; false, otherwise. 
 	 */
-	public static boolean isPartOfUrl(final String message, final int index) {
+	public static boolean isPartOfHttp(final String message, final int index) {
 		if (message == null) {
 			return false;
 		}
