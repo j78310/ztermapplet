@@ -12,7 +12,6 @@ import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
@@ -101,8 +100,6 @@ public class VT100 extends JComponent {
 
 	private static final byte URL = 3;
 	private static Color urlColor = Color.ORANGE;
-	private boolean addurl;
-
 	private byte[] attrBuf, fgBuf, bgBuf;
 	private byte[][] attributes; // 屬性
 	private byte[][] bgcolors; // 背景色
@@ -190,8 +187,6 @@ public class VT100 extends JComponent {
 	private int totalrow, totalcol; // 總 row, col 數，包含 scroll buffer
 	// 螢幕 translate 的座標
 	private int transx, transy;
-
-	private int urlstate;
 
 	// 處理來自使用者的事件
 	private User user;
@@ -805,58 +800,58 @@ public class VT100 extends JComponent {
 	}
 
 	private boolean urlRecognizerHit = false;
-	
+
 	private void checkURL(final char c) {
 		final int prow = physicalRow(lrow);
 		final int pcol = lcol - 1;
-		final String message = String.valueOf(text[prow]);		
-		
+		final String message = String.valueOf(text[prow]);
+
 		if (UrlRecognizer.isPartOfHttp(message, pcol)) {
 			probablyurl.addElement(new Integer((prow << 8) | pcol));
 			urlRecognizerHit = true;
 			return;
 		}
-		
+
 		if (urlRecognizerHit) {
 			setURL();
 			urlRecognizerHit = false;
 		}
-		
-		if (text[prow][pcol] == 'h' && probablyurl.size() == 0) {
+
+		if ((text[prow][pcol] == 'h') && (probablyurl.size() == 0)) {
 			probablyurl.addElement(new Integer((prow << 8) | pcol));
 			return;
 		}
-		
-		if (text[prow][pcol] == 't' && probablyurl.size() == 1) {
+
+		if ((text[prow][pcol] == 't') && (probablyurl.size() == 1)) {
 			probablyurl.addElement(new Integer((prow << 8) | pcol));
 			return;
 		}
-		
-		if (text[prow][pcol] == 't' && probablyurl.size() == 2) {
+
+		if ((text[prow][pcol] == 't') && (probablyurl.size() == 2)) {
 			probablyurl.addElement(new Integer((prow << 8) | pcol));
 			return;
 		}
-		
-		if (text[prow][pcol] == 'p' && probablyurl.size() == 3) {
+
+		if ((text[prow][pcol] == 'p') && (probablyurl.size() == 3)) {
 			probablyurl.addElement(new Integer((prow << 8) | pcol));
 			return;
 		}
-		
-		if (text[prow][pcol] == ':' && probablyurl.size() == 4) {
+
+		if ((text[prow][pcol] == ':') && (probablyurl.size() == 4)) {
 			probablyurl.addElement(new Integer((prow << 8) | pcol));
 			return;
 		}
-		
-		if (text[prow][pcol] == '/' && probablyurl.size() == 5) {
+
+		if ((text[prow][pcol] == '/') && (probablyurl.size() == 5)) {
 			probablyurl.addElement(new Integer((prow << 8) | pcol));
 			return;
 		}
-		
-		if (text[prow][pcol] == '/' && probablyurl.size() == 6) {
+
+		if ((text[prow][pcol] == '/') && (probablyurl.size() == 6)) {
 			probablyurl.addElement(new Integer((prow << 8) | pcol));
 			return;
 		}
-		
+
 		probablyurl.clear();
 		return;
 	}
@@ -1247,8 +1242,6 @@ public class VT100 extends JComponent {
 		cbgcolor = VT100.defBg;
 		cattribute = VT100.defAttr;
 
-		urlstate = 0;
-		addurl = false;
 		probablyurl = new Vector();
 
 		text_blink_count = 0;
@@ -1302,7 +1295,7 @@ public class VT100 extends JComponent {
 		// XXX: 表格內有些未知字元會填入 '?', 因此可能會有 c < 127 但 textBufPos > 1 的狀況。
 		final char c = conv.bytesToChar(textBuf, 0, textBufPos, encoding);
 		final boolean isWide = Convertor.isWideChar(c);
-		
+
 		// 一般而言游標都在下一個字將會出現的地方，但若最後一個字在行尾（下一個字應該出現在行首），
 		// 游標會在最後一個字上，也就是當最後一個字出現在行尾時並不會影響游標位置，
 		// 游標會等到下一個字出現時才移到下一行。
@@ -1339,7 +1332,7 @@ public class VT100 extends JComponent {
 
 		// 重設 textBufPos
 		textBufPos = 0;
-		
+
 		// 控制碼不會讓游標跑到 rightmargin 以後的地方，只有一般字元會，所以在這裡判斷 linefull 就可以了。
 		ccol++;
 		if (isWide) {
@@ -1350,7 +1343,7 @@ public class VT100 extends JComponent {
 			ccol--;
 		}
 	}
-	
+
 	/**
 	 * buffer 是否是空的
 	 * 
@@ -1534,7 +1527,7 @@ public class VT100 extends JComponent {
 				insertTextBuf();
 			}
 		}
-		
+
 		// 檢查讀入的字元是否為 url
 		checkURL((char) b);
 
@@ -2140,13 +2133,11 @@ public class VT100 extends JComponent {
 
 	private void setURL() {
 		int v, prow, pcol;
-		Iterator iter;
-
-		while(!probablyurl.isEmpty()) {
+		while (!probablyurl.isEmpty()) {
 			v = (Integer) probablyurl.remove(0);
 			prow = v >> 8;
 			pcol = v & 0xff;
-			
+
 			isurl[prow][pcol] = true;
 			setRepaintPhysical(prow, pcol);
 		}
