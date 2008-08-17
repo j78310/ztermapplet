@@ -806,6 +806,20 @@ public class VT100 extends JComponent {
 	private void checkURL(final char c) {
 		final String W = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ;/?:@=&{}|^~[]`%#$-_.+!*'(),";
 
+		final int lastUrlState = urlstate;
+		final int prow = physicalRow(crow);
+		final int pcol = ccol;
+		
+		urlstate = 8;
+		for (int i = 0; i < 7; i++) {
+			final int previousCol = pcol - i - 1;
+			
+			if (previousCol < 0 || !isurl[prow][previousCol]) {
+				urlstate = lastUrlState;
+			}
+		}
+		
+		
 		addurl = false;
 		switch (urlstate) {
 		case 0:
