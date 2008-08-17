@@ -14,7 +14,7 @@ public class UrlRecognizer {
 	 * For example, message = "Books, and Flowers: http://123456789", index = 5,
 	 * it should return false.
 	 * message = "Books, and Flowers: http://123456789", index = 30,
-	 * it should return true;
+	 * it should return true.
 	 * 
 	 * @param message message that contains HTTP
 	 * @param index index of message to be detected whether it is part of HTTP
