@@ -21,6 +21,7 @@ import javax.swing.Timer;
 
 import org.zhouer.utils.Convertor;
 import org.zhouer.utils.TextUtils;
+import org.zhouer.utils.UrlRecognizer;
 
 public class VT100 extends JComponent {
 	class RepaintTask implements ActionListener {
@@ -803,110 +804,61 @@ public class VT100 extends JComponent {
 		parent.bell();
 	}
 
+	private boolean urlRecognizerHit = false;
+	
 	private void checkURL(final char c) {
-		final String W = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ;/?:@=&{}|^~[]`%#$-_.+!*'(),";
-
-		final int lastUrlState = urlstate;
-		final int prow = physicalRow(crow);
-		final int pcol = ccol;
+		final int prow = physicalRow(lrow);
+		final int pcol = lcol - 1;
+		final String message = String.valueOf(text[prow]);		
 		
-		urlstate = 8;
-		for (int i = 0; i < 7; i++) {
-			final int previousCol = pcol - i - 1;
-			
-			if (previousCol < 0 || !isurl[prow][previousCol]) {
-				urlstate = lastUrlState;
-			}
+		if (UrlRecognizer.isPartOfHttp(message, pcol)) {
+			probablyurl.addElement(new Integer((prow << 8) | pcol));
+			urlRecognizerHit = true;
+			return;
 		}
 		
-		
-		addurl = false;
-		switch (urlstate) {
-		case 0:
-			probablyurl.removeAllElements();
-			if (c == 'h') {
-				urlstate = 1;
-				addurl = true;
-			}
-			break;
-		case 1:
-			if (c == 't') {
-				urlstate = 2;
-				addurl = true;
-			} else {
-				urlstate = 0;
-			}
-			break;
-		case 2:
-			if (c == 't') {
-				urlstate = 3;
-				addurl = true;
-			} else {
-				urlstate = 0;
-			}
-			break;
-		case 3:
-			if (c == 'p') {
-				urlstate = 4;
-				addurl = true;
-			} else {
-				urlstate = 0;
-			}
-			break;
-		case 4:
-			if (c == ':') {
-				urlstate = 6;
-				addurl = true;
-			} else if (c == 's') {
-				urlstate = 5;
-				addurl = true;
-			} else {
-				urlstate = 0;
-			}
-			break;
-		case 5:
-			if (c == ':') {
-				urlstate = 6;
-				addurl = true;
-			} else {
-				urlstate = 0;
-			}
-			break;
-		case 6:
-			if (c == '/') {
-				urlstate = 7;
-				addurl = true;
-			} else {
-				urlstate = 0;
-			}
-			break;
-		case 7:
-			if (c == '/') {
-				urlstate = 8;
-				addurl = true;
-			} else {
-				urlstate = 0;
-			}
-			break;
-		case 8:
-			if (W.indexOf(c) != -1) {
-				urlstate = 9;
-				addurl = true;
-			} else {
-				urlstate = 0;
-			}
-			break;
-		case 9:
-			if (W.indexOf(c) == -1) {
-				setURL();
-				urlstate = 0;
-			} else {
-				addurl = true;
-			}
-			break;
-		default:
-			urlstate = 0;
+		if (urlRecognizerHit) {
+			setURL();
+			urlRecognizerHit = false;
 		}
+		
+		if (text[prow][pcol] == 'h' && probablyurl.size() == 0) {
+			probablyurl.addElement(new Integer((prow << 8) | pcol));
+			return;
+		}
+		
+		if (text[prow][pcol] == 't' && probablyurl.size() == 1) {
+			probablyurl.addElement(new Integer((prow << 8) | pcol));
+			return;
+		}
+		
+		if (text[prow][pcol] == 't' && probablyurl.size() == 2) {
+			probablyurl.addElement(new Integer((prow << 8) | pcol));
+			return;
+		}
+		
+		if (text[prow][pcol] == 'p' && probablyurl.size() == 3) {
+			probablyurl.addElement(new Integer((prow << 8) | pcol));
+			return;
+		}
+		
+		if (text[prow][pcol] == ':' && probablyurl.size() == 4) {
+			probablyurl.addElement(new Integer((prow << 8) | pcol));
+			return;
+		}
+		
+		if (text[prow][pcol] == '/' && probablyurl.size() == 5) {
+			probablyurl.addElement(new Integer((prow << 8) | pcol));
+			return;
+		}
+		
+		if (text[prow][pcol] == '/' && probablyurl.size() == 6) {
+			probablyurl.addElement(new Integer((prow << 8) | pcol));
+			return;
+		}
+		
+		probablyurl.clear();
+		return;
 	}
 
 	private void copy(final int dstrow, final int dstcol, final int srcrow,
@@ -1347,14 +1299,10 @@ public class VT100 extends JComponent {
 	}
 
 	private void insertTextBuf() {
-		char c;
-		boolean isWide;
-		int prow;
-
 		// XXX: 表格內有些未知字元會填入 '?', 因此可能會有 c < 127 但 textBufPos > 1 的狀況。
-		c = conv.bytesToChar(textBuf, 0, textBufPos, encoding);
-		isWide = Convertor.isWideChar(c);
-
+		final char c = conv.bytesToChar(textBuf, 0, textBufPos, encoding);
+		final boolean isWide = Convertor.isWideChar(c);
+		
 		// 一般而言游標都在下一個字將會出現的地方，但若最後一個字在行尾（下一個字應該出現在行首），
 		// 游標會在最後一個字上，也就是當最後一個字出現在行尾時並不會影響游標位置，
 		// 游標會等到下一個字出現時才移到下一行。
@@ -1373,14 +1321,8 @@ public class VT100 extends JComponent {
 
 		// 一個 char 可能對應數個 bytes, 但在顯示及儲存時最雙寬字多佔兩格，單寬字最多佔一格，
 		// 紀錄 char 後要把對應的屬性及色彩等資料從 buffer 複製過來，並設定重繪。
-		prow = physicalRow(crow);
+		final int prow = physicalRow(crow);
 		text[prow][ccol - 1] = c;
-
-		// 到這裡我們才知道字元真正被放到陣列中的位置，所以現在才紀錄 url 的位置
-		if (addurl) {
-			// XXX: 假設 column 數小於 256
-			probablyurl.addElement(new Integer((prow << 8) | (ccol - 1)));
-		}
 
 		// 紀錄暫存的資料，寬字元每個字最多用兩個 bytes，一般字元每字一個 byte
 		for (int i = 0; i < (isWide ? Math.min(textBufPos, 2) : 1); i++) {
@@ -1397,7 +1339,7 @@ public class VT100 extends JComponent {
 
 		// 重設 textBufPos
 		textBufPos = 0;
-
+		
 		// 控制碼不會讓游標跑到 rightmargin 以後的地方，只有一般字元會，所以在這裡判斷 linefull 就可以了。
 		ccol++;
 		if (isWide) {
@@ -1408,7 +1350,7 @@ public class VT100 extends JComponent {
 			ccol--;
 		}
 	}
-
+	
 	/**
 	 * buffer 是否是空的
 	 * 
@@ -1577,9 +1519,6 @@ public class VT100 extends JComponent {
 		lcol = ccol;
 		lrow = crow;
 
-		// 檢查讀入的字元是否為 url
-		checkURL((char) b);
-
 		// XXX: 若讀入的字元小於 32 則視為控制字元。其實應該用列舉的，但這麼寫比較漂亮。
 		if ((b >= 0) && (b < 32)) {
 			parse_control(b);
@@ -1595,6 +1534,9 @@ public class VT100 extends JComponent {
 				insertTextBuf();
 			}
 		}
+		
+		// 檢查讀入的字元是否為 url
+		checkURL((char) b);
 
 		// 舊的游標位置需要重繪
 		setRepaint(lrow, lcol);
@@ -2200,12 +2142,11 @@ public class VT100 extends JComponent {
 		int v, prow, pcol;
 		Iterator iter;
 
-		iter = probablyurl.iterator();
-		while (iter.hasNext()) {
-			v = ((Integer) iter.next()).intValue();
+		while(!probablyurl.isEmpty()) {
+			v = (Integer) probablyurl.remove(0);
 			prow = v >> 8;
 			pcol = v & 0xff;
-
+			
 			isurl[prow][pcol] = true;
 			setRepaintPhysical(prow, pcol);
 		}
