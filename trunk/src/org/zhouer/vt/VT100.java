@@ -274,11 +274,19 @@ public class VT100 extends JComponent {
 		final Vector b = new Vector(); // bytes
 		final Vector fg = new Vector(); // foreground color
 		final Vector bg = new Vector(); // background color
-		boolean needNewLine;
 
 		for (i = 0; i < totalrow; i++) {
-			needNewLine = false;
 
+			// 若整行都沒被選取，直接換下一行
+			for (j = 0; j < totalcol; j++) {
+				if (selected[i][j]) {
+					break;
+				}
+			}
+			if (j == totalcol) {
+				continue;
+			}
+			
 			// 找到最後一個有資料的地方
 			for (last = totalcol - 1; last >= 0; last--) {
 				if (selected[i][last] && (mbc[i][last] != 0)) {
@@ -307,10 +315,9 @@ public class VT100 extends JComponent {
 									+ Math.min(k, 2)]));
 						}
 					}
-					needNewLine = true;
 				}
 			}
-			if (needNewLine) {
+			if (true) {
 				a.addElement(new Byte((byte) 0));
 				b.addElement(new Byte((byte) 0x0d));
 				fg.addElement(new Byte(VT100.defFg));
@@ -414,6 +421,11 @@ public class VT100 extends JComponent {
 		return sb.toString();
 	}
 
+	/**
+	 * Paste the messages as color text to the session.
+	 * 
+	 * @param str color text
+	 */
 	public void pasteColorText(final String str) {
 		final byte[] tmp = new byte[str.length()];
 
@@ -430,7 +442,7 @@ public class VT100 extends JComponent {
 	 * @param str
 	 */
 	public void pasteText(String str) {
-		char[] ca;
+		char[] cArr;
 
 		boolean autobreak;
 		int breakcount;
@@ -447,17 +459,17 @@ public class VT100 extends JComponent {
 			str = TextUtils.fmt(str, breakcount);
 		}
 
-		ca = str.toCharArray();
+		cArr = str.toCharArray();
 
 		// XXX: ptt 只吃 0x0d 當換行
 		// TODO: 需判斷 0x0a 0x0d 的狀況，目前可能會送出兩個 0x0d
-		for (int i = 0; i < ca.length; i++) {
-			if (ca[i] == 0x0a) {
-				ca[i] = 0x0d;
+		for (int i = 0; i < cArr.length; i++) {
+			if (cArr[i] == 0x0a) {
+				cArr[i] = 0x0d;
 			}
 		}
 
-		parent.writeChars(ca, 0, ca.length);
+		parent.writeChars(cArr, 0, cArr.length);
 	}
 
 	/**
