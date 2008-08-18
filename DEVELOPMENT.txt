@@ -1,0 +1,17 @@
+Recommended development environment:
+
+	Eclipse: http://www.eclipse.org/
+	Subclipse (Subversion Plug-in for Eclipse): http://subclipse.tigris.org/
+	
+--
+
+Eclipse + Subclipse:
+
+	File -> New -> Other -> SVN 
+	-> http://ztermapplet.googlecode.com/svn/trunk/
+	
+--
+
+BUG.txt: a record for known bugs
+LICENSE.txt: COPYRIGHT OF THIS PROJECT
+TODO.txt: new functionality for the next version 
