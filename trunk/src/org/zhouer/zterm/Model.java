@@ -710,9 +710,12 @@ public class Model {
 
 	/**
 	 * Update tool bar.
+	 * 
+	 * @param isShowToolbar true, show tool bar; false, hide tool bar.
 	 */
-	public void updateToolbar() {
-		view.updateToolbar();
+	public void updateToolbar(final boolean isShowToolbar) {		
+		preferencePane.ap.showToolbarCheckBox.setSelected(isShowToolbar);
+		view.updateToolbar(isShowToolbar);
 	}
 
 	private void connect(String h) {

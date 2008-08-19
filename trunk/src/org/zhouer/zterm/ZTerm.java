@@ -133,11 +133,11 @@ public class ZTerm extends JApplet {
 	private void makeLanguageMenu() {
 		final int languageAmount = 2;
 		languageItems = new JMenuItem[languageAmount];
-		languageItems[0] = new JMenuItem("English");
-		languageItems[0].setToolTipText("Change language to English");
+		languageItems[0] = new JMenuItem(Messages.getString("ZTerm.Language_English_Item"));
+		languageItems[0].setToolTipText(Messages.getString("ZTerm.Language_English_ToolTip"));
 		languageItems[0].addActionListener(actionController);
-		languageItems[1] = new JMenuItem("Traditional Chinese");
-		languageItems[1].setToolTipText("Change language to Traditional Chinese");
+		languageItems[1] = new JMenuItem(Messages.getString("ZTerm.Language_TraditionalChinese_Item"));
+		languageItems[1].setToolTipText(Messages.getString("ZTerm.Language_TraditionalChinese_ToolTip"));
 		languageItems[1].addActionListener(actionController);
 		
 		for (int i = 0; i < languageItems.length; i++) {
@@ -240,10 +240,10 @@ public class ZTerm extends JApplet {
 
 	/**
 	 * Update tool bar with resource, hiding or showing it.
+	 * 
+	 * @param isShowToolbar true, show tool bar; false, hide tool bar.
 	 */
-	public void updateToolbar() {
-		final boolean isShowToolbar = this.resource
-				.getBooleanValue(Resource.SHOW_TOOLBAR);
+	public void updateToolbar(final boolean isShowToolbar) {
 
 		this.showToolbarItem
 				.setText(isShowToolbar ? Messages

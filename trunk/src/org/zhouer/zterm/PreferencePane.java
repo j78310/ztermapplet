@@ -1,12 +1,10 @@
 package org.zhouer.zterm;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -14,7 +12,6 @@ import java.io.File;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -43,7 +40,7 @@ public class PreferencePane extends JOptionPane implements
 		TreeSelectionListener {
 	private static final long serialVersionUID = -1892496769315626958L;
 
-	private ApperancePanel ap;
+	protected ApperancePanel ap;
 	private JTree categoryTree;
 	private ConnectionPanel cp;
 	private FontPanel fp;
@@ -198,7 +195,7 @@ public class PreferencePane extends JOptionPane implements
 
 		Model.getInstance().updateLookAndFeel();
 		Model.getInstance().updateBounds();
-		Model.getInstance().updateToolbar();
+		Model.getInstance().updateToolbar(this.ap.showToolbarCheckBox.isSelected());
 		Model.getInstance().updateSize();
 		Model.getInstance().updateAntiIdleTime();
 	}

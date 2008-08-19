@@ -73,7 +73,7 @@ public class ActionHandler implements ActionListener {
 			final boolean isShowToolbar = this.resource
 					.getBooleanValue(Resource.SHOW_TOOLBAR);
 			this.resource.setValue(Resource.SHOW_TOOLBAR, !isShowToolbar);
-			this.model.updateToolbar();
+			this.model.updateToolbar(!isShowToolbar);
 			this.model.updateSize();
 		} else if (source == this.view.usageItem) {
 			this.model.showUsage();
