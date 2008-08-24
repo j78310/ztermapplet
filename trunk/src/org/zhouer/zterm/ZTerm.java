@@ -70,13 +70,15 @@ public class ZTerm extends JApplet {
 	private final ChangeHandler changeController;
 	private final ComponentHandler componentController;
 
-	private JMenu connectMenu, siteMenu, editMenu, optionMenu, helpMenu;
+	private JMenu connectMenu, editMenu, toolsMenu, helpMenu;
 
 	private JMenu encodingMenu;
 	
 	private JMenu languageMenu;
 	
 	private JMenu viewMenu;
+	
+	private JMenu historyMenu;
 	
 	protected JMenuItem[] languageItems;
 
@@ -152,7 +154,7 @@ public class ZTerm extends JApplet {
 		final Vector<Site> favorites = this.resource.getFavorites();
 		this.favoriteItems = new JMenuItem[favorites.size()];
 
-		this.siteMenu.removeAll();
+		this.historyMenu.removeAll();
 
 		// 顯示目前我的最愛內容
 		for (int i = 0; i < favorites.size(); i++) {
@@ -160,7 +162,7 @@ public class ZTerm extends JApplet {
 			this.favoriteItems[i] = new JMenuItem(fa.name);
 			this.favoriteItems[i].setToolTipText(fa.host + ":" + fa.port); //$NON-NLS-1$
 			this.favoriteItems[i].addActionListener(this.actionController);
-			this.siteMenu.add(this.favoriteItems[i]);
+			this.historyMenu.add(this.favoriteItems[i]);
 		}
 	}
 
@@ -320,10 +322,10 @@ public class ZTerm extends JApplet {
 		this.menuBar = new JMenuBar();
 		this.connectMenu = new JMenu();
 		this.languageMenu = new JMenu();
-		this.siteMenu = new JMenu();
 		this.editMenu = new JMenu();
 		this.viewMenu = new JMenu();
-		this.optionMenu = new JMenu();
+		this.historyMenu = new JMenu();
+		this.toolsMenu = new JMenu();
 		this.helpMenu = new JMenu();
 		this.encodingMenu = new JMenu();
 		this.openItem = new JMenuItem();
@@ -345,7 +347,8 @@ public class ZTerm extends JApplet {
 		this.connectMenu.setMnemonic(KeyEvent.VK_F);
 		this.editMenu.setMnemonic(KeyEvent.VK_E);
 		viewMenu.setMnemonic(KeyEvent.VK_V);
-		this.optionMenu.setMnemonic(KeyEvent.VK_T);
+		historyMenu.setMnemonic(KeyEvent.VK_Y);
+		this.toolsMenu.setMnemonic(KeyEvent.VK_T);
 		this.helpMenu.setMnemonic(KeyEvent.VK_H);
 		
 		this.openItem.addActionListener(this.actionController);
@@ -367,7 +370,8 @@ public class ZTerm extends JApplet {
 		this.menuBar.add(this.connectMenu);
 		this.menuBar.add(this.editMenu);
 		this.menuBar.add(this.viewMenu);
-		this.menuBar.add(this.optionMenu);
+		menuBar.add(historyMenu);
+		this.menuBar.add(this.toolsMenu);
 		this.menuBar.add(this.helpMenu);
 
 		this.connectMenu.add(this.openItem);
@@ -383,16 +387,13 @@ public class ZTerm extends JApplet {
 		this.editMenu.add(this.pasteItem);
 		this.editMenu.add(this.colorCopyItem);
 		this.editMenu.add(this.colorPasteItem);
-		this.editMenu.addSeparator();
-		this.editMenu.add(this.encodingMenu);
 		
-		this.viewMenu.add(siteMenu);
-		this.viewMenu.addSeparator();
 		this.viewMenu.add(this.showToolbarItem);
+		this.viewMenu.add(this.encodingMenu);
+		this.viewMenu.add(this.languageMenu);
 
-		this.optionMenu.add(this.preferenceItem);
-		this.optionMenu.add(this.siteManagerItem);
-		this.optionMenu.add(this.languageMenu);
+		this.toolsMenu.add(this.preferenceItem);
+		this.toolsMenu.add(this.siteManagerItem);
 
 		this.helpMenu.add(this.usageItem);
 		this.helpMenu.add(this.faqItem);
@@ -522,20 +523,24 @@ public class ZTerm extends JApplet {
 		this.languageMenu.setText("Language");
 		this.languageMenu.setToolTipText("Change your language");
 		
-		siteMenu.setText(Messages
+		historyMenu.setText(Messages
 				.getString("ZTerm.Site_Menu_Text"));
 
 		this.viewMenu.setText(Messages.getString("ZTerm.View_Menu_Text")); //$NON-NLS-1$
 		this.viewMenu.setToolTipText(Messages
 				.getString("ZTerm.View_Menu_ToolTip")); //$NON-NLS-1$
+		
+		historyMenu.setText(Messages.getString("ZTerm.History_Menu_Text")); //$NON-NLS-1$
+		historyMenu.setToolTipText(Messages
+				.getString("ZTerm.History_Menu_ToolTip")); //$NON-NLS-1$
 
 		this.editMenu.setText(Messages.getString("ZTerm.Edit_Menu_Text")); //$NON-NLS-1$
 		this.editMenu.setToolTipText(Messages
 				.getString("ZTerm.Edit_Menu_ToolTip")); //$NON-NLS-1$
 
-		this.optionMenu.setText(Messages
+		this.toolsMenu.setText(Messages
 				.getString("ZTerm.Option_Menu_Text")); //$NON-NLS-1$
-		this.optionMenu.setToolTipText(Messages
+		this.toolsMenu.setToolTipText(Messages
 				.getString("ZTerm.Option_Menu_ToolTip")); //$NON-NLS-1$
 
 		this.helpMenu.setText(Messages.getString("ZTerm.Help_Menu_Text")); //$NON-NLS-1$
