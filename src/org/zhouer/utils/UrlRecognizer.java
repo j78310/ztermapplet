@@ -28,7 +28,7 @@ public class UrlRecognizer {
 		if (index < 0 || index >= message.length()) {
 			throw new IllegalArgumentException("Out of bound!");
 		}
-		
+				
 		final String subMessage = message.substring(0, index + 1);
 		final int lastIndexOfHttp = subMessage.lastIndexOf("http://");
 		final boolean httpNotFound = lastIndexOfHttp == -1;
@@ -38,6 +38,11 @@ public class UrlRecognizer {
 		}
 		
 		final String httpMessage = subMessage.substring(lastIndexOfHttp);
+		
+		if (Convertor.containsWideChar(httpMessage)) {
+			return false;
+		}
+		
 		final int indexOfSpace = httpMessage.indexOf(' ');
 		final int indexOft = httpMessage.indexOf(' ');
 		final int indexOfn = httpMessage.indexOf('\n');

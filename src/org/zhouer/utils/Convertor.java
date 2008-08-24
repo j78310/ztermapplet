@@ -38,6 +38,23 @@ public class Convertor {
 		}
 		return false;
 	}
+	
+	/**
+	 * Check if a message contains any wide characters.
+	 * 
+	 * @param message the message to be checked
+	 * @return true if the message contains wide characters; false, otherwise.
+	 */
+	public static boolean containsWideChar(String message) {
+		for (int i = 0; i < message.length(); i++) {
+			final char c = message.charAt(i);
+			if (Convertor.isWideChar(c)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
 
 	/**
 	 * 把 jar 中的檔案讀進 byte array
