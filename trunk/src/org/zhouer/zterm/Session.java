@@ -100,10 +100,6 @@ public class Session extends JPanel implements Runnable, Application,
 
 	private final VT100 vt;
 
-	/*
-	 * 送往上層的
-	 */
-
 	private String windowtitle;
 
 	public Session(final Site s, final Resource r, final Convertor c,
@@ -239,10 +235,6 @@ public class Session extends JPanel implements Runnable, Application,
 	public void colorPaste() {
 		this.model.colorPaste();
 	}
-
-	/*
-	 * 送往下層的
-	 */
 
 	public void copy() {
 		this.model.copy();
