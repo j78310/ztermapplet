@@ -73,19 +73,21 @@ public class VT100 extends JComponent {
 	private static final byte BOLD = 1;
 	private static final byte CURSOR = 2;
 	private static Color cursorColor = Color.GREEN;
+	private final static boolean DEBUG = false;
+
 	private static byte defAttr = 0;
 
 	private static byte defBg = 0;
 
 	// 預設顏色設定，前景、背景、游標色
 	private static byte defFg = 7;
-
 	// 取得色彩用的一些狀態
 	private static final byte FOREGROUND = 0;
 	private static Color[] highlight_colors = { new Color(128, 128, 128),
 			new Color(255, 0, 0), new Color(0, 255, 0), new Color(255, 255, 0),
 			new Color(0, 0, 255), new Color(255, 0, 255),
 			new Color(0, 255, 255), new Color(255, 255, 255), };
+
 	// 調色盤
 	private static Color[] normal_colors = { new Color(0, 0, 0),
 			new Color(128, 0, 0), new Color(0, 128, 0), new Color(128, 128, 0),
@@ -97,13 +99,12 @@ public class VT100 extends JComponent {
 	private static final long serialVersionUID = -5704767444883397941L;
 
 	private static final byte UNDERLINE = 8;
-
 	private static final byte URL = 3;
 	private static Color urlColor = Color.ORANGE;
 	private byte[] attrBuf, fgBuf, bgBuf;
 	private byte[][] attributes; // 屬性
-	private byte[][] bgcolors; // 背景色
 
+	private byte[][] bgcolors; // 背景色
 	// 畫面
 	private BufferedImage bi;
 	// 目前的屬性及前景、背景色
@@ -113,6 +114,8 @@ public class VT100 extends JComponent {
 	private byte cfgcolor, cbgcolor;
 	// 轉碼用
 	private final Convertor conv;
+
+	private int debug_counter = 0;
 	private String emulation;
 
 	private String encoding;
@@ -121,10 +124,10 @@ public class VT100 extends JComponent {
 	// 各種字型參數
 	private Font font;
 	private int fontsize;
-
 	// 字元的垂直與水平間距
 	private int fontverticalgap, fonthorizontalgap, fontdescentadj;
 	private int fontwidth, fontheight, fontdescent;
+
 	// 紀錄是否所有初始化動作皆已完成
 	private boolean init_ready;
 	// 判斷畫面上的網址
@@ -132,32 +135,28 @@ public class VT100 extends JComponent {
 
 	private int keypadmode;
 	private int lcol, lrow;
-
 	// 記錄游標是否位於最後一個字上，非最後一個字的下一個
 	private boolean linefull;
+
 	// 模擬螢幕的相關資訊
 	private int maxrow, maxcol; // terminal 的大小
-	private int[][] mbc; // multibyte character 的第幾個 byte
 
+	private int[][] mbc; // multibyte character 的第幾個 byte
 	// 把從 nvt 來的資料暫存起來
 	private byte[] nvtBuf;
-
 	private int nvtBufPos, nvtBufLen;
+
 	private final Application parent;
 	private Vector probablyurl;
-
 	private Object repaintLock;
 	// 記錄螢幕上何處需要 repaint
 	private FIFOSet repaintSet;
+
 	// 各種參數
 	private final Config resource;
 	private int scol, srow;
-
 	private int scrolllines; // scroll buffer 的行數
 	private int scrolluprow; // 往上捲的行數
-	private boolean[][] selected; // 是否被滑鼠選取
-	// 儲存螢幕上的相關資訊
-	private char[][] text; // 轉碼後的 char
 
 	// ASCII
 	// private static final byte BEL = 7;
@@ -170,21 +169,26 @@ public class VT100 extends JComponent {
 	// private static final byte SO = 14;
 	// private static final byte SI = 15;
 
+	private boolean[][] selected; // 是否被滑鼠選取
+	// 儲存螢幕上的相關資訊
+	private char[][] text; // 轉碼後的 char
+
 	private boolean text_blink, cursor_blink;
+
 	// 閃爍用
 	private int text_blink_count, cursor_blink_count;
 
 	// multibytes char 暫存
 	private byte[] textBuf;
-
 	private int textBufPos;
 
 	// 重繪用的 Timer
 	private Timer ti;
 	private int topmargin, buttommargin, leftmargin, rightmargin;
-
 	private int toprow; // 第一 row 所在位置
+
 	private int totalrow, totalcol; // 總 row, col 數，包含 scroll buffer
+
 	// 螢幕 translate 的座標
 	private int transx, transy;
 
@@ -193,10 +197,6 @@ public class VT100 extends JComponent {
 
 	// 畫面的寬與高
 	private int width, height;
-
-	private final boolean DEBUG = false;
-
-	private int debug_counter = 0;
 
 	public VT100(final Application p, final Config c, final Convertor cv,
 			final BufferedImage b) {
