@@ -404,6 +404,12 @@ public class Session extends JPanel implements Runnable, Application,
 	public void setEncoding(final String enc) {
 		this.site.encoding = enc;
 		this.vt.setEncoding(this.site.encoding);
+		requestScreenData();
+	}
+	
+	public void requestScreenData() {
+		final int CTRL_L = 12;
+		this.writeChar((char) CTRL_L);
 	}
 
 	public void setIconName(final String in) {
