@@ -797,6 +797,9 @@ public class VT100 extends JComponent {
 			return;
 		}
 
+		// 檢查在螢幕上面的 URL 連結
+		checkURLOnScreen();
+		
 		// TODO: 考慮 draw 是否一定要擺在這邊，或是是否只在這裡呼叫？
 		// 偶爾呼叫一次而不只是在顯示前才呼叫應該可以增進顯示速度。
 		draw();
@@ -810,19 +813,18 @@ public class VT100 extends JComponent {
 	private void bell() {
 		parent.bell();
 	}
-
-	private void checkURL(final char c) {
-		// 取得游標所處的實體座標
-		final int prow = physicalRow(lrow);
-
-		// 取得此列的字串，判斷游標所在位置是否應該畫上底線
-		final String message = String.valueOf(text[prow]);
-
-		for (int i = 0; i < lcol; i++) {
-			// 判斷第一行到游標所處的實體座標是否落於一個 http://xxx.xxx 字串裡面
-			if (UrlRecognizer.isPartOfHttp(message, i)) {
-				isurl[prow][i] = true;
-				setRepaintPhysical(prow, i);
+	
+	private void checkURLOnScreen() {
+		for (int i = 0; i < maxrow; i++) {
+			final int prow = physicalRow(i - scrolluprow + 1);
+			final String message = String.valueOf(text[prow]);
+			
+			for (int j = 0; j < maxcol; j++) {
+				// 判斷 (prow, j) 座標上的字元是否落於一個 http://xxx.xxx 字串裡面
+				if (UrlRecognizer.isPartOfHttp(message, j)) {
+					isurl[prow][j] = true;
+					setRepaintPhysical(prow, j);
+				}
 			}
 		}
 	}
@@ -1510,9 +1512,6 @@ public class VT100 extends JComponent {
 				insertTextBuf();
 			}
 		}
-
-		// 檢查讀入的字元是否為 url
-		checkURL((char) b);
 
 		// 舊的游標位置需要重繪
 		setRepaint(lrow, lcol);
