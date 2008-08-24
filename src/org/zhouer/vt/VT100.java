@@ -194,6 +194,10 @@ public class VT100 extends JComponent {
 	// 畫面的寬與高
 	private int width, height;
 
+	private final boolean DEBUG = false;
+
+	private int debug_counter = 0;
+
 	public VT100(final Application p, final Config c, final Convertor cv,
 			final BufferedImage b) {
 		super();
@@ -1320,6 +1324,11 @@ public class VT100 extends JComponent {
 		return (nvtBufPos == nvtBufLen);
 	}
 
+	private boolean isControlChar(final char c) {
+		// 若讀入的字元小於 32 則視為控制字元。其實應該用列舉的，但這麼寫比較漂亮。
+		return (c >= 0) && (c < 32);
+	}
+
 	/**
 	 * 計算 prow 在目前畫面中的 row NOTE: 這不是 physicalRow 的反函數
 	 * 
@@ -1469,15 +1478,6 @@ public class VT100 extends JComponent {
 
 		return sb.toString();
 	}
-
-	private boolean isControlChar(final char c) {
-		// 若讀入的字元小於 32 則視為控制字元。其實應該用列舉的，但這麼寫比較漂亮。
-		return (c >= 0) && (c < 32);
-	}
-
-	private final boolean DEBUG = false;
-
-	private int debug_counter = 0;
 
 	private void parse() {
 		byte b;
