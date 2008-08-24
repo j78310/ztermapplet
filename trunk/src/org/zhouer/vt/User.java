@@ -230,7 +230,7 @@ public class User implements KeyListener, MouseListener, MouseMotionListener {
 				break;
 			}
 
-			this.vt.requestFocus();
+			this.vt.requestFocusInWindow();
 			this.vt.resetSelected();
 			this.vt.repaint();
 
