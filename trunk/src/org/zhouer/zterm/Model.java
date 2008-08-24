@@ -308,31 +308,9 @@ public class Model {
 	 * @return password from user.
 	 */
 	public String getPassword() {
-		final PasswordPane passwordDialog = new PasswordPane(Messages
-				.getString("Model.Password_Text")); //$NON-NLS-1$ 
-		final JDialog dialog = passwordDialog.createDialog(view, Messages
-				.getString("Model.Password_Title")); //$NON-NLS-1$
-
-		final Runnable focusPasswordField = new Runnable() {
-			public void run() {
-				passwordDialog.passField.requestFocusInWindow();
-			}
-		};
-
-		SwingUtilities.invokeLater(focusPasswordField);
-		dialog.setVisible(true);
-
-		if (passwordDialog.getValue() != null) {
-			if (passwordDialog.getValue() instanceof Integer) {
-				if (passwordDialog.getValue().equals(
-						new Integer(JOptionPane.OK_OPTION))) {
-
-					return passwordDialog.getPassword();
-				}
-			}
-		}
-
-		return null;
+		return PasswordPane.showPasswordDialog(view, Messages
+				.getString("Model.Password_Text"), Messages
+				.getString("Model.Password_Title")); 
 	}
 
 	/**
