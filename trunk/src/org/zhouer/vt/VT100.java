@@ -286,7 +286,7 @@ public class VT100 extends JComponent {
 			if (j == totalcol) {
 				continue;
 			}
-			
+
 			// 找到最後一個有資料的地方
 			for (last = totalcol - 1; last >= 0; last--) {
 				if (selected[i][last] && (mbc[i][last] != 0)) {
@@ -424,7 +424,8 @@ public class VT100 extends JComponent {
 	/**
 	 * Paste the messages as color text to the session.
 	 * 
-	 * @param str color text
+	 * @param str
+	 *            color text
 	 */
 	public void pasteColorText(final String str) {
 		final byte[] tmp = new byte[str.length()];
@@ -806,71 +807,20 @@ public class VT100 extends JComponent {
 		parent.bell();
 	}
 
-	private boolean urlRecognizerHit = false;
-
 	private void checkURL(final char c) {
 		// 取得游標所處的實體座標
 		final int prow = physicalRow(lrow);
-		final int pcol = lcol - 1;
 
 		// 取得此列的字串，判斷游標所在位置是否應該畫上底線
 		final String message = String.valueOf(text[prow]);
 
-		// 判斷游標所處的實體座標是否落於一個 http://xxx.xxx 字串裡面
-		if (UrlRecognizer.isPartOfHttp(message, pcol)) {
-			while (!probablyurl.isEmpty()) {
-				final int v = (Integer) probablyurl.remove(0);
-				final int urlRow = v >> 8;
-				final int urlCol = v & 0xff;
-
-				isurl[urlRow][urlCol] = true;
-				setRepaintPhysical(urlRow, urlCol);
+		for (int i = 0; i < lcol; i++) {
+			// 判斷第一行到游標所處的實體座標是否落於一個 http://xxx.xxx 字串裡面
+			if (UrlRecognizer.isPartOfHttp(message, i)) {
+				isurl[prow][i] = true;
+				setRepaintPhysical(prow, i);
 			}
-			
-			isurl[prow][pcol] = true;
-			setRepaintPhysical(prow, pcol);
-			return;
 		}
-
-		// 窮舉法找 http://，記憶才開始讀到 "h", "ht", "htt", "http", "http:", "http:/"
-		// 的所在位置
-		if ((text[prow][pcol] == 'h') && (probablyurl.size() == 0)) {
-			probablyurl.addElement(new Integer((prow << 8) | pcol));
-			return;
-		}
-
-		if ((text[prow][pcol] == 't') && (probablyurl.size() == 1)) {
-			probablyurl.addElement(new Integer((prow << 8) | pcol));
-			return;
-		}
-
-		if ((text[prow][pcol] == 't') && (probablyurl.size() == 2)) {
-			probablyurl.addElement(new Integer((prow << 8) | pcol));
-			return;
-		}
-
-		if ((text[prow][pcol] == 'p') && (probablyurl.size() == 3)) {
-			probablyurl.addElement(new Integer((prow << 8) | pcol));
-			return;
-		}
-
-		if ((text[prow][pcol] == ':') && (probablyurl.size() == 4)) {
-			probablyurl.addElement(new Integer((prow << 8) | pcol));
-			return;
-		}
-
-		if ((text[prow][pcol] == '/') && (probablyurl.size() == 5)) {
-			probablyurl.addElement(new Integer((prow << 8) | pcol));
-			return;
-		}
-
-		if ((text[prow][pcol] == '/') && (probablyurl.size() == 6)) {
-			probablyurl.addElement(new Integer((prow << 8) | pcol));
-			return;
-		}
-
-		probablyurl.clear();
-		return;
 	}
 
 	private void copy(final int dstrow, final int dstcol, final int srcrow,
@@ -1519,16 +1469,28 @@ public class VT100 extends JComponent {
 
 		return sb.toString();
 	}
-	
+
 	private boolean isControlChar(final char c) {
 		// 若讀入的字元小於 32 則視為控制字元。其實應該用列舉的，但這麼寫比較漂亮。
 		return (c >= 0) && (c < 32);
 	}
 
+	private final boolean DEBUG = false;
+
+	private int debug_counter = 0;
+
 	private void parse() {
 		byte b;
 
 		b = getNextByte();
+
+		if (DEBUG) {
+			System.out.print((char) b);
+
+			if (debug_counter++ % 100 == 99) {
+				System.out.println();
+			}
+		}
 
 		// 先把原來的游標位置存下來
 		lcol = ccol;
