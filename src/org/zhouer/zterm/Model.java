@@ -620,6 +620,9 @@ public class Model {
 		resource.setValue(Resource.GEOMETRY_Y, (int) bounds.getY());
 		resource.setValue(Resource.GEOMETRY_WIDTH, (int) bounds.getWidth());
 		resource.setValue(Resource.GEOMETRY_HEIGHT, (int) bounds.getHeight());
+		
+		preferencePane.ap.widthSpinner.setValue((int) bounds.getWidth());
+		preferencePane.ap.heightSpinner.setValue((int) bounds.getHeight());
 
 		view.updateSize();
 	}
