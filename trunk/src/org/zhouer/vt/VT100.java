@@ -823,15 +823,18 @@ public class VT100 extends JComponent {
 
 		// 判斷游標所處的實體座標是否落於一個 http://xxx.xxx 字串裡面
 		if (UrlRecognizer.isPartOfHttp(message, pcol)) {
-			probablyurl.addElement(new Integer((prow << 8) | pcol));
-			urlRecognizerHit = true;
-			return;
-		}
+			while (!probablyurl.isEmpty()) {
+				final int v = (Integer) probablyurl.remove(0);
+				final int urlRow = v >> 8;
+				final int urlCol = v & 0xff;
 
-		// 判斷上一次有沒有找到連結，而這一次卻沒有找到連結
-		if (urlRecognizerHit) {
-			setURL();
-			urlRecognizerHit = false;
+				isurl[urlRow][urlCol] = true;
+				setRepaintPhysical(urlRow, urlCol);
+			}
+			
+			isurl[prow][pcol] = true;
+			setRepaintPhysical(prow, pcol);
+			return;
 		}
 
 		// 窮舉法找 http://，記憶才開始讀到 "h", "ht", "htt", "http", "http:", "http:/"
@@ -2151,18 +2154,6 @@ public class VT100 extends JComponent {
 
 		synchronized (repaintLock) {
 			repaintSet.add((prow << 8) | pcol);
-		}
-	}
-
-	private void setURL() {
-		int v, prow, pcol;
-		while (!probablyurl.isEmpty()) {
-			v = (Integer) probablyurl.remove(0);
-			prow = v >> 8;
-			pcol = v & 0xff;
-
-			isurl[prow][pcol] = true;
-			setRepaintPhysical(prow, pcol);
 		}
 	}
 }
