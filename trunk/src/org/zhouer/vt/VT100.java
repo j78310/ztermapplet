@@ -1521,6 +1521,11 @@ public class VT100 extends JComponent {
 
 		return sb.toString();
 	}
+	
+	private boolean isControlChar(final char c) {
+		// 若讀入的字元小於 32 則視為控制字元。其實應該用列舉的，但這麼寫比較漂亮。
+		return (c >= 0) && (c < 32);
+	}
 
 	private void parse() {
 		byte b;
@@ -1531,8 +1536,7 @@ public class VT100 extends JComponent {
 		lcol = ccol;
 		lrow = crow;
 
-		// XXX: 若讀入的字元小於 32 則視為控制字元。其實應該用列舉的，但這麼寫比較漂亮。
-		if ((b >= 0) && (b < 32)) {
+		if (isControlChar((char) b)) {
 			parse_control(b);
 		} else {
 			textBuf[textBufPos] = b;
