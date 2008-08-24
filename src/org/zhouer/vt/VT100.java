@@ -622,12 +622,7 @@ public class VT100 extends JComponent {
 		scrolluprow = scroll;
 		// System.out.println( "scroll up " + scroll + " lines" );
 		// TODO: 應改可以不用每次都重繪整個畫面
-		for (int i = 1; i <= maxrow; i++) {
-			for (int j = 1; j <= maxcol; j++) {
-				setRepaintPhysical(physicalRow(i - scrolluprow), j - 1);
-			}
-		}
-		this.repaint();
+		updateScreen();
 	}
 
 	/**
