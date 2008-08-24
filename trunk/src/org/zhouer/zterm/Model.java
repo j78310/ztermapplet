@@ -126,7 +126,24 @@ public class Model {
 	 */
 	public void changeSession(final int index) {
 		if ((0 <= index) && (index < view.tabbedPane.getTabCount())) {
-			view.tabbedPane.setSelectedIndex(index);
+			
+			// 取得焦點的工作
+			final Runnable sessionFocuser = new Runnable() {
+				public void run() {
+					sessions.get(index).requestFocusInWindow();
+				}
+			};
+			
+			// 切換分頁的工作 （包含取得焦點的工作）
+			final Runnable tabbedSwitcher = new Runnable() {
+				public void run() {
+					view.tabbedPane.setSelectedIndex(index);
+					SwingUtilities.invokeLater(sessionFocuser);
+				}
+			};
+			
+			// 啟動切換分頁的工作
+			SwingUtilities.invokeLater(tabbedSwitcher);
 		}
 	}
 
