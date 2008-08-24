@@ -5,11 +5,11 @@ import java.util.Vector;
 /**
  * Sessions is collection of Session.
  * 
- * @author h45
+ * @author Chin-Chang Yang
  */
 public class Sessions extends Vector<Session> {
 	private static final long serialVersionUID = -4458258447638659749L;
-	private static Sessions sessions = null;
+	private volatile static Sessions sessions = null;
 
 	/**
 	 * Getter of instance in singleton pattern
@@ -18,7 +18,11 @@ public class Sessions extends Vector<Session> {
 	 */
 	public static Sessions getInstance() {
 		if (Sessions.sessions == null) {
-			Sessions.sessions = new Sessions();
+			synchronized (Sessions.class) {
+				if (Sessions.sessions == null) {
+					Sessions.sessions = new Sessions();
+				}
+			}
 		}
 
 		return Sessions.sessions;
