@@ -21,6 +21,7 @@ public class UrlRecognizer {
 	 * @return true, if the character corresponding to the index in the massage is a part of HTTP; false, otherwise. 
 	 */
 	public static boolean isPartOfHttp(final String message, final int index) {
+		// 1. message: null 2. message: "words" 3. message: "http://test http://test" 4. message: "http://test/測試"  5. message: "http://test" 
 		if (message == null) {
 			return false;
 		}
@@ -29,15 +30,17 @@ public class UrlRecognizer {
 			throw new IllegalArgumentException("Out of bound!");
 		}
 		
-		final int lastIndexOfHttp = message.lastIndexOf("http://", index + 1);
+		final int lastIndexOfHttp = message.lastIndexOf("http://", index);
 		final boolean httpNotFound = lastIndexOfHttp == -1;
-		
+
+		// 1. message: "words" 2. message: "http://test http://test" 3. message: "http://test/測試"  4. message: "http://test" 
 		if (httpNotFound) {
 			return false;
 		}
 		
-		final String httpMessage = message.substring(lastIndexOfHttp);
+		final String httpMessage = message.substring(lastIndexOfHttp, index + 1);
 		
+		// 1. message: "http://test http://test" 2. message: "http://test/測試" 3. message: "http://test" 
 		if (Convertor.containsWideChar(httpMessage)) {
 			return false;
 		}
@@ -53,10 +56,12 @@ public class UrlRecognizer {
 		final boolean rNotFound = indexOfr == -1;
 		final boolean fNotFound = indexOff == -1;
 		
+		// 1. message: "http://test http://test" 2. message: "http://test" 
 		if (spaceNotFound && tNotFound && nNotFound && rNotFound && fNotFound) {
 			return true;
 		}
 		
+		// 1. message: "http://test http://test"
 		return false;
 	}
 }
