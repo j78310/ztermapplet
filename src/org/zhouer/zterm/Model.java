@@ -638,8 +638,8 @@ public class Model {
 		resource.setValue(Resource.GEOMETRY_WIDTH, (int) bounds.getWidth());
 		resource.setValue(Resource.GEOMETRY_HEIGHT, (int) bounds.getHeight());
 		
-		preferencePane.ap.widthSpinner.setValue((int) bounds.getWidth());
-		preferencePane.ap.heightSpinner.setValue((int) bounds.getHeight());
+		preferencePane.apperancePanel.widthSpinner.setValue((int) bounds.getWidth());
+		preferencePane.apperancePanel.heightSpinner.setValue((int) bounds.getHeight());
 
 		view.updateSize();
 	}
@@ -715,7 +715,7 @@ public class Model {
 	 *            true, show tool bar; false, hide tool bar.
 	 */
 	public void updateToolbar(final boolean isShowToolbar) {
-		preferencePane.ap.showToolbarCheckBox.setSelected(isShowToolbar);
+		preferencePane.apperancePanel.showToolbarCheckBox.setSelected(isShowToolbar);
 		view.updateToolbar(isShowToolbar);
 	}
 
