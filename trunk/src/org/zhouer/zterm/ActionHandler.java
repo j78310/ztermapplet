@@ -87,14 +87,10 @@ public class ActionHandler implements ActionListener {
 			this.model.updateEncoding("UTF-8"); //$NON-NLS-1$
 		} else if (source == this.view.languageItems[0]) {
 			this.model.setLocale(Locale.ENGLISH);
-			Messages.restartBundle();
-			this.resource.writeFile();
-			this.view.updateText();
+			model.refreshMessages();
 		} else if (source == this.view.languageItems[1]) {
 			this.model.setLocale(Locale.TAIWAN);
-			Messages.restartBundle();
-			this.resource.writeFile();
-			this.view.updateText();
+			model.refreshMessages();
 		} else {
 			// 我的最愛列表
 			for (int i = 0; i < this.view.favoriteItems.length; i++) {
