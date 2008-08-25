@@ -88,9 +88,11 @@ public class ActionHandler implements ActionListener {
 		} else if (source == this.view.languageItems[0]) {
 			this.model.setLocale(Locale.ENGLISH);
 			model.refreshMessages();
+			this.resource.writeFile();
 		} else if (source == this.view.languageItems[1]) {
 			this.model.setLocale(Locale.TAIWAN);
 			model.refreshMessages();
+			this.resource.writeFile();
 		} else {
 			// 我的最愛列表
 			for (int i = 0; i < this.view.favoriteItems.length; i++) {
