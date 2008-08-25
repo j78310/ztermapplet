@@ -780,9 +780,12 @@ public class Model {
 		this.connect(site, -1);
 	}
 	
+	/**
+	 * Refresh messages on the user interface.
+	 */
 	public void refreshMessages() {
 		Messages.restartBundle();
-		this.resource.writeFile();
 		this.view.updateText();
+		this.preferencePane = new PreferencePane();
 	}
 }
