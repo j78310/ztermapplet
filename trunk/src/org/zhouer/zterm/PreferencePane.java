@@ -40,188 +40,186 @@ public class PreferencePane extends JOptionPane implements
 		TreeSelectionListener {
 	private static final long serialVersionUID = -1892496769315626958L;
 
-	protected ApperancePanel ap;
+	protected ApperancePanel apperancePanel;
 	private JTree categoryTree;
-	private ConnectionPanel cp;
-	private FontPanel fp;
-	private GeneralPanel gp;
-	private final JSplitPane jsp;
+	private final ConnectionPanel connectionPanel;
+	private final FontPanel fontPanel;
+	private final GeneralPanel generalPanel;
+	private final JSplitPane splitPanel;
 
 	private final Resource resource;
 	private DefaultMutableTreeNode rootNode, generalNode, connectionNode,
 			appearanceNode, fontNode;
 
-	private final JPanel welcome;
+	private final JPanel welcomePanel;
+	
+	private final JLabel welcomeLabel;
+	
+	private final JTextArea welcomeTextArea;
+	
+	private final JScrollPane welcomeScrollPane;
 
 	/**
 	 * Constructor with no arguments
 	 */
 	public PreferencePane() {
-		this.resource = Resource.getInstance();
+		resource = Resource.getInstance();
 
 		final JPanel panel = new JPanel();
 		panel.setLayout(new GridLayout(1, 1));
 
-		this.makeCategoryTree();
-		this.welcome = new JPanel();
-		this.welcome.setLayout(new BorderLayout());
-		this.welcome
-				.add(
-						new JLabel(Messages
-								.getString("Preference.Welcome_Label_Text")), BorderLayout.NORTH); //$NON-NLS-1$
-		final JTextArea welcomeTextArea = new JTextArea(Messages
+		makeCategoryTree();
+		welcomeLabel = new JLabel(Messages
+				.getString("Preference.Welcome_Label_Text"));
+		welcomePanel = new JPanel();
+		welcomePanel.setLayout(new BorderLayout());
+		welcomePanel.add(welcomeLabel, BorderLayout.NORTH); //$NON-NLS-1$
+		welcomeTextArea = new JTextArea(Messages
 				.getString("Preference.Welcome_Description_Text")); //$NON-NLS-1$
-		final JScrollPane welcomeScrollPane = new JScrollPane(welcomeTextArea);
+		welcomeScrollPane = new JScrollPane(welcomeTextArea);
 		welcomeTextArea.setEditable(false);
-		this.welcome.add(welcomeScrollPane, BorderLayout.CENTER);
+		welcomePanel.add(welcomeScrollPane, BorderLayout.CENTER);
 
-		this.jsp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-				this.categoryTree, this.welcome);
+		splitPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, categoryTree, welcomePanel);
 
-		this.jsp.setOneTouchExpandable(true);
-		this.jsp.setDividerLocation(120);
+		splitPanel.setOneTouchExpandable(true);
+		splitPanel.setDividerLocation(120);
 
-		this.gp = new GeneralPanel(this.resource);
-		this.cp = new ConnectionPanel(this.resource);
-		this.ap = new ApperancePanel(this.resource);
-		this.fp = new FontPanel(this.resource);
+		generalPanel = new GeneralPanel(resource);
+		connectionPanel = new ConnectionPanel(resource);
+		apperancePanel = new ApperancePanel(resource);
+		fontPanel = new FontPanel(resource);
 
-		panel.add(this.jsp);
+		panel.add(splitPanel);
 
-		this.setOptionType(JOptionPane.OK_CANCEL_OPTION);
-		this.setMessage(panel);
+		setOptionType(JOptionPane.OK_CANCEL_OPTION);
+		setMessage(panel);
 	}
 
 	public void valueChanged(final TreeSelectionEvent tse) {
 
-		final DefaultMutableTreeNode node = (DefaultMutableTreeNode) this.categoryTree
+		final DefaultMutableTreeNode node = (DefaultMutableTreeNode) categoryTree
 				.getLastSelectedPathComponent();
 
 		if (node == null) {
 			return;
 		}
 
-		if (node == this.generalNode) {
-			this.jsp.setRightComponent(this.gp);
-		} else if (node == this.connectionNode) {
-			this.jsp.setRightComponent(this.cp);
-		} else if (node == this.appearanceNode) {
-			this.jsp.setRightComponent(this.ap);
-		} else if (node == this.fontNode) {
-			this.jsp.setRightComponent(this.fp);
+		if (node == generalNode) {
+			splitPanel.setRightComponent(generalPanel);
+		} else if (node == connectionNode) {
+			splitPanel.setRightComponent(connectionPanel);
+		} else if (node == appearanceNode) {
+			splitPanel.setRightComponent(apperancePanel);
+		} else if (node == fontNode) {
+			splitPanel.setRightComponent(fontPanel);
 		} else {
-			this.jsp.setRightComponent(this.welcome);
+			splitPanel.setRightComponent(welcomePanel);
 		}
-		this.jsp.setDividerLocation(120);
+		splitPanel.setDividerLocation(120);
 	}
 
 	protected void submit() {
-		this.resource.setValue(Resource.EXTERNAL_BROWSER, this.gp.browserField
-				.getText());
-		this.resource.setValue(Config.COPY_ON_SELECT,
-				this.gp.copyOnSelectCheckBox.isSelected());
-		this.resource.setValue(Config.CLEAR_AFTER_COPY,
-				this.gp.clearAfterCopyCheckBox.isSelected());
-		this.resource.setValue(Resource.REMOVE_MANUAL_DISCONNECT,
-				this.gp.removeManualCheckBox.isSelected());
-		this.resource.setValue(Config.AUTO_LINE_BREAK,
-				this.gp.linebreakCheckBox.isSelected());
-		this.resource.setValue(Config.AUTO_LINE_BREAK_LENGTH,
-				this.gp.breaklengthModel.getValue().toString());
-		this.resource.setValue(Resource.USE_CUSTOM_BELL,
-				this.gp.customBellCheckBox.isSelected());
-		this.resource.setValue(Resource.CUSTOM_BELL_PATH, this.gp.bellPathField
-				.getText());
-
-		this.resource.setValue(Resource.AUTO_RECONNECT,
-				this.cp.autoReconnectCheckBox.isSelected());
-		this.resource.setValue(Resource.AUTO_RECONNECT_TIME,
-				this.cp.reconnectTimeModel.getValue().toString());
-		this.resource.setValue(Resource.AUTO_RECONNECT_INTERVAL,
-				this.cp.reconnectIntervalModel.getValue().toString());
-
-		this.resource.setValue(Resource.ANTI_IDLE, this.cp.antiIdleCheckBox
+		resource.setValue(Resource.EXTERNAL_BROWSER, generalPanel.browserField.getText());
+		resource.setValue(Config.COPY_ON_SELECT, generalPanel.copyOnSelectCheckBox
 				.isSelected());
-		this.resource.setValue(Resource.ANTI_IDLE_INTERVAL,
-				this.cp.antiIdleModel.getValue().toString());
+		resource.setValue(Config.CLEAR_AFTER_COPY, generalPanel.clearAfterCopyCheckBox
+				.isSelected());
+		resource.setValue(Resource.REMOVE_MANUAL_DISCONNECT,
+				generalPanel.removeManualCheckBox.isSelected());
+		resource.setValue(Config.AUTO_LINE_BREAK, generalPanel.linebreakCheckBox
+				.isSelected());
+		resource.setValue(Config.AUTO_LINE_BREAK_LENGTH, generalPanel.breaklengthModel
+				.getValue().toString());
+		resource.setValue(Resource.USE_CUSTOM_BELL, generalPanel.customBellCheckBox
+				.isSelected());
+		resource
+				.setValue(Resource.CUSTOM_BELL_PATH, generalPanel.bellPathField.getText());
+
+		resource.setValue(Resource.AUTO_RECONNECT, connectionPanel.autoReconnectCheckBox
+				.isSelected());
+		resource.setValue(Resource.AUTO_RECONNECT_TIME, connectionPanel.reconnectTimeModel
+				.getValue().toString());
+		resource.setValue(Resource.AUTO_RECONNECT_INTERVAL,
+				connectionPanel.reconnectIntervalModel.getValue().toString());
+
+		resource.setValue(Resource.ANTI_IDLE, connectionPanel.antiIdleCheckBox.isSelected());
+		resource.setValue(Resource.ANTI_IDLE_INTERVAL, connectionPanel.antiIdleModel
+				.getValue().toString());
 
 		// chitsaou.070726: 防閒置字串
-		this.resource.setValue(Resource.ANTI_IDLE_STRING,
-				this.cp.antiIdleStringField.getText());
+		resource.setValue(Resource.ANTI_IDLE_STRING, connectionPanel.antiIdleStringField
+				.getText());
 
-		this.resource.setValue(Resource.SYSTEM_LOOK_FEEL,
-				this.ap.systemLookFeelCheckBox.isSelected());
-		this.resource.setValue(Resource.SHOW_TOOLBAR,
-				this.ap.showToolbarCheckBox.isSelected());
-		this.resource.setValue(Config.CURSOR_BLINK, this.ap.cursorBlinkCheckBox
+		resource.setValue(Resource.SYSTEM_LOOK_FEEL, apperancePanel.systemLookFeelCheckBox
 				.isSelected());
-		this.resource.setValue(Resource.GEOMETRY_WIDTH, this.ap.widthModel
+		resource.setValue(Resource.SHOW_TOOLBAR, apperancePanel.showToolbarCheckBox
+				.isSelected());
+		resource.setValue(Config.CURSOR_BLINK, apperancePanel.cursorBlinkCheckBox
+				.isSelected());
+		resource.setValue(Resource.GEOMETRY_WIDTH, apperancePanel.widthModel.getValue()
+				.toString());
+		resource.setValue(Resource.GEOMETRY_HEIGHT, apperancePanel.heightModel.getValue()
+				.toString());
+		resource.setValue(Config.TERMINAL_SCROLLS, apperancePanel.scrollModel.getValue()
+				.toString());
+		resource.setValue(Config.TERMINAL_COLUMNS, apperancePanel.terminalColumnsModel
 				.getValue().toString());
-		this.resource.setValue(Resource.GEOMETRY_HEIGHT, this.ap.heightModel
-				.getValue().toString());
-		this.resource.setValue(Config.TERMINAL_SCROLLS, this.ap.scrollModel
-				.getValue().toString());
-		this.resource.setValue(Config.TERMINAL_COLUMNS,
-				this.ap.terminalColumnsModel.getValue().toString());
-		this.resource.setValue(Config.TERMINAL_ROWS, this.ap.terminalRowsModel
-				.getValue().toString());
+		resource.setValue(Config.TERMINAL_ROWS, apperancePanel.terminalRowsModel.getValue()
+				.toString());
 
 		// chitsaou.070726: 分頁編號
 		// chitsaou.070726: 顯示捲軸
-		this.resource.setValue(Resource.TAB_NUMBER, this.ap.tabNumberCheckBox
+		resource.setValue(Resource.TAB_NUMBER, apperancePanel.tabNumberCheckBox
 				.isSelected());
-		this.resource.setValue(Resource.SHOW_SCROLL_BAR,
-				this.ap.showScrollBarCheckBox.isSelected());
+		resource.setValue(Resource.SHOW_SCROLL_BAR, apperancePanel.showScrollBarCheckBox
+				.isSelected());
 
-		this.resource.setValue(Config.FONT_FAMILY, this.fp.familyCombo
-				.getSelectedItem().toString());
-		this.resource.setValue(Config.FONT_SIZE, this.fp.sizeModel.getValue()
+		resource.setValue(Config.FONT_FAMILY, fontPanel.familyCombo.getSelectedItem()
 				.toString());
-		this.resource
-				.setValue(Config.FONT_BOLD, this.fp.boldCheck.isSelected());
-		this.resource.setValue(Config.FONT_ITALY, this.fp.italyCheck
-				.isSelected());
-		this.resource.setValue(Config.FONT_ANTIALIAS, this.fp.aaCheck
-				.isSelected());
-		this.resource.setValue(Config.FONT_VERTICLAL_GAP,
-				this.fp.fontVerticalGapModel.getValue().toString());
-		this.resource.setValue(Config.FONT_HORIZONTAL_GAP,
-				this.fp.fontHorizontalGapModel.getValue().toString());
-		this.resource.setValue(Config.FONT_DESCENT_ADJUST,
-				this.fp.fontDescentAdjustModel.getValue().toString());
-		
+		resource.setValue(Config.FONT_SIZE, fontPanel.sizeModel.getValue().toString());
+		resource.setValue(Config.FONT_BOLD, fontPanel.boldCheck.isSelected());
+		resource.setValue(Config.FONT_ITALY, fontPanel.italyCheck.isSelected());
+		resource.setValue(Config.FONT_ANTIALIAS, fontPanel.aaCheck.isSelected());
+		resource.setValue(Config.FONT_VERTICLAL_GAP, fontPanel.fontVerticalGapModel
+				.getValue().toString());
+		resource.setValue(Config.FONT_HORIZONTAL_GAP, fontPanel.fontHorizontalGapModel
+				.getValue().toString());
+		resource.setValue(Config.FONT_DESCENT_ADJUST, fontPanel.fontDescentAdjustModel
+				.getValue().toString());
+
 		// 將修改寫回設定檔
-		this.resource.writeFile();
+		resource.writeFile();
 
 		Model.getInstance().updateLookAndFeel();
 		Model.getInstance().updateBounds();
-		Model.getInstance().updateToolbar(this.ap.showToolbarCheckBox.isSelected());
+		Model.getInstance().updateToolbar(apperancePanel.showToolbarCheckBox.isSelected());
 		Model.getInstance().updateSize();
 		Model.getInstance().updateAntiIdleTime();
 	}
 
 	private void makeCategoryTree() {
-		this.rootNode = new DefaultMutableTreeNode(Messages
+		rootNode = new DefaultMutableTreeNode(Messages
 				.getString("Preference.Tree_RootNode_Text")); //$NON-NLS-1$
-		this.generalNode = new DefaultMutableTreeNode(Messages
+		generalNode = new DefaultMutableTreeNode(Messages
 				.getString("Preference.Tree_GeneralNode_Text")); //$NON-NLS-1$
-		this.connectionNode = new DefaultMutableTreeNode(Messages
+		connectionNode = new DefaultMutableTreeNode(Messages
 				.getString("Preference.Tree_ConnectionNode_Text")); //$NON-NLS-1$
-		this.appearanceNode = new DefaultMutableTreeNode(Messages
+		appearanceNode = new DefaultMutableTreeNode(Messages
 				.getString("Preference.Tree_AppearanceNode_Text")); //$NON-NLS-1$
-		this.fontNode = new DefaultMutableTreeNode(Messages
+		fontNode = new DefaultMutableTreeNode(Messages
 				.getString("Preference.Tree_FontNode_Text")); //$NON-NLS-1$
 
-		this.rootNode.add(this.generalNode);
-		this.rootNode.add(this.connectionNode);
-		this.rootNode.add(this.appearanceNode);
-		this.rootNode.add(this.fontNode);
+		rootNode.add(generalNode);
+		rootNode.add(connectionNode);
+		rootNode.add(appearanceNode);
+		rootNode.add(fontNode);
 
-		this.categoryTree = new JTree(this.rootNode);
-		this.categoryTree.getSelectionModel().setSelectionMode(
+		categoryTree = new JTree(rootNode);
+		categoryTree.getSelectionModel().setSelectionMode(
 				TreeSelectionModel.SINGLE_TREE_SELECTION);
-		this.categoryTree.addTreeSelectionListener(this);
-	}
+		categoryTree.addTreeSelectionListener(this);
+	}	
 }
 
 class ApperancePanel extends JPanel {
@@ -249,21 +247,18 @@ class ApperancePanel extends JPanel {
 
 	public ApperancePanel(final Resource r) {
 		super();
-		this.resource = r;
+		resource = r;
 
-		this.systemLookFeelLabel = new JLabel(Messages
+		systemLookFeelLabel = new JLabel(Messages
 				.getString("Preference.SystemLookFeel_Label_Text")); //$NON-NLS-1$
-		this.systemLookFeelCheckBox = new JCheckBox();
-		this.systemLookFeelCheckBox.setSelected(this.resource
+		systemLookFeelCheckBox = new JCheckBox();
+		systemLookFeelCheckBox.setSelected(resource
 				.getBooleanValue(Resource.SYSTEM_LOOK_FEEL));
 
-		this.systemLookFeelCheckBox.addActionListener(new ActionListener() {
+		systemLookFeelCheckBox.addActionListener(new ActionListener() {
 			public void actionPerformed(final ActionEvent actionEvent) {
-				Resource.getInstance()
-						.setValue(
-								Resource.SYSTEM_LOOK_FEEL,
-								ApperancePanel.this.systemLookFeelCheckBox
-										.isSelected());
+				Resource.getInstance().setValue(Resource.SYSTEM_LOOK_FEEL,
+						systemLookFeelCheckBox.isSelected());
 				Model.getInstance().updateLookAndFeel();
 				new Thread() {
 					@Override
@@ -274,13 +269,12 @@ class ApperancePanel extends JPanel {
 										Messages
 												.getString("PreferencePane.ConfirmLookFeel_Text"), Messages.getString("PreferencePane.ConfirmLookFeel_Title"), JOptionPane.YES_NO_OPTION); //$NON-NLS-1$ //$NON-NLS-2$
 						if (option == JOptionPane.NO_OPTION) {
-							ApperancePanel.this.systemLookFeelCheckBox
-									.setSelected(!ApperancePanel.this.systemLookFeelCheckBox
+							systemLookFeelCheckBox
+									.setSelected(!systemLookFeelCheckBox
 											.isSelected());
 							Resource.getInstance().setValue(
 									Resource.SYSTEM_LOOK_FEEL,
-									ApperancePanel.this.systemLookFeelCheckBox
-											.isSelected());
+									systemLookFeelCheckBox.isSelected());
 							Model.getInstance().updateLookAndFeel();
 						}
 					}
@@ -288,129 +282,129 @@ class ApperancePanel extends JPanel {
 			}
 		});
 
-		this.showToolbarLabel = new JLabel(Messages
+		showToolbarLabel = new JLabel(Messages
 				.getString("Preference.ShowToolbar_Label_Text")); //$NON-NLS-1$
-		this.showToolbarCheckBox = new JCheckBox();
-		this.showToolbarCheckBox.setSelected(this.resource
+		showToolbarCheckBox = new JCheckBox();
+		showToolbarCheckBox.setSelected(resource
 				.getBooleanValue(Resource.SHOW_TOOLBAR));
 
-		this.cursorBlinkLabel = new JLabel(Messages
+		cursorBlinkLabel = new JLabel(Messages
 				.getString("Preference.CursorBlink_Label_Text")); //$NON-NLS-1$
-		this.cursorBlinkCheckBox = new JCheckBox();
-		this.cursorBlinkCheckBox.setSelected(this.resource
+		cursorBlinkCheckBox = new JCheckBox();
+		cursorBlinkCheckBox.setSelected(resource
 				.getBooleanValue(Config.CURSOR_BLINK));
 
-		this.widthLabel = new JLabel(Messages
+		widthLabel = new JLabel(Messages
 				.getString("Preference.WindowWidth_Label_Text")); //$NON-NLS-1$
-		this.widthModel = new SpinnerNumberModel(this.resource
+		widthModel = new SpinnerNumberModel(resource
 				.getIntValue(Resource.GEOMETRY_WIDTH), 0, 4096, 1);
-		this.widthSpinner = new JSpinner(this.widthModel);
+		widthSpinner = new JSpinner(widthModel);
 
-		this.heightLabel = new JLabel(Messages
+		heightLabel = new JLabel(Messages
 				.getString("Preference.WindowHeight_Label_Text")); //$NON-NLS-1$
-		this.heightModel = new SpinnerNumberModel(this.resource
+		heightModel = new SpinnerNumberModel(resource
 				.getIntValue(Resource.GEOMETRY_HEIGHT), 0, 4096, 1);
-		this.heightSpinner = new JSpinner(this.heightModel);
+		heightSpinner = new JSpinner(heightModel);
 
-		this.scrollLabel = new JLabel(Messages
+		scrollLabel = new JLabel(Messages
 				.getString("Preference.Scroll_Label_Text")); //$NON-NLS-1$
-		this.scrollModel = new SpinnerNumberModel(this.resource
+		scrollModel = new SpinnerNumberModel(resource
 				.getIntValue(Config.TERMINAL_SCROLLS), 0, 10000, 1);
-		this.scrollSpinner = new JSpinner(this.scrollModel);
+		scrollSpinner = new JSpinner(scrollModel);
 
-		this.terminalColumnsLabel = new JLabel(Messages
+		terminalColumnsLabel = new JLabel(Messages
 				.getString("Preference.TerminalColumns_Label_Text")); //$NON-NLS-1$
-		this.terminalColumnsModel = new SpinnerNumberModel(this.resource
+		terminalColumnsModel = new SpinnerNumberModel(resource
 				.getIntValue(Config.TERMINAL_COLUMNS), 80, 200, 1);
-		this.terminalColumnsSpinner = new JSpinner(this.terminalColumnsModel);
-		this.terminalColumnsSpinner.setEnabled(false);
+		terminalColumnsSpinner = new JSpinner(terminalColumnsModel);
+		terminalColumnsSpinner.setEnabled(false);
 
-		this.terminalRowsLabel = new JLabel(Messages
+		terminalRowsLabel = new JLabel(Messages
 				.getString("Preference.TerminalRows_Label_Text")); //$NON-NLS-1$
-		this.terminalRowsModel = new SpinnerNumberModel(this.resource
+		terminalRowsModel = new SpinnerNumberModel(resource
 				.getIntValue(Config.TERMINAL_ROWS), 24, 200, 1);
-		this.terminalRowsSpinner = new JSpinner(this.terminalRowsModel);
-		this.terminalRowsSpinner.setEnabled(false);
+		terminalRowsSpinner = new JSpinner(terminalRowsModel);
+		terminalRowsSpinner.setEnabled(false);
 
 		// chitsaou.070726: 分頁編號
-		this.tabNumberLabel = new JLabel(Messages
+		tabNumberLabel = new JLabel(Messages
 				.getString("Preference.TabNumber_Label_Text")); //$NON-NLS-1$
-		this.tabNumberCheckBox = new JCheckBox();
-		this.tabNumberCheckBox.setSelected(this.resource
+		tabNumberCheckBox = new JCheckBox();
+		tabNumberCheckBox.setSelected(resource
 				.getBooleanValue(Resource.TAB_NUMBER));
 
 		// chitsaou.070726: 顯示捲軸
-		this.showScrollBarLabel = new JLabel(Messages
+		showScrollBarLabel = new JLabel(Messages
 				.getString("Preference.ShowScrollBar_Label_Text")); //$NON-NLS-1$
-		this.showScrollBarCheckBox = new JCheckBox();
-		this.showScrollBarCheckBox.setSelected(this.resource
+		showScrollBarCheckBox = new JCheckBox();
+		showScrollBarCheckBox.setSelected(resource
 				.getBooleanValue(Resource.SHOW_SCROLL_BAR));
 
-		this.setLayout(new GridBagLayout());
+		setLayout(new GridBagLayout());
 		final GridBagConstraints c = new GridBagConstraints();
 		c.anchor = GridBagConstraints.WEST;
 
 		c.gridx = 0;
 		c.gridy = 0;
-		this.add(this.systemLookFeelLabel, c);
+		this.add(systemLookFeelLabel, c);
 		c.gridx = 1;
-		this.add(this.systemLookFeelCheckBox, c);
+		this.add(systemLookFeelCheckBox, c);
 
 		c.gridx = 0;
 		c.gridy = 1;
-		this.add(this.showToolbarLabel, c);
+		this.add(showToolbarLabel, c);
 		c.gridx = 1;
-		this.add(this.showToolbarCheckBox, c);
+		this.add(showToolbarCheckBox, c);
 
 		c.gridx = 0;
 		c.gridy = 2;
-		this.add(this.cursorBlinkLabel, c);
+		this.add(cursorBlinkLabel, c);
 		c.gridx = 1;
-		this.add(this.cursorBlinkCheckBox, c);
+		this.add(cursorBlinkCheckBox, c);
 
 		c.gridx = 0;
 		c.gridy = 3;
-		this.add(this.widthLabel, c);
+		this.add(widthLabel, c);
 		c.gridx = 1;
-		this.add(this.widthSpinner, c);
+		this.add(widthSpinner, c);
 
 		c.gridx = 0;
 		c.gridy = 4;
-		this.add(this.heightLabel, c);
+		this.add(heightLabel, c);
 		c.gridx = 1;
-		this.add(this.heightSpinner, c);
+		this.add(heightSpinner, c);
 
 		c.gridx = 0;
 		c.gridy = 5;
-		this.add(this.scrollLabel, c);
+		this.add(scrollLabel, c);
 		c.gridx = 1;
-		this.add(this.scrollSpinner, c);
+		this.add(scrollSpinner, c);
 
 		c.gridx = 0;
 		c.gridy = 6;
-		this.add(this.terminalColumnsLabel, c);
+		this.add(terminalColumnsLabel, c);
 		c.gridx = 1;
-		this.add(this.terminalColumnsSpinner, c);
+		this.add(terminalColumnsSpinner, c);
 
 		c.gridx = 0;
 		c.gridy = 7;
-		this.add(this.terminalRowsLabel, c);
+		this.add(terminalRowsLabel, c);
 		c.gridx = 1;
-		this.add(this.terminalRowsSpinner, c);
+		this.add(terminalRowsSpinner, c);
 
 		// chitsaou.070726: 分頁編號
 		c.gridx = 0;
 		c.gridy = 8;
-		this.add(this.tabNumberLabel, c);
+		this.add(tabNumberLabel, c);
 		c.gridx = 1;
-		this.add(this.tabNumberCheckBox, c);
+		this.add(tabNumberCheckBox, c);
 
 		// chitsaou.070726: 顯示捲軸
 		c.gridx = 0;
 		c.gridy = 9;
-		this.add(this.showScrollBarLabel, c);
+		this.add(showScrollBarLabel, c);
 		c.gridx = 1;
-		this.add(this.showScrollBarCheckBox, c);
+		this.add(showScrollBarCheckBox, c);
 	}
 }
 
@@ -434,103 +428,100 @@ class ConnectionPanel extends JPanel implements ActionListener {
 
 	public ConnectionPanel(final Resource r) {
 		super();
-		this.resource = r;
+		resource = r;
 
-		final boolean autoReconnect = this.resource
+		final boolean autoReconnect = resource
 				.getBooleanValue(Resource.AUTO_RECONNECT);
-		this.autoReconnectLabel = new JLabel(Messages
+		autoReconnectLabel = new JLabel(Messages
 				.getString("Preference.AutoReconnect_Label_Text")); //$NON-NLS-1$
-		this.autoReconnectCheckBox = new JCheckBox();
-		this.autoReconnectCheckBox.setSelected(autoReconnect);
-		this.autoReconnectCheckBox.addActionListener(this);
+		autoReconnectCheckBox = new JCheckBox();
+		autoReconnectCheckBox.setSelected(autoReconnect);
+		autoReconnectCheckBox.addActionListener(this);
 
-		this.reconnectTimeLabel = new JLabel(Messages
+		reconnectTimeLabel = new JLabel(Messages
 				.getString("Preference.ReconnectTime_Label_Text")); //$NON-NLS-1$
-		this.reconnectTimeModel = new SpinnerNumberModel(this.resource
+		reconnectTimeModel = new SpinnerNumberModel(resource
 				.getIntValue(Resource.AUTO_RECONNECT_TIME), 0, 3600, 1);
-		this.reconnectTimeSpinner = new JSpinner(this.reconnectTimeModel);
-		this.reconnectTimeSpinner.setEnabled(autoReconnect);
+		reconnectTimeSpinner = new JSpinner(reconnectTimeModel);
+		reconnectTimeSpinner.setEnabled(autoReconnect);
 
-		this.reconnectIntervalLabel = new JLabel(Messages
+		reconnectIntervalLabel = new JLabel(Messages
 				.getString("Preference.ReconnectInterval_Label_Text")); //$NON-NLS-1$
-		this.reconnectIntervalModel = new SpinnerNumberModel(this.resource
+		reconnectIntervalModel = new SpinnerNumberModel(resource
 				.getIntValue(Resource.AUTO_RECONNECT_INTERVAL), 0, 60000, 1);
-		this.reconnectIntervalSpinner = new JSpinner(
-				this.reconnectIntervalModel);
-		this.reconnectIntervalSpinner.setEnabled(autoReconnect);
+		reconnectIntervalSpinner = new JSpinner(reconnectIntervalModel);
+		reconnectIntervalSpinner.setEnabled(autoReconnect);
 
-		this.antiIdleLabel = new JLabel(Messages
+		antiIdleLabel = new JLabel(Messages
 				.getString("Preference.AntiIdle_Label_Text")); //$NON-NLS-1$
-		this.antiIdleCheckBox = new JCheckBox();
-		this.antiIdleCheckBox.setSelected(this.resource
+		antiIdleCheckBox = new JCheckBox();
+		antiIdleCheckBox.setSelected(resource
 				.getBooleanValue(Resource.ANTI_IDLE));
-		this.antiIdleCheckBox.addActionListener(this);
+		antiIdleCheckBox.addActionListener(this);
 
-		this.antiIdleTimeLabel = new JLabel(Messages
+		antiIdleTimeLabel = new JLabel(Messages
 				.getString("Preference.AntiIdleTime_Label_Text")); //$NON-NLS-1$
-		this.antiIdleModel = new SpinnerNumberModel(this.resource
+		antiIdleModel = new SpinnerNumberModel(resource
 				.getIntValue(Resource.ANTI_IDLE_INTERVAL), 0, 3600, 1);
-		this.antiIdleTimeSpinner = new JSpinner(this.antiIdleModel);
-		this.antiIdleTimeSpinner.setEnabled(this.resource
+		antiIdleTimeSpinner = new JSpinner(antiIdleModel);
+		antiIdleTimeSpinner.setEnabled(resource
 				.getBooleanValue(Resource.ANTI_IDLE));
 
 		// chitsaou.070726: 防閒置字串
-		this.antiIdleStringLabel = new JLabel(Messages
+		antiIdleStringLabel = new JLabel(Messages
 				.getString("Preference.AntiIdleString_Label_Text")); //$NON-NLS-1$
-		this.antiIdleStringField = new JTextField(this.resource
+		antiIdleStringField = new JTextField(resource
 				.getStringValue(Resource.ANTI_IDLE_STRING), 15);
 
-		this.setLayout(new GridBagLayout());
+		setLayout(new GridBagLayout());
 		final GridBagConstraints c = new GridBagConstraints();
 		c.anchor = GridBagConstraints.WEST;
 
 		c.gridx = 0;
 		c.gridy = 0;
-		this.add(this.autoReconnectLabel, c);
+		this.add(autoReconnectLabel, c);
 		c.gridx = 1;
-		this.add(this.autoReconnectCheckBox, c);
+		this.add(autoReconnectCheckBox, c);
 
 		c.gridx = 0;
 		c.gridy = 1;
-		this.add(this.reconnectTimeLabel, c);
+		this.add(reconnectTimeLabel, c);
 		c.gridx = 1;
-		this.add(this.reconnectTimeSpinner, c);
+		this.add(reconnectTimeSpinner, c);
 
 		c.gridx = 0;
 		c.gridy = 2;
-		this.add(this.reconnectIntervalLabel, c);
+		this.add(reconnectIntervalLabel, c);
 		c.gridx = 1;
-		this.add(this.reconnectIntervalSpinner, c);
+		this.add(reconnectIntervalSpinner, c);
 
 		c.gridx = 0;
 		c.gridy = 3;
-		this.add(this.antiIdleLabel, c);
+		this.add(antiIdleLabel, c);
 		c.gridx = 1;
-		this.add(this.antiIdleCheckBox, c);
+		this.add(antiIdleCheckBox, c);
 
 		c.gridx = 0;
 		c.gridy = 4;
-		this.add(this.antiIdleTimeLabel, c);
+		this.add(antiIdleTimeLabel, c);
 		c.gridx = 1;
-		this.add(this.antiIdleTimeSpinner, c);
+		this.add(antiIdleTimeSpinner, c);
 
 		// chitsaou.070726: 防閒置字串
 		c.gridx = 0;
 		c.gridy = 5;
-		this.add(this.antiIdleStringLabel, c);
+		this.add(antiIdleStringLabel, c);
 		c.gridx = 1;
-		this.add(this.antiIdleStringField, c);
+		this.add(antiIdleStringField, c);
 	}
 
 	public void actionPerformed(final ActionEvent ae) {
-		if (ae.getSource() == this.autoReconnectCheckBox) {
-			this.reconnectTimeSpinner.setEnabled(this.autoReconnectCheckBox
+		if (ae.getSource() == autoReconnectCheckBox) {
+			reconnectTimeSpinner.setEnabled(autoReconnectCheckBox.isSelected());
+			reconnectIntervalSpinner.setEnabled(autoReconnectCheckBox
 					.isSelected());
-			this.reconnectIntervalSpinner.setEnabled(this.autoReconnectCheckBox
-					.isSelected());
-		} else if (ae.getSource() == this.antiIdleCheckBox) {
-			this.antiIdleTimeSpinner.setEnabled(this.antiIdleCheckBox
-					.isSelected());
+		} else if (ae.getSource() == antiIdleCheckBox) {
+			antiIdleTimeSpinner.setEnabled(antiIdleCheckBox.isSelected());
 		}
 	}
 }
@@ -559,112 +550,107 @@ class FontPanel extends JPanel {
 
 	public FontPanel(final Resource r) {
 		super();
-		this.resource = r;
+		resource = r;
 
-		this.familyLabel = new JLabel(Messages
+		familyLabel = new JLabel(Messages
 				.getString("Preference.FontFamily_Label_Text")); //$NON-NLS-1$
 		final GraphicsEnvironment ge = GraphicsEnvironment
 				.getLocalGraphicsEnvironment();
 		final String[] familyList = ge.getAvailableFontFamilyNames();
-		this.familyCombo = new JComboBox(familyList);
-		this.familyCombo.setSelectedItem(this.resource
-				.getStringValue(Config.FONT_FAMILY));
+		familyCombo = new JComboBox(familyList);
+		familyCombo
+				.setSelectedItem(resource.getStringValue(Config.FONT_FAMILY));
 
-		this.sizeLabel = new JLabel(Messages
+		sizeLabel = new JLabel(Messages
 				.getString("Preference.FontSize_Label_Text")); //$NON-NLS-1$
-		this.sizeModel = new SpinnerNumberModel(this.resource
+		sizeModel = new SpinnerNumberModel(resource
 				.getIntValue(Config.FONT_SIZE), 0, 64, 1);
-		this.sizeSpinner = new JSpinner(this.sizeModel);
+		sizeSpinner = new JSpinner(sizeModel);
 
-		this.boldLabel = new JLabel(Messages
+		boldLabel = new JLabel(Messages
 				.getString("Preference.FontBold_Label_Text")); //$NON-NLS-1$
-		this.boldCheck = new JCheckBox();
-		this.boldCheck.setSelected(this.resource
-				.getBooleanValue(Config.FONT_BOLD));
+		boldCheck = new JCheckBox();
+		boldCheck.setSelected(resource.getBooleanValue(Config.FONT_BOLD));
 
-		this.italyLabel = new JLabel(Messages
+		italyLabel = new JLabel(Messages
 				.getString("Preference.FontItaly_Label_Text")); //$NON-NLS-1$
-		this.italyCheck = new JCheckBox();
-		this.italyCheck.setSelected(this.resource
-				.getBooleanValue(Config.FONT_ITALY));
+		italyCheck = new JCheckBox();
+		italyCheck.setSelected(resource.getBooleanValue(Config.FONT_ITALY));
 
-		this.aaLabel = new JLabel(Messages
+		aaLabel = new JLabel(Messages
 				.getString("Preference.FontAntiAliasing_Label_Text")); //$NON-NLS-1$
-		this.aaCheck = new JCheckBox();
-		this.aaCheck.setSelected(this.resource
-				.getBooleanValue(Config.FONT_ANTIALIAS));
+		aaCheck = new JCheckBox();
+		aaCheck.setSelected(resource.getBooleanValue(Config.FONT_ANTIALIAS));
 
-		this.fontVerticalGapLabel = new JLabel(Messages
+		fontVerticalGapLabel = new JLabel(Messages
 				.getString("Preference.FontVerticalGap_Label_Text")); //$NON-NLS-1$
-		this.fontVerticalGapModel = new SpinnerNumberModel(this.resource
+		fontVerticalGapModel = new SpinnerNumberModel(resource
 				.getIntValue(Config.FONT_VERTICLAL_GAP), -10, 10, 1);
-		this.fontVerticalGapSpinner = new JSpinner(this.fontVerticalGapModel);
+		fontVerticalGapSpinner = new JSpinner(fontVerticalGapModel);
 
-		this.fontHorizontalGapLabel = new JLabel(Messages
+		fontHorizontalGapLabel = new JLabel(Messages
 				.getString("Preference.FontHorizontalGap_Label_Text")); //$NON-NLS-1$
-		this.fontHorizontalGapModel = new SpinnerNumberModel(this.resource
+		fontHorizontalGapModel = new SpinnerNumberModel(resource
 				.getIntValue(Config.FONT_HORIZONTAL_GAP), -10, 10, 1);
-		this.fontHorizontalGapSpinner = new JSpinner(
-				this.fontHorizontalGapModel);
+		fontHorizontalGapSpinner = new JSpinner(fontHorizontalGapModel);
 
-		this.fontDescentAdjustLabel = new JLabel(Messages
+		fontDescentAdjustLabel = new JLabel(Messages
 				.getString("Preference.FontDescentAdjust_Label_Text")); //$NON-NLS-1$
-		this.fontDescentAdjustModel = new SpinnerNumberModel(this.resource
+		fontDescentAdjustModel = new SpinnerNumberModel(resource
 				.getIntValue(Config.FONT_DESCENT_ADJUST), -10, 10, 1);
-		this.fontDescentAdjustSpinner = new JSpinner(
-				this.fontDescentAdjustModel);
+		fontDescentAdjustSpinner = new JSpinner(fontDescentAdjustModel);
 
-		this.setLayout(new GridBagLayout());
+		setLayout(new GridBagLayout());
 		final GridBagConstraints c = new GridBagConstraints();
 		c.anchor = GridBagConstraints.WEST;
 
 		c.gridx = 0;
 		c.gridy = 0;
-		this.add(this.familyLabel, c);
+		this.add(familyLabel, c);
 		c.gridx = 1;
-		this.add(this.familyCombo, c);
+		this.add(familyCombo, c);
 
 		c.gridx = 0;
 		c.gridy = 1;
-		this.add(this.sizeLabel, c);
+		this.add(sizeLabel, c);
 		c.gridx = 1;
-		this.add(this.sizeSpinner, c);
+		this.add(sizeSpinner, c);
 
 		c.gridx = 0;
 		c.gridy = 2;
-		this.add(this.boldLabel, c);
+		this.add(boldLabel, c);
 		c.gridx = 1;
-		this.add(this.boldCheck, c);
+		this.add(boldCheck, c);
 
 		c.gridx = 0;
 		c.gridy = 3;
-		this.add(this.italyLabel, c);
+		this.add(italyLabel, c);
 		c.gridx = 1;
-		this.add(this.italyCheck, c);
+		this.add(italyCheck, c);
 
 		c.gridx = 0;
 		c.gridy = 4;
-		this.add(this.aaLabel, c);
+		this.add(aaLabel, c);
 		c.gridx = 1;
-		this.add(this.aaCheck, c);
+		this.add(aaCheck, c);
 
 		c.gridx = 0;
 		c.gridy = 5;
-		this.add(this.fontVerticalGapLabel, c);
+		this.add(fontVerticalGapLabel, c);
 		c.gridx = 1;
-		this.add(this.fontVerticalGapSpinner, c);
+		this.add(fontVerticalGapSpinner, c);
 
 		c.gridx = 0;
 		c.gridy = 6;
-		this.add(this.fontHorizontalGapLabel, c);
+		this.add(fontHorizontalGapLabel, c);
 		c.gridx = 1;
-		this.add(this.fontHorizontalGapSpinner, c);
+		this.add(fontHorizontalGapSpinner, c);
 
 		c.gridx = 0;
 		c.gridy = 7;
-		this.add(this.fontDescentAdjustLabel, c);
+		this.add(fontDescentAdjustLabel, c);
 		c.gridx = 1;
-		this.add(this.fontDescentAdjustSpinner, c);
+		this.add(fontDescentAdjustSpinner, c);
 	}
 }
 
@@ -698,146 +684,144 @@ class GeneralPanel extends JPanel implements ActionListener {
 
 	public GeneralPanel(final Resource r) {
 		super();
-		this.resource = r;
+		resource = r;
 
-		this.browserLabel = new JLabel(Messages
+		browserLabel = new JLabel(Messages
 				.getString("Preference.BrowserCommand_Label_Text")); //$NON-NLS-1$
-		this.browserField = new JTextField(this.resource
+		browserField = new JTextField(resource
 				.getStringValue(Resource.EXTERNAL_BROWSER), 20);
 
-		this.copyOnSelectLabel = new JLabel(Messages
+		copyOnSelectLabel = new JLabel(Messages
 				.getString("Preference.CopyOnSelect_Label_Text")); //$NON-NLS-1$
-		this.copyOnSelectCheckBox = new JCheckBox();
-		this.copyOnSelectCheckBox.setSelected(this.resource
+		copyOnSelectCheckBox = new JCheckBox();
+		copyOnSelectCheckBox.setSelected(resource
 				.getBooleanValue(Config.COPY_ON_SELECT));
 
-		this.clearAfterCopyLabel = new JLabel(Messages
+		clearAfterCopyLabel = new JLabel(Messages
 				.getString("Preference.ClearAfterCopy_Label_Text")); //$NON-NLS-1$
-		this.clearAfterCopyCheckBox = new JCheckBox();
-		this.clearAfterCopyCheckBox.setSelected(this.resource
+		clearAfterCopyCheckBox = new JCheckBox();
+		clearAfterCopyCheckBox.setSelected(resource
 				.getBooleanValue(Config.CLEAR_AFTER_COPY));
 
-		this.removeManualLabel = new JLabel(Messages
+		removeManualLabel = new JLabel(Messages
 				.getString("Preference.RemoveManual_Label_Text")); //$NON-NLS-1$
-		this.removeManualCheckBox = new JCheckBox();
-		this.removeManualCheckBox.setSelected(this.resource
+		removeManualCheckBox = new JCheckBox();
+		removeManualCheckBox.setSelected(resource
 				.getBooleanValue(Resource.REMOVE_MANUAL_DISCONNECT));
 
-		this.linebreakLabel = new JLabel(Messages
+		linebreakLabel = new JLabel(Messages
 				.getString("Preference.LineBreak_Label_Text")); //$NON-NLS-1$
-		this.linebreakCheckBox = new JCheckBox();
-		this.linebreakCheckBox.setSelected(this.resource
+		linebreakCheckBox = new JCheckBox();
+		linebreakCheckBox.setSelected(resource
 				.getBooleanValue(Config.AUTO_LINE_BREAK));
-		this.linebreakCheckBox.addActionListener(this);
+		linebreakCheckBox.addActionListener(this);
 
-		this.breaklengthLabel = new JLabel(Messages
+		breaklengthLabel = new JLabel(Messages
 				.getString("Preference.BreakLength_Label_Text")); //$NON-NLS-1$
-		this.breaklengthModel = new SpinnerNumberModel(this.resource
+		breaklengthModel = new SpinnerNumberModel(resource
 				.getIntValue(Config.AUTO_LINE_BREAK_LENGTH), 1, 512, 1);
-		this.breaklengthSpinner = new JSpinner(this.breaklengthModel);
-		this.breaklengthSpinner.setEnabled(this.resource
+		breaklengthSpinner = new JSpinner(breaklengthModel);
+		breaklengthSpinner.setEnabled(resource
 				.getBooleanValue(Config.AUTO_LINE_BREAK));
 
-		this.customBellLabel = new JLabel(Messages
+		customBellLabel = new JLabel(Messages
 				.getString("Preference.CustomBell_Label_Text")); //$NON-NLS-1$
-		this.customBellCheckBox = new JCheckBox();
-		this.customBellCheckBox.setSelected(this.resource
+		customBellCheckBox = new JCheckBox();
+		customBellCheckBox.setSelected(resource
 				.getBooleanValue(Resource.USE_CUSTOM_BELL));
-		this.customBellCheckBox.addActionListener(this);
+		customBellCheckBox.addActionListener(this);
 
-		this.bellPathLabel = new JLabel(Messages
+		bellPathLabel = new JLabel(Messages
 				.getString("Preference.BellPath_Label_Text")); //$NON-NLS-1$
-		this.bellPathField = new JTextField(this.resource
+		bellPathField = new JTextField(resource
 				.getStringValue(Resource.CUSTOM_BELL_PATH), 8);
-		this.bellPathField.setEnabled(this.resource
+		bellPathField.setEnabled(resource
 				.getBooleanValue(Resource.USE_CUSTOM_BELL));
-		this.bellPathButton = new JButton(Messages
+		bellPathButton = new JButton(Messages
 				.getString("Preference.BellPath_Button_Text")); //$NON-NLS-1$
-		this.bellPathButton.setEnabled(this.resource
+		bellPathButton.setEnabled(resource
 				.getBooleanValue(Resource.USE_CUSTOM_BELL));
-		this.bellPathButton.addActionListener(this);
+		bellPathButton.addActionListener(this);
 
-		this.setLayout(new GridBagLayout());
+		setLayout(new GridBagLayout());
 		final GridBagConstraints c = new GridBagConstraints();
 		c.anchor = GridBagConstraints.WEST;
 
 		c.gridx = 0;
 		c.gridy = 0;
 		c.gridwidth = 3;
-		this.add(this.browserLabel, c);
+		this.add(browserLabel, c);
 
 		c.gridx = 0;
 		c.gridy = 1;
 		c.gridwidth = 3;
-		this.add(this.browserField, c);
+		this.add(browserField, c);
 
 		c.gridwidth = 1;
 
 		c.gridx = 0;
 		c.gridy = 2;
-		this.add(this.copyOnSelectLabel, c);
+		this.add(copyOnSelectLabel, c);
 		c.gridx = 1;
-		this.add(this.copyOnSelectCheckBox, c);
+		this.add(copyOnSelectCheckBox, c);
 
 		c.gridx = 0;
 		c.gridy = 3;
-		this.add(this.clearAfterCopyLabel, c);
+		this.add(clearAfterCopyLabel, c);
 		c.gridx = 1;
-		this.add(this.clearAfterCopyCheckBox, c);
+		this.add(clearAfterCopyCheckBox, c);
 
 		c.gridx = 0;
 		c.gridy = 4;
-		this.add(this.removeManualLabel, c);
+		this.add(removeManualLabel, c);
 		c.gridx = 1;
-		this.add(this.removeManualCheckBox, c);
+		this.add(removeManualCheckBox, c);
 
 		c.gridx = 0;
 		c.gridy = 5;
-		this.add(this.linebreakLabel, c);
+		this.add(linebreakLabel, c);
 		c.gridx = 1;
-		this.add(this.linebreakCheckBox, c);
+		this.add(linebreakCheckBox, c);
 
 		c.gridx = 0;
 		c.gridy = 6;
-		this.add(this.breaklengthLabel, c);
+		this.add(breaklengthLabel, c);
 		c.gridx = 1;
-		this.add(this.breaklengthSpinner, c);
+		this.add(breaklengthSpinner, c);
 
 		c.gridx = 0;
 		c.gridy = 7;
-		this.add(this.customBellLabel, c);
+		this.add(customBellLabel, c);
 		c.gridx = 1;
-		this.add(this.customBellCheckBox, c);
+		this.add(customBellCheckBox, c);
 
 		c.gridx = 0;
 		c.gridy = 8;
-		this.add(this.bellPathLabel, c);
+		this.add(bellPathLabel, c);
 		c.gridx = 1;
-		this.add(this.bellPathField, c);
+		this.add(bellPathField, c);
 		c.gridx = 2;
-		this.add(this.bellPathButton, c);
+		this.add(bellPathButton, c);
 	}
 
 	public void actionPerformed(final ActionEvent ae) {
-		if (ae.getSource() == this.linebreakCheckBox) {
-			this.breaklengthSpinner.setEnabled(this.linebreakCheckBox
-					.isSelected());
-		} else if (ae.getSource() == this.customBellCheckBox) {
-			this.bellPathField.setEnabled(this.customBellCheckBox.isSelected());
-			this.bellPathButton
-					.setEnabled(this.customBellCheckBox.isSelected());
-		} else if (ae.getSource() == this.bellPathButton) {
+		if (ae.getSource() == linebreakCheckBox) {
+			breaklengthSpinner.setEnabled(linebreakCheckBox.isSelected());
+		} else if (ae.getSource() == customBellCheckBox) {
+			bellPathField.setEnabled(customBellCheckBox.isSelected());
+			bellPathButton.setEnabled(customBellCheckBox.isSelected());
+		} else if (ae.getSource() == bellPathButton) {
 
-			if (this.parentDirectory != null) {
-				this.jfc = new JFileChooser(this.parentDirectory);
+			if (parentDirectory != null) {
+				jfc = new JFileChooser(parentDirectory);
 			} else {
-				this.jfc = new JFileChooser();
+				jfc = new JFileChooser();
 			}
 
-			if (this.jfc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-				this.selectedFile = this.jfc.getSelectedFile();
-				this.parentDirectory = this.selectedFile.getParent();
-				this.bellPathField.setText(this.selectedFile.getAbsolutePath());
+			if (jfc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+				selectedFile = jfc.getSelectedFile();
+				parentDirectory = selectedFile.getParent();
+				bellPathField.setText(selectedFile.getAbsolutePath());
 			}
 		}
 	}
