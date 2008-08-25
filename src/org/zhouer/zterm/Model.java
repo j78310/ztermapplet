@@ -60,7 +60,7 @@ public class Model {
 
 	private ZTerm view;
 
-	private final PreferencePane preferencePane;
+	private PreferencePane preferencePane;
 
 	private Model() {
 		sessions = Sessions.getInstance(); // 各個連線
@@ -778,5 +778,11 @@ public class Model {
 		}
 
 		this.connect(site, -1);
+	}
+	
+	public void refreshMessages() {
+		Messages.restartBundle();
+		this.resource.writeFile();
+		this.view.updateText();
 	}
 }
