@@ -147,7 +147,6 @@ public class VT100 extends JComponent {
 	private int nvtBufPos, nvtBufLen;
 
 	private final Application parent;
-	private Vector probablyurl;
 	private Object repaintLock;
 	// 記錄螢幕上何處需要 repaint
 	private FIFOSet repaintSet;
@@ -264,7 +263,6 @@ public class VT100 extends JComponent {
 		return keypadmode;
 	}
 
-	@Override
 	public Dimension getPreferredSize() {
 		// FIXME: magic number
 		return new Dimension(800, 600);
@@ -584,7 +582,6 @@ public class VT100 extends JComponent {
 		}
 	}
 
-	@Override
 	public void setBounds(final int x, final int y, final int w, final int h) {
 		// layout manager 或其他人可能會透過 setBound 來改變 component 的大小，
 		// 此時要一併更新 component
@@ -592,7 +589,6 @@ public class VT100 extends JComponent {
 		updateSize();
 	}
 
-	@Override
 	public void setBounds(final Rectangle r) {
 		super.setBounds(r);
 		updateSize();
@@ -788,7 +784,6 @@ public class VT100 extends JComponent {
 		updateScreen();
 	}
 
-	@Override
 	protected void paintComponent(final Graphics g) {
 		// 因為多個分頁共用一張 image, 因此只有在前景的分頁才有繪圖的權利，
 		// 不在前景時不重繪，以免干擾畫面。
@@ -1214,8 +1209,6 @@ public class VT100 extends JComponent {
 		cfgcolor = VT100.defFg;
 		cbgcolor = VT100.defBg;
 		cattribute = VT100.defAttr;
-
-		probablyurl = new Vector();
 
 		text_blink_count = 0;
 		cursor_blink_count = 0;

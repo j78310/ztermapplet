@@ -14,7 +14,6 @@ public class ComponentHandler extends ComponentAdapter {
 
 	private ZTerm view;
 
-	@Override
 	public void componentResized(final ComponentEvent ce) {
 		this.view.validate();
 		this.model.updateSize();

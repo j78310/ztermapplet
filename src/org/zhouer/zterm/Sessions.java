@@ -7,7 +7,7 @@ import java.util.Vector;
  * 
  * @author Chin-Chang Yang
  */
-public class Sessions extends Vector<Session> {
+public class Sessions extends Vector {
 	private static final long serialVersionUID = -4458258447638659749L;
 	private volatile static Sessions sessions = null;
 

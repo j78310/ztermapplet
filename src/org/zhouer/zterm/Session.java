@@ -332,7 +332,6 @@ public class Session extends JPanel implements Runnable, Application,
 		this.hasTab = false;
 	}
 
-	@Override
 	public boolean requestFocusInWindow() {
 		return this.vt.requestFocusInWindow();
 	}

@@ -151,14 +151,14 @@ public class ZTerm extends JApplet {
 	 * Update favorite menu with resource.
 	 */
 	public void updateFavoriteMenu() {
-		final Vector<Site> favorites = this.resource.getFavorites();
+		final Vector favorites = this.resource.getFavorites();
 		this.favoriteItems = new JMenuItem[favorites.size()];
 
 		this.historyMenu.removeAll();
 
 		// 顯示目前我的最愛內容
 		for (int i = 0; i < favorites.size(); i++) {
-			final Site fa = favorites.elementAt(i);
+			final Site fa = (Site) favorites.elementAt(i);
 			this.favoriteItems[i] = new JMenuItem(fa.name);
 			this.favoriteItems[i].setToolTipText(fa.host + ":" + fa.port); //$NON-NLS-1$
 			this.favoriteItems[i].addActionListener(this.actionController);
@@ -197,7 +197,7 @@ public class ZTerm extends JApplet {
 
 		// 視窗大小調整時同步更新每個 session 的大小
 		for (int i = 0; i < this.sessions.size(); i++) {
-			session = this.sessions.elementAt(i);
+			session = (Session) this.sessions.elementAt(i);
 			session.validate();
 			session.updateImage(this.bi);
 			session.updateSize();

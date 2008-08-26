@@ -261,7 +261,6 @@ class ApperancePanel extends JPanel {
 						systemLookFeelCheckBox.isSelected());
 				Model.getInstance().updateLookAndFeel();
 				new Thread() {
-					@Override
 					public void run() {
 						final int option = JOptionPane
 								.showConfirmDialog(

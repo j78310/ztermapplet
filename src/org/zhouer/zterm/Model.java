@@ -81,11 +81,11 @@ public class Model {
 	 * Automatically connect to predefined sites according to resource.
 	 */
 	public void autoconnect() {
-		final Vector<Site> favorite = resource.getFavorites();
-		final Iterator<Site> favoriteIterator = favorite.iterator();
+		final Vector favorite = resource.getFavorites();
+		final Iterator favoriteIterator = favorite.iterator();
 
 		while (favoriteIterator.hasNext()) {
-			final Site site = favoriteIterator.next();
+			final Site site = (Site) favoriteIterator.next();
 			if (site.autoconnect) {
 				// XXX: here's magic number, -1.
 				this.connect(site, -1);
@@ -130,7 +130,8 @@ public class Model {
 			// 取得焦點的工作
 			final Runnable sessionFocuser = new Runnable() {
 				public void run() {
-					sessions.get(index).requestFocusInWindow();
+					final Session session = (Session) sessions.get(index);
+					session.requestFocusInWindow();
 				}
 			};
 			
@@ -291,21 +292,21 @@ public class Model {
 	 *            key word for site to be searched.
 	 * @return candidate sites.
 	 */
-	public Vector<Site> getCandidateSites(final String keyWordSite) {
-		final Vector<Site> candidateSites = new Vector<Site>();
+	public Vector getCandidateSites(final String keyWordSite) {
+		final Vector candidateSites = new Vector();
 
 		// 如果關鍵字是空字串，那就什麼都不要回
 		if (keyWordSite.length() == 0) {
 			return candidateSites;
 		}
 
-		Iterator<Site> siteIterator;
+		Iterator siteIterator;
 		Site site;
 
 		// 加入站台列表中符合的
 		siteIterator = resource.getFavorites().iterator();
 		while (siteIterator.hasNext()) {
-			site = siteIterator.next();
+			site = (Site) siteIterator.next();
 			if ((site.name.indexOf(keyWordSite) != -1)
 					|| (site.alias.indexOf(keyWordSite) != -1)
 					|| (site.getURL().indexOf(keyWordSite) != -1)) {
@@ -335,7 +336,7 @@ public class Model {
 	 * 
 	 * @return the sessions
 	 */
-	public Vector<Session> getSessions() {
+	public Vector getSessions() {
 		return sessions;
 	}
 
@@ -582,7 +583,8 @@ public class Model {
 	 */
 	public void updateAntiIdleTime() {
 		for (int i = 0; i < sessions.size(); i++) {
-			(sessions.elementAt(i)).updateAntiIdleTime();
+			final Session session = (Session) sessions.elementAt(i);
+			session.updateAntiIdleTime();
 		}
 	}
 
@@ -638,8 +640,8 @@ public class Model {
 		resource.setValue(Resource.GEOMETRY_WIDTH, (int) bounds.getWidth());
 		resource.setValue(Resource.GEOMETRY_HEIGHT, (int) bounds.getHeight());
 		
-		preferencePane.apperancePanel.widthSpinner.setValue((int) bounds.getWidth());
-		preferencePane.apperancePanel.heightSpinner.setValue((int) bounds.getHeight());
+		preferencePane.apperancePanel.widthSpinner.setValue(new Integer((int) bounds.getWidth()));
+		preferencePane.apperancePanel.heightSpinner.setValue(new Integer((int) bounds.getHeight()));
 
 		view.updateSize();
 	}
@@ -697,14 +699,16 @@ public class Model {
 	 */
 	public void updateTabTitle() {
 		for (int i = 0; i < view.tabbedPane.getTabCount(); i++) {
+			final Session session = (Session) getSessions().elementAt(i);
+			
 			view.tabbedPane.setTitleAt(i, (i + 1)
-					+ ". " + getSessions().elementAt(i).getSite().name); //$NON-NLS-1$
+					+ ". " + session.getSite().name); //$NON-NLS-1$
 
 			// FIXME: need revise
 			view.tabbedPane.setTitleAt(i,
 					((resource.getBooleanValue(Resource.TAB_NUMBER)) ? (i + 1)
 							+ ". " : "") //$NON-NLS-1$ //$NON-NLS-2$
-							+ getSessions().elementAt(i).getSite().name);
+							+ session.getSite().name);
 		}
 	}
 

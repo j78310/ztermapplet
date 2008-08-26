@@ -13,7 +13,7 @@ import org.zhouer.utils.TextUtils;
  * 
  * @author h45
  */
-public class Site implements Comparable<Site> {
+public class Site implements Comparable {
 
 	// 別名
 	protected String alias;
@@ -70,59 +70,59 @@ public class Site implements Comparable<Site> {
 	 *            CSV
 	 */
 	public Site(final String h) {
-		final Map<String, String> m = TextUtils.getCsvParameters(h);
+		final Map m = TextUtils.getCsvParameters(h);
 
 		// name, host, port 是必要的，一定會有
-		this.name = m.get("name"); //$NON-NLS-1$
-		this.host = m.get("host"); //$NON-NLS-1$
-		this.port = Integer.parseInt(m.get("port")); //$NON-NLS-1$
+		this.name = (String) m.get("name"); //$NON-NLS-1$
+		this.host = (String) m.get("host"); //$NON-NLS-1$
+		this.port = Integer.parseInt((String) m.get("port")); //$NON-NLS-1$
 
 		if (m.containsKey("protocol")) { //$NON-NLS-1$
-			this.protocol = m.get("protocol"); //$NON-NLS-1$
+			this.protocol = (String) m.get("protocol"); //$NON-NLS-1$
 		} else {
 			this.protocol = this.defProtocol;
 		}
 
 		if (m.containsKey("alias")) { //$NON-NLS-1$
-			this.alias = m.get("alias"); //$NON-NLS-1$
+			this.alias = (String) m.get("alias"); //$NON-NLS-1$
 		} else {
 			this.alias = ""; //$NON-NLS-1$
 		}
 
 		if (m.containsKey("encoding")) { //$NON-NLS-1$
-			this.encoding = m.get("encoding"); //$NON-NLS-1$
+			this.encoding = (String) m.get("encoding"); //$NON-NLS-1$
 		} else {
 			this.encoding = this.defEncoding;
 		}
 
 		if (m.containsKey("emulation")) { //$NON-NLS-1$
-			this.emulation = m.get("emulation"); //$NON-NLS-1$
+			this.emulation = (String) m.get("emulation"); //$NON-NLS-1$
 		} else {
 			this.emulation = this.defEmulation;
 		}
 
 		if (m.containsKey("lastvisit")) { //$NON-NLS-1$
-			this.lastvisit = Long.parseLong(m.get("lastvisit")); //$NON-NLS-1$
+			this.lastvisit = Long.parseLong((String) m.get("lastvisit")); //$NON-NLS-1$
 		} else {
 			this.lastvisit = 0;
 		}
 
 		if (m.containsKey("total")) { //$NON-NLS-1$
-			this.total = Integer.parseInt(m.get("total")); //$NON-NLS-1$
+			this.total = Integer.parseInt((String) m.get("total")); //$NON-NLS-1$
 		} else {
 			this.total = 0;
 		}
 
 		if (m.containsKey("autoconnect")) { //$NON-NLS-1$
-			this.autoconnect = m.get("autoconnect") //$NON-NLS-1$
-					.equalsIgnoreCase("true"); //$NON-NLS-1$
+			final String message = (String) m.get("autoconnect"); //$NON-NLS-1$
+			this.autoconnect = message.equalsIgnoreCase("true"); //$NON-NLS-1$
 		} else {
 			this.autoconnect = false;
 		}
 
 		if (m.containsKey("autologin")) { //$NON-NLS-1$
-			this.autologin = m.get("autologin") //$NON-NLS-1$
-					.equalsIgnoreCase("true"); //$NON-NLS-1$
+			final String message = (String) m.get("autologin"); //$NON-NLS-1$
+			this.autologin = message.equalsIgnoreCase("true"); //$NON-NLS-1$
 		} else {
 			this.autologin = false;
 		}
@@ -161,7 +161,8 @@ public class Site implements Comparable<Site> {
 	 * 
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
-	public int compareTo(final Site site) {
+	public int compareTo(final Object o) {
+		final Site site = (Site) o;
 		if (this.total == site.total) {
 			return (int) (site.lastvisit - this.lastvisit);
 		}
@@ -169,7 +170,6 @@ public class Site implements Comparable<Site> {
 		return site.total - this.total;
 	}
 
-	@Override
 	public boolean equals(final Object o) {
 		if (o instanceof Site) {
 			final Site site = (Site) o;
@@ -200,9 +200,8 @@ public class Site implements Comparable<Site> {
 		return url;
 	}
 
-	@Override
 	public String toString() {
-		final Vector<String> v = new Vector<String>();
+		final Vector v = new Vector();
 
 		v.addElement("name=" + this.name); //$NON-NLS-1$
 		v.addElement("host=" + this.host); //$NON-NLS-1$

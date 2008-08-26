@@ -367,17 +367,14 @@ class TelnetInputStream extends InputStream {
 		this.telnet = tel;
 	}
 
-	@Override
 	public int read() throws IOException {
 		return this.telnet.readByte();
 	}
 
-	@Override
 	public int read(final byte[] buf) throws IOException {
 		return this.telnet.readBytes(buf);
 	}
 
-	@Override
 	public int read(final byte[] buf, final int offset, final int length)
 			throws IOException {
 		return this.telnet.readBytes(buf, offset, length);
@@ -391,18 +388,15 @@ class TelnetOutputStream extends OutputStream {
 		this.telnet = tel;
 	}
 
-	@Override
 	public void write(final byte[] buf) throws IOException {
 		this.telnet.writeBytes(buf);
 	}
 
-	@Override
 	public void write(final byte[] buf, final int offset, final int length)
 			throws IOException {
 		this.telnet.writeBytes(buf, offset, length);
 	}
 
-	@Override
 	public void write(final int b) throws IOException {
 		// java doc: The 24 high-order bits of b are ignored.
 		this.telnet.writeByte((byte) b);
