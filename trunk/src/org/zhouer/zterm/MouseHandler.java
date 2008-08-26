@@ -7,14 +7,8 @@ import javax.swing.SwingUtilities;
 
 public class MouseHandler implements MouseListener {
 	
-	private Model model;
-	
 	private ZTerm view;
-
-	public void setModel(Model model) {
-		this.model = model;
-	}
-
+	
 	public void setView(ZTerm view) {
 		this.view = view;
 	}

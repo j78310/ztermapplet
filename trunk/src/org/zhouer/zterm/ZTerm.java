@@ -8,21 +8,15 @@ import java.awt.image.BufferedImage;
 import java.util.Locale;
 import java.util.Vector;
 
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JApplet;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JMenu;
-import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
-import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import javax.swing.text.JTextComponent;
 
 import org.zhouer.vt.Config;
 
@@ -36,32 +30,19 @@ public class ZTerm extends JApplet {
 
 	protected BufferedImage terminalImage;
 	protected JMenuItem big5Item, utf8Item;
-	// 連線工具列
-	protected JToolBar connectionToolbar;
-	protected JButton copyButton, colorCopyButton, pasteButton,
-			colorPasteButton;
 	protected JMenuItem copyItem, pasteItem, colorCopyItem, colorPasteItem;
 	protected JMenuItem[] favoriteItems;
 	
-
-	protected JButton openButton, closeButton, reopenButton;
 	protected JMenuItem openItem, closeItem, reopenItem;
 
 	protected JMenuItem popupCopyItem, popupPasteItem, popupColorCopyItem,
 			popupColorPasteItem, popupCopyLinkItem;
 	// popup 選單
 	protected JPopupMenu popupMenu;
-	protected JMenuItem preferenceItem, siteManagerItem, showToolbarItem;
-
-	protected JComboBox siteField;
-	protected DefaultComboBoxModel siteModel;
-
-	protected JTextComponent siteText;
+	protected JMenuItem preferenceItem, siteManagerItem;
 
 	// 分頁
 	protected JTabbedPane tabbedPane;
-
-	protected JButton telnetButton, sshButton;
 
 	// 分頁 icon
 	protected final ImageIcon tryingIcon, connectedIcon, closedIcon, bellIcon;
@@ -83,12 +64,7 @@ public class ZTerm extends JApplet {
 	
 	protected JMenuItem[] languageItems;
 
-	private final KeyHandler keyController;
-
 	private final KeyEventHandler keyEventController;
-
-	// 標準選單
-	private JMenuBar menuBar;
 
 	private final Model model;
 
@@ -124,7 +100,6 @@ public class ZTerm extends JApplet {
 		this.changeController = new ChangeHandler();
 		this.componentController = new ComponentHandler();
 		this.keyEventController = new KeyEventHandler();
-		this.keyController = new KeyHandler();
 		mouseController = new MouseHandler();
 
 		// 建立系統核心
@@ -243,21 +218,6 @@ public class ZTerm extends JApplet {
 	}
 
 	/**
-	 * Update tool bar with resource, hiding or showing it.
-	 * 
-	 * @param isShowToolbar true, show tool bar; false, hide tool bar.
-	 */
-	public void updateToolbar(final boolean isShowToolbar) {
-
-		this.showToolbarItem
-				.setText(isShowToolbar ? Messages
-						.getString("ZTerm.ToggleToolbar_MenuItem_Hide_Text") : Messages.getString("ZTerm.ToggleToolbar_MenuItem_Show_Text")); //$NON-NLS-1$ //$NON-NLS-2$
-
-		this.connectionToolbar.setVisible(isShowToolbar);
-		this.validate();
-	}
-
-	/**
 	 * 預先讀取 font metrics 以加快未來開啟連線視窗的速度
 	 */
 	private void cacheFont() {
@@ -275,7 +235,6 @@ public class ZTerm extends JApplet {
 		this.makeMenu();
 		makePopupMenu();
 		this.makeTabbedPane();
-		this.makeToolbar();
 		this.makeLanguageMenu();
 		
 		// 設定視窗位置、大小
@@ -294,14 +253,11 @@ public class ZTerm extends JApplet {
 		this.actionController.setModel(this.model);
 		this.changeController.setView(this);
 		this.changeController.setModel(this.model);
-		this.keyController.setView(this);
-		this.keyController.setModel(this.model);
 		this.keyEventController.setView(this);
 		this.keyEventController.setModel(this.model);
 		this.componentController.setView(this);
 		this.componentController.setModel(this.model);
 		mouseController.setView(this);
-		mouseController.setModel(model);
 
 		// 設定系統核心的目標介面
 		this.model.setView(this);
@@ -322,7 +278,6 @@ public class ZTerm extends JApplet {
 
 	// 建立主選單
 	private void makeMenu() {
-		this.menuBar = new JMenuBar();
 		this.connectMenu = new JMenu();
 		this.languageMenu = new JMenu();
 		this.editMenu = new JMenu();
@@ -340,7 +295,6 @@ public class ZTerm extends JApplet {
 		this.colorPasteItem = new JMenuItem();
 		this.preferenceItem = new JMenuItem();
 		this.siteManagerItem = new JMenuItem();
-		this.showToolbarItem = new JMenuItem();
 		this.usageItem = new JMenuItem();
 		this.faqItem = new JMenuItem();
 		this.aboutItem = new JMenuItem();
@@ -363,20 +317,12 @@ public class ZTerm extends JApplet {
 		this.colorPasteItem.addActionListener(this.actionController);
 		this.preferenceItem.addActionListener(this.actionController);
 		this.siteManagerItem.addActionListener(this.actionController);
-		this.showToolbarItem.addActionListener(this.actionController);
 		this.usageItem.addActionListener(this.actionController);
 		this.faqItem.addActionListener(this.actionController);
 		this.aboutItem.addActionListener(this.actionController);
 		this.big5Item.addActionListener(this.actionController);
 		this.utf8Item.addActionListener(this.actionController);
 		
-		this.menuBar.add(this.connectMenu);
-		this.menuBar.add(this.editMenu);
-		this.menuBar.add(this.viewMenu);
-		menuBar.add(historyMenu);
-		this.menuBar.add(this.toolsMenu);
-		this.menuBar.add(this.helpMenu);
-
 		this.connectMenu.add(this.openItem);
 		this.connectMenu.add(this.reopenItem);
 		this.connectMenu.add(this.closeItem);
@@ -391,7 +337,6 @@ public class ZTerm extends JApplet {
 		this.editMenu.add(this.colorCopyItem);
 		this.editMenu.add(this.colorPasteItem);
 		
-		this.viewMenu.add(this.showToolbarItem);
 		this.viewMenu.add(this.encodingMenu);
 		this.viewMenu.add(this.languageMenu);
 
@@ -435,87 +380,8 @@ public class ZTerm extends JApplet {
 		this.tabbedPane.addMouseListener(mouseController);
 		this.getContentPane().add(this.tabbedPane, BorderLayout.CENTER);
 	}
-
-	private void makeToolbar() {
-		final boolean isShowToolbar = this.resource
-				.getBooleanValue(Resource.SHOW_TOOLBAR);
-		
-		this.connectionToolbar = new JToolBar();
-		this.connectionToolbar.setVisible(isShowToolbar);
-		this.connectionToolbar.setRollover(true);
-
-		this.closeButton = new JButton();
-		this.closeButton.setFocusable(false);
-		this.closeButton.addActionListener(this.actionController);
-
-		this.reopenButton = new JButton();
-		this.reopenButton.setFocusable(false);
-		this.reopenButton.addActionListener(this.actionController);
-
-		this.copyButton = new JButton();
-		this.copyButton.setFocusable(false);
-		this.copyButton.addActionListener(this.actionController);
-
-		this.pasteButton = new JButton();
-		this.pasteButton.setFocusable(false);
-		this.pasteButton.addActionListener(this.actionController);
-
-		this.colorCopyButton = new JButton();
-		this.colorCopyButton.setFocusable(false);
-		this.colorCopyButton.addActionListener(this.actionController);
-
-		this.colorPasteButton = new JButton();
-		this.colorPasteButton.setFocusable(false);
-		this.colorPasteButton.addActionListener(this.actionController);
-
-		this.telnetButton = new JButton();
-		this.telnetButton.setFocusable(false);
-		this.telnetButton.addActionListener(this.actionController);
-
-		this.sshButton = new JButton();
-		this.sshButton.setFocusable(false);
-		this.sshButton.addActionListener(this.actionController);
-
-		this.siteModel = new DefaultComboBoxModel();
-		this.siteField = new JComboBox(this.siteModel);
-		this.siteField.setEditable(true);
-
-		this.siteText = (JTextComponent) this.siteField.getEditor()
-				.getEditorComponent();
-		this.siteText.addKeyListener(this.keyController);
-
-		this.openButton = new JButton();
-		this.openButton.setFocusable(false);
-		this.openButton.addActionListener(this.actionController);
-
-		this.connectionToolbar.add(this.closeButton);
-		this.connectionToolbar.add(this.reopenButton);
-
-		this.connectionToolbar.add(new JToolBar.Separator());
-
-		this.connectionToolbar.add(this.copyButton);
-		this.connectionToolbar.add(this.pasteButton);
-		this.connectionToolbar.add(this.colorCopyButton);
-		this.connectionToolbar.add(this.colorPasteButton);
-
-		this.connectionToolbar.add(new JToolBar.Separator());
-
-		this.connectionToolbar.add(this.telnetButton);
-		this.connectionToolbar.add(this.sshButton);
-
-		this.connectionToolbar.add(new JToolBar.Separator());
-
-		this.connectionToolbar.add(this.siteField);
-
-		this.connectionToolbar.add(new JToolBar.Separator());
-
-		this.connectionToolbar.add(this.openButton);
-	}
 	
-	public void updateText() {
-		final boolean isShowToolbar = this.resource
-		.getBooleanValue(Resource.SHOW_TOOLBAR);
-		
+	public void updateText() {		
 		this.connectMenu.setText(Messages
 				.getString("ZTerm.Connect_Menu_Text")); //$NON-NLS-1$
 		this.connectMenu.setToolTipText(Messages
@@ -594,10 +460,6 @@ public class ZTerm extends JApplet {
 		this.siteManagerItem.setToolTipText(Messages
 				.getString("ZTerm.SiteManager_MenuItem_ToolTip")); //$NON-NLS-1$
 
-		this.showToolbarItem.setText(
-				isShowToolbar ? Messages
-						.getString("ZTerm.ToggleToolbar_MenuItem_Hide_Text") : Messages.getString("ZTerm.ToggleToolbar_MenuItem_Show_Text")); //$NON-NLS-1$ //$NON-NLS-2$
-
 		this.usageItem.setText(Messages
 				.getString("ZTerm.Usage_MenuItem_Text")); //$NON-NLS-1$
 
@@ -634,49 +496,5 @@ public class ZTerm extends JApplet {
 		this.popupColorPasteItem.setText(Messages
 				.getString("ZTerm.ColorPaste_MenuItem_Text")); //$NON-NLS-1$
 		popupColorPasteItem.setToolTipText(Messages.getString("ZTerm.ColorPaste_MenuItem__ToolTip")); //$NON-NLS-1$
-
-		
-		
-		this.closeButton.setText(Messages
-				.getString("ZTerm.Close_Button_Text")); //$NON-NLS-1$
-		this.closeButton.setToolTipText(Messages
-				.getString("ZTerm.Close_Button_ToolTip")); //$NON-NLS-1$
-
-		this.reopenButton.setText(Messages
-				.getString("ZTerm.Reopen_Button_Text")); //$NON-NLS-1$
-		this.reopenButton.setToolTipText(Messages
-				.getString("ZTerm.Reopen_Button_ToolTip")); //$NON-NLS-1$
-
-		this.copyButton.setText(Messages
-				.getString("ZTerm.Copy_Button_Text")); //$NON-NLS-1$
-		this.copyButton.setToolTipText(Messages
-				.getString("ZTerm.Copy_Button_ToolTip")); //$NON-NLS-1$
-
-		this.pasteButton.setText(Messages
-				.getString("ZTerm.Paste_Button_Text")); //$NON-NLS-1$
-		this.pasteButton.setToolTipText(Messages
-				.getString("ZTerm.Paste_Button_ToolTip")); //$NON-NLS-1$
-
-		this.colorCopyButton.setText(Messages
-				.getString("ZTerm.ColorCopy_Button_Text")); //$NON-NLS-1$
-
-		this.colorPasteButton.setText(Messages
-				.getString("ZTerm.ColorPaste_Button_Text")); //$NON-NLS-1$
-
-		this.telnetButton.setText(Messages
-				.getString("ZTerm.Telnet_Button_Text")); //$NON-NLS-1$
-		this.telnetButton.setToolTipText(Messages
-				.getString("ZTerm.Telnet_Button_ToolTip")); //$NON-NLS-1$
-
-		this.sshButton.setText(Messages
-				.getString("ZTerm.SSH_Button_Text")); //$NON-NLS-1$
-		this.sshButton.setToolTipText(Messages
-				.getString("ZTerm.SSH_Button_ToolTip")); //$NON-NLS-1$
-		
-		this.siteField.setToolTipText(Messages
-				.getString("ZTerm.Site_ComboBox_ToolTip")); //$NON-NLS-1$
-
-		this.openButton .setText(Messages
-				.getString("ZTerm.Open_Button_Text")); //$NON-NLS-1$
 	}
 }

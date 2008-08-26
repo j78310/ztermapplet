@@ -28,20 +28,11 @@ public class KeyEventHandler implements KeyEventDispatcher {
 				this.model.colorCopy();
 			} else if (keyEvent.getKeyCode() == KeyEvent.VK_I) {
 				this.model.colorPaste();
-			} else if (keyEvent.getKeyCode() == KeyEvent.VK_D) {
-				this.view.siteText.selectAll();
-				this.view.siteField.requestFocusInWindow();
 			} else if (keyEvent.getKeyCode() == KeyEvent.VK_Q) {
 				this.model.open();
 			} else if (keyEvent.getKeyCode() == KeyEvent.VK_R) {
 				this.model.reopenSession((Session) this.view.tabbedPane
 						.getSelectedComponent());
-			} else if (keyEvent.getKeyCode() == KeyEvent.VK_S) {
-				this.view.siteText.setText("ssh://"); //$NON-NLS-1$
-				this.view.siteField.requestFocusInWindow();
-			} else if (keyEvent.getKeyCode() == KeyEvent.VK_L) {
-				this.view.siteText.setText("telnet://"); //$NON-NLS-1$
-				this.view.siteField.requestFocusInWindow();
 			} else if (keyEvent.getKeyCode() == KeyEvent.VK_P) {
 				this.model.paste();
 			} else if (keyEvent.getKeyCode() == KeyEvent.VK_W) {
