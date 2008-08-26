@@ -94,7 +94,7 @@ public class TextUtils {
 		return new String(sb);
 	}
 
-	public static HashMap<String, String> getCsvParameters(final String s) {
+	public static HashMap getCsvParameters(final String s) {
 		final HashMap hm = new HashMap();
 		final Iterator iter = CSV.parse(s).iterator();
 

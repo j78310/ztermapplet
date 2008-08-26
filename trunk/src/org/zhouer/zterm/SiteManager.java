@@ -282,7 +282,7 @@ public class SiteManager extends JOptionPane {
 		private static final long serialVersionUID = 6399807179665067907L;
 
 		private JButton addButton, removeButton, upButton, downButton;
-		private final Vector<Site> favorites;
+		private final Vector favorites;
 
 		private JPanel modifyPanel;
 		private final SiteManager parent;
@@ -290,7 +290,7 @@ public class SiteManager extends JOptionPane {
 		private JList siteList;
 		private DefaultListModel siteListModel;
 
-		public SitePanel(final SiteManager siteManager, final Vector<Site> favorite) {
+		public SitePanel(final SiteManager siteManager, final Vector favorite) {
 			super();
 
 			this.parent = siteManager;
@@ -322,7 +322,7 @@ public class SiteManager extends JOptionPane {
 				if (i > 0) {
 					final Site tmp;
 
-					tmp = this.favorites.elementAt(i);
+					tmp = (Site) this.favorites.elementAt(i);
 					this.favorites.removeElementAt(i);
 					this.favorites.insertElementAt(tmp, i - 1);
 
@@ -338,7 +338,7 @@ public class SiteManager extends JOptionPane {
 				if (i < this.siteListModel.size() - 1) {
 					final Site tmp;
 
-					tmp = this.favorites.elementAt(i);
+					tmp = (Site) this.favorites.elementAt(i);
 					this.favorites.removeElementAt(i);
 					this.favorites.insertElementAt(tmp, i + 1);
 
@@ -363,16 +363,17 @@ public class SiteManager extends JOptionPane {
 		public void valueChanged(final ListSelectionEvent lse) {
 			final int index = this.siteList.getSelectedIndex();
 			if (index != -1) {
-				this.parent.updateParameter(this.favorites.elementAt(index));
+				this.parent.updateParameter((Site) this.favorites.elementAt(index));
 			}
 		}
 
 		private void makeList() {
-			final Iterator<Site> iter = this.favorites.iterator();
+			final Iterator iter = this.favorites.iterator();
 			this.siteListModel = new DefaultListModel();
 
 			while (iter.hasNext()) {
-				this.siteListModel.addElement(iter.next().name);
+				final Site site = (Site) iter.next();
+				this.siteListModel.addElement(site.name);
 			}
 
 			this.siteList = new JList(this.siteListModel);
@@ -407,7 +408,7 @@ public class SiteManager extends JOptionPane {
 	
 	private static final long serialVersionUID = 3644901803388220764L;
 
-	private final Vector<Site> favorites;
+	private final Vector favorites;
 	private final JSplitPane jsp;
 
 	private final ParameterPanel parameterPanel;

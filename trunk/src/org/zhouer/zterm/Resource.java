@@ -111,8 +111,8 @@ public class Resource implements Config {
 		this.setFavorites(favorites);
 	}
 
-	public synchronized Vector<Site> getArray(final String name) {
-		final Vector<Site> v = new Vector<Site>();
+	public synchronized Vector getArray(final String name) {
+		final Vector v = new Vector();
 		String s;
 
 		// 應該是連號的，找不到就結束
@@ -148,8 +148,8 @@ public class Resource implements Config {
 		return null;
 	}
 
-	public Vector<Site> getFavorites() {
-		final Vector<Site> favorites = this.getArray("favorite");
+	public Vector getFavorites() {
+		final Vector favorites = this.getArray("favorite");
 
 		for (int i = 0; i < favorites.size(); i++) {
 			favorites.setElementAt(new Site(favorites.elementAt(i).toString()),

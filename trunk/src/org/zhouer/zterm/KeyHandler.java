@@ -15,7 +15,6 @@ public class KeyHandler extends KeyAdapter {
 
 	private ZTerm view;
 
-	@Override
 	public void keyPressed(final KeyEvent e) {
 		// Mac 下 keyTyped 收不到 ESCAPE 一定要在這裡處理
 		if (e.getSource() == this.view.siteText) {
@@ -25,7 +24,6 @@ public class KeyHandler extends KeyAdapter {
 		}
 	}
 
-	@Override
 	public void keyTyped(final KeyEvent e) {
 		if (e.getSource() == this.view.siteText) {
 
@@ -71,14 +69,15 @@ public class KeyHandler extends KeyAdapter {
 	protected void updateCombo() {
 		final int dotPos = this.view.siteText.getCaretPosition();
 		final String text = this.view.siteText.getText();
-		final Iterator<Site> siteIterator = this.model.getCandidateSites(text)
+		final Iterator siteIterator = this.model.getCandidateSites(text)
 				.iterator();
 
 		this.view.siteModel.removeAllElements();
 		this.view.siteModel.addElement(text);
 
 		while (siteIterator.hasNext()) {
-			this.view.siteModel.addElement(siteIterator.next().getURL());
+			final Site site = (Site) siteIterator.next();
+			this.view.siteModel.addElement(site.getURL());
 		}
 
 		// 還原輸入游標的位置，否則每次輸入一個字就會跑到最後面
