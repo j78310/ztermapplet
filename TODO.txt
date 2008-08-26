@@ -1,5 +1,7 @@
-1.15
-- Improvement quality of font display.
-
-Further work
-- Automatically save articles to files.
+2.0
+- ALT+A to select all
+- Save an "article" to a file
+- Search for the specific text on the terminal
+- Detect telnet and ssh link
+- Preview for any new settings
+- Resize the display of terminal 
