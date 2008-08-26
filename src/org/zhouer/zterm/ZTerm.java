@@ -34,7 +34,7 @@ import org.zhouer.vt.Config;
 public class ZTerm extends JApplet {
 	private static final long serialVersionUID = 6304594468121008572L;
 
-	protected BufferedImage bi;
+	protected BufferedImage terminalImage;
 	protected JMenuItem big5Item, utf8Item;
 	// 連線工具列
 	protected JToolBar connectionToolbar;
@@ -69,6 +69,7 @@ public class ZTerm extends JApplet {
 	private final ActionHandler actionController;
 	private final ChangeHandler changeController;
 	private final ComponentHandler componentController;
+	private final MouseHandler mouseController;
 
 	private JMenu connectMenu, editMenu, toolsMenu, helpMenu;
 
@@ -124,6 +125,7 @@ public class ZTerm extends JApplet {
 		this.componentController = new ComponentHandler();
 		this.keyEventController = new KeyEventHandler();
 		this.keyController = new KeyHandler();
+		mouseController = new MouseHandler();
 
 		// 建立系統核心
 		this.model = Model.getInstance();
@@ -192,14 +194,14 @@ public class ZTerm extends JApplet {
 		Session session;
 
 		// 產生跟主視窗一樣大的 image
-		this.bi = new BufferedImage(this.getWidth(), this.getHeight(),
+		this.terminalImage = new BufferedImage(this.getWidth(), this.getHeight(),
 				BufferedImage.TYPE_INT_RGB);
 
 		// 視窗大小調整時同步更新每個 session 的大小
 		for (int i = 0; i < this.sessions.size(); i++) {
 			session = (Session) this.sessions.elementAt(i);
 			session.validate();
-			session.updateImage(this.bi);
+			session.updateImage(this.terminalImage);
 			session.updateSize();
 		}
 	}
@@ -266,7 +268,6 @@ public class ZTerm extends JApplet {
 	}
 
 	private void configMemberField() {
-		this.resource.getBooleanValue(Resource.SHOW_TOOLBAR);
 
 		// 設定主畫面 Layout
 		this.getContentPane().setLayout(new BorderLayout());
@@ -280,7 +281,7 @@ public class ZTerm extends JApplet {
 		// 設定視窗位置、大小
 		this.model.updateBounds();
 		// 設定好視窗大小後才知道 image 大小
-		this.bi = new BufferedImage(this.getWidth(), this.getHeight(),
+		this.terminalImage = new BufferedImage(this.getWidth(), this.getHeight(),
 				BufferedImage.TYPE_INT_RGB);
 
 		// 更新畫面上的文字
@@ -299,6 +300,8 @@ public class ZTerm extends JApplet {
 		this.keyEventController.setModel(this.model);
 		this.componentController.setView(this);
 		this.componentController.setModel(this.model);
+		mouseController.setView(this);
+		mouseController.setModel(model);
 
 		// 設定系統核心的目標介面
 		this.model.setView(this);
@@ -398,8 +401,6 @@ public class ZTerm extends JApplet {
 		this.helpMenu.add(this.usageItem);
 		this.helpMenu.add(this.faqItem);
 		this.helpMenu.add(this.aboutItem);
-
-		this.setJMenuBar(this.menuBar);
 	}
 	
 	private void makePopupMenu() {
@@ -418,11 +419,12 @@ public class ZTerm extends JApplet {
 		this.popupCopyLinkItem.addActionListener(this.actionController);
 		this.popupCopyLinkItem.setEnabled(false);
 
-		this.popupMenu.add(this.popupCopyItem);
-		this.popupMenu.add(this.popupPasteItem);
-		this.popupMenu.add(this.popupColorCopyItem);
-		this.popupMenu.add(this.popupColorPasteItem);
-		this.popupMenu.add(this.popupCopyLinkItem);
+		this.popupMenu.add(connectMenu);
+		this.popupMenu.add(editMenu);
+		this.popupMenu.add(viewMenu);
+		this.popupMenu.add(historyMenu);
+		this.popupMenu.add(toolsMenu);
+		popupMenu.add(helpMenu);
 	}
 
 	private void makeTabbedPane() {
@@ -430,7 +432,8 @@ public class ZTerm extends JApplet {
 		this.tabbedPane = new JTabbedPane(SwingConstants.TOP,
 				JTabbedPane.SCROLL_TAB_LAYOUT);
 		this.tabbedPane.addChangeListener(this.changeController);
-		this.getContentPane().add(this.tabbedPane);
+		this.tabbedPane.addMouseListener(mouseController);
+		this.getContentPane().add(this.tabbedPane, BorderLayout.CENTER);
 	}
 
 	private void makeToolbar() {
@@ -507,8 +510,6 @@ public class ZTerm extends JApplet {
 		this.connectionToolbar.add(new JToolBar.Separator());
 
 		this.connectionToolbar.add(this.openButton);
-
-		this.getContentPane().add(this.connectionToolbar, BorderLayout.NORTH);
 	}
 	
 	public void updateText() {

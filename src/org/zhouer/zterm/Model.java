@@ -228,7 +228,7 @@ public class Model {
 	public void connect(final Site site, final int index) {
 		Session session;
 
-		session = new Session(site, resource, conv, view.bi, this);
+		session = new Session(site, resource, conv, view.terminalImage, this);
 
 		// index 為連線後放在第幾個分頁，若為 -1 表開新分頁。
 		if (index == -1) {
