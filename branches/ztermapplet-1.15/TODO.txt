@@ -1,0 +1,5 @@
+1.15
+- Improvement quality of font display.
+
+Further work
+- Automatically save articles to files.
