@@ -153,8 +153,6 @@ public class PreferencePane extends JOptionPane implements
 
 		resource.setValue(Resource.SYSTEM_LOOK_FEEL, apperancePanel.systemLookFeelCheckBox
 				.isSelected());
-		resource.setValue(Resource.SHOW_TOOLBAR, apperancePanel.showToolbarCheckBox
-				.isSelected());
 		resource.setValue(Config.CURSOR_BLINK, apperancePanel.cursorBlinkCheckBox
 				.isSelected());
 		resource.setValue(Resource.GEOMETRY_WIDTH, apperancePanel.widthModel.getValue()
@@ -193,7 +191,6 @@ public class PreferencePane extends JOptionPane implements
 
 		Model.getInstance().updateLookAndFeel();
 		Model.getInstance().updateBounds();
-		Model.getInstance().updateToolbar(apperancePanel.showToolbarCheckBox.isSelected());
 		Model.getInstance().updateSize();
 		Model.getInstance().updateAntiIdleTime();
 	}
@@ -231,9 +228,9 @@ class ApperancePanel extends JPanel {
 			terminalColumnsModel;
 	public JSpinner scrollSpinner, terminalRowsSpinner, terminalColumnsSpinner;
 
-	public JCheckBox systemLookFeelCheckBox, showToolbarCheckBox,
+	public JCheckBox systemLookFeelCheckBox,
 			cursorBlinkCheckBox;
-	public JLabel systemLookFeelLabel, showToolbarLabel, cursorBlinkLabel;
+	public JLabel systemLookFeelLabel, cursorBlinkLabel;
 
 	public JCheckBox tabNumberCheckBox, showScrollBarCheckBox;
 	// chitsaou.070726: 分頁編號
@@ -280,12 +277,6 @@ class ApperancePanel extends JPanel {
 				}.start();
 			}
 		});
-
-		showToolbarLabel = new JLabel(Messages
-				.getString("Preference.ShowToolbar_Label_Text")); //$NON-NLS-1$
-		showToolbarCheckBox = new JCheckBox();
-		showToolbarCheckBox.setSelected(resource
-				.getBooleanValue(Resource.SHOW_TOOLBAR));
 
 		cursorBlinkLabel = new JLabel(Messages
 				.getString("Preference.CursorBlink_Label_Text")); //$NON-NLS-1$
@@ -351,56 +342,48 @@ class ApperancePanel extends JPanel {
 
 		c.gridx = 0;
 		c.gridy = 1;
-		this.add(showToolbarLabel, c);
-		c.gridx = 1;
-		this.add(showToolbarCheckBox, c);
-
-		c.gridx = 0;
-		c.gridy = 2;
 		this.add(cursorBlinkLabel, c);
 		c.gridx = 1;
 		this.add(cursorBlinkCheckBox, c);
 
 		c.gridx = 0;
-		c.gridy = 3;
+		c.gridy = 2;
 		this.add(widthLabel, c);
 		c.gridx = 1;
 		this.add(widthSpinner, c);
 
 		c.gridx = 0;
-		c.gridy = 4;
+		c.gridy = 3;
 		this.add(heightLabel, c);
 		c.gridx = 1;
 		this.add(heightSpinner, c);
 
 		c.gridx = 0;
-		c.gridy = 5;
+		c.gridy = 4;
 		this.add(scrollLabel, c);
 		c.gridx = 1;
 		this.add(scrollSpinner, c);
 
 		c.gridx = 0;
-		c.gridy = 6;
+		c.gridy = 5;
 		this.add(terminalColumnsLabel, c);
 		c.gridx = 1;
 		this.add(terminalColumnsSpinner, c);
 
 		c.gridx = 0;
-		c.gridy = 7;
+		c.gridy = 6;
 		this.add(terminalRowsLabel, c);
 		c.gridx = 1;
 		this.add(terminalRowsSpinner, c);
 
-		// chitsaou.070726: 分頁編號
 		c.gridx = 0;
-		c.gridy = 8;
+		c.gridy = 7;
 		this.add(tabNumberLabel, c);
 		c.gridx = 1;
 		this.add(tabNumberCheckBox, c);
 
-		// chitsaou.070726: 顯示捲軸
 		c.gridx = 0;
-		c.gridy = 9;
+		c.gridy = 8;
 		this.add(showScrollBarLabel, c);
 		c.gridx = 1;
 		this.add(showScrollBarCheckBox, c);

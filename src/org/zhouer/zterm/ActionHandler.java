@@ -30,51 +30,24 @@ public class ActionHandler implements ActionListener {
 
 		if (source == this.view.openItem) {
 			this.model.open();
-		} else if (source == this.view.openButton) {
-			this.model.openNewTab();
-		} else if ((source == this.view.closeItem)
-				|| (source == this.view.closeButton)) {
-			this.model.closeCurrentTab();
-		} else if ((source == this.view.reopenItem)
-				|| (source == this.view.reopenButton)) {
-			this.model.reopenSession((Session) this.view.tabbedPane
-					.getSelectedComponent());
 		} else if ((source == this.view.copyItem)
-				|| (source == this.view.copyButton)
 				|| (source == this.view.popupCopyItem)) {
 			this.model.copy();
 		} else if ((source == this.view.colorCopyItem)
-				|| (source == this.view.colorCopyButton)
 				|| (source == this.view.popupColorCopyItem)) {
 			this.model.colorCopy();
 		} else if ((source == this.view.pasteItem)
-				|| (source == this.view.pasteButton)
 				|| (source == this.view.popupPasteItem)) {
 			this.model.paste();
 		} else if ((source == this.view.colorPasteItem)
-				|| (source == this.view.colorPasteButton)
 				|| (source == this.view.popupColorPasteItem)) {
 			this.model.colorPaste();
 		} else if (source == this.view.popupCopyLinkItem) {
 			this.model.copyLink();
-		} else if (source == this.view.telnetButton) {
-			this.view.siteText.setText(Messages
-					.getString("ActionHandler.TelnetHeader")); //$NON-NLS-1$
-			this.view.siteField.requestFocusInWindow();
-		} else if (source == this.view.sshButton) {
-			this.view.siteText.setText(Messages
-					.getString("ActionHandler.SSHHeader")); //$NON-NLS-1$
-			this.view.siteField.requestFocusInWindow();
 		} else if (source == this.view.preferenceItem) {
 			this.model.showPreference();
 		} else if (source == this.view.siteManagerItem) {
 			this.model.showSiteManager();
-		} else if (source == this.view.showToolbarItem) {
-			final boolean isShowToolbar = this.resource
-					.getBooleanValue(Resource.SHOW_TOOLBAR);
-			this.resource.setValue(Resource.SHOW_TOOLBAR, !isShowToolbar);
-			this.model.updateToolbar(!isShowToolbar);
-			this.model.updateSize();
 		} else if (source == this.view.usageItem) {
 			this.model.showUsage();
 		} else if (source == this.view.faqItem) {

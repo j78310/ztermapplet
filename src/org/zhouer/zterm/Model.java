@@ -400,16 +400,6 @@ public class Model {
 	}
 
 	/**
-	 * Open new tab and connect to the site where typed on the text field in
-	 * user interface.
-	 */
-	public void openNewTab() {
-		final String site = view.siteText.getText();
-		view.siteModel.removeAllElements();
-		this.connect(site);
-	}
-
-	/**
 	 * Do paste at current session.
 	 */
 	public void paste() {
@@ -650,19 +640,10 @@ public class Model {
 	 * Update tab page.
 	 */
 	public void updateTab() {
-		// 為了下面 invokeLater 的關係，這邊改成 final
 		final Session session = (Session) view.tabbedPane
 				.getSelectedComponent();
 
 		if (session != null) {
-			// 修改視窗標題列
-			// setTitle( "ZTerm - " + s.getWindowTitle() ); //$NON-NLS-1$
-
-			// 修改位置列
-			view.siteText.setText(session.getURL());
-			view.siteText.select(0, 0);
-			view.siteField.hidePopup();
-
 			// 切換到 alert 的 session 時設定狀態為 connected, 以取消 bell.
 			if (session.state == Session.STATE_ALERT) {
 				session.setState(Session.STATE_CONNECTED);
@@ -677,8 +658,6 @@ public class Model {
 					session.requestFocusInWindow();
 				}
 			});
-		} else {
-			view.siteText.setText(""); //$NON-NLS-1$
 		}
 	}
 
@@ -710,17 +689,6 @@ public class Model {
 							+ ". " : "") //$NON-NLS-1$ //$NON-NLS-2$
 							+ session.getSite().name);
 		}
-	}
-
-	/**
-	 * Update tool bar.
-	 * 
-	 * @param isShowToolbar
-	 *            true, show tool bar; false, hide tool bar.
-	 */
-	public void updateToolbar(final boolean isShowToolbar) {
-		preferencePane.apperancePanel.showToolbarCheckBox.setSelected(isShowToolbar);
-		view.updateToolbar(isShowToolbar);
 	}
 
 	private void connect(String url) {
