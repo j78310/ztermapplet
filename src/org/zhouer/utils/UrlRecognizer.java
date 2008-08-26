@@ -46,7 +46,7 @@ public class UrlRecognizer {
 		}
 		
 		final int indexOfSpace = httpMessage.indexOf(' ');
-		final int indexOft = httpMessage.indexOf(' ');
+		final int indexOft = httpMessage.indexOf('\t');
 		final int indexOfn = httpMessage.indexOf('\n');
 		final int indexOfr = httpMessage.indexOf('\r');
 		final int indexOff = httpMessage.indexOf('\f');
