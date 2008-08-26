@@ -614,13 +614,6 @@ public class Model {
 	}
 
 	/**
-	 * Update look and feel which is related to UI manager.
-	 */
-	public void updateLookAndFeel() {
-		view.updateLookAndFeel();
-	}
-
-	/**
 	 * Update size to resource, and also user interface.
 	 */
 	public void updateSize() {

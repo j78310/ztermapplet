@@ -15,8 +15,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 
 import org.zhouer.vt.Config;
 
@@ -52,13 +50,11 @@ public class ZTerm extends JApplet {
 	private final ComponentHandler componentController;
 	private final MouseHandler mouseController;
 
-	private JMenu connectMenu, editMenu, toolsMenu, helpMenu;
+	private JMenu fileMenu, editMenu, viewMenu, toolsMenu, helpMenu;
 
 	private JMenu encodingMenu;
 	
 	private JMenu languageMenu;
-	
-	private JMenu viewMenu;
 	
 	private JMenu historyMenu;
 	
@@ -81,9 +77,6 @@ public class ZTerm extends JApplet {
 		
 		// 設定語系
 		Locale.setDefault(this.resource.getLocale());
-
-		// 設定 Look and Feel
-		this.updateLookAndFeel();
 
 		// 初始化各種 icon
 		this.tryingIcon = new ImageIcon(ZTerm.class.getResource(Messages
@@ -140,25 +133,6 @@ public class ZTerm extends JApplet {
 			this.favoriteItems[i].setToolTipText(fa.host + ":" + fa.port); //$NON-NLS-1$
 			this.favoriteItems[i].addActionListener(this.actionController);
 			this.historyMenu.add(this.favoriteItems[i]);
-		}
-	}
-
-	/**
-	 * Update look and feel with resource.
-	 */
-	public void updateLookAndFeel() {
-		try {
-			if (this.resource.getBooleanValue(Resource.SYSTEM_LOOK_FEEL)) {
-				UIManager.setLookAndFeel(UIManager
-						.getSystemLookAndFeelClassName());
-			} else {
-				UIManager.setLookAndFeel(UIManager
-						.getCrossPlatformLookAndFeelClassName());
-			}
-		} catch (final Exception e) {
-			e.printStackTrace();
-		} finally {
-			SwingUtilities.updateComponentTreeUI(this);
 		}
 	}
 
@@ -278,7 +252,7 @@ public class ZTerm extends JApplet {
 
 	// 建立主選單
 	private void makeMenu() {
-		this.connectMenu = new JMenu();
+		this.fileMenu = new JMenu();
 		this.languageMenu = new JMenu();
 		this.editMenu = new JMenu();
 		this.viewMenu = new JMenu();
@@ -301,7 +275,7 @@ public class ZTerm extends JApplet {
 		this.big5Item = new JMenuItem();
 		this.utf8Item = new JMenuItem();
 		
-		this.connectMenu.setMnemonic(KeyEvent.VK_F);
+		this.fileMenu.setMnemonic(KeyEvent.VK_F);
 		this.editMenu.setMnemonic(KeyEvent.VK_E);
 		viewMenu.setMnemonic(KeyEvent.VK_V);
 		historyMenu.setMnemonic(KeyEvent.VK_Y);
@@ -323,9 +297,9 @@ public class ZTerm extends JApplet {
 		this.big5Item.addActionListener(this.actionController);
 		this.utf8Item.addActionListener(this.actionController);
 		
-		this.connectMenu.add(this.openItem);
-		this.connectMenu.add(this.reopenItem);
-		this.connectMenu.add(this.closeItem);
+		this.fileMenu.add(this.openItem);
+		this.fileMenu.add(this.reopenItem);
+		this.fileMenu.add(this.closeItem);
 
 		this.updateFavoriteMenu();
 
@@ -364,7 +338,7 @@ public class ZTerm extends JApplet {
 		this.popupCopyLinkItem.addActionListener(this.actionController);
 		this.popupCopyLinkItem.setEnabled(false);
 
-		this.popupMenu.add(connectMenu);
+		this.popupMenu.add(fileMenu);
 		this.popupMenu.add(editMenu);
 		this.popupMenu.add(viewMenu);
 		this.popupMenu.add(historyMenu);
@@ -382,9 +356,9 @@ public class ZTerm extends JApplet {
 	}
 	
 	public void updateText() {		
-		this.connectMenu.setText(Messages
+		this.fileMenu.setText(Messages
 				.getString("ZTerm.Connect_Menu_Text")); //$NON-NLS-1$
-		this.connectMenu.setToolTipText(Messages
+		this.fileMenu.setToolTipText(Messages
 				.getString("ZTerm.Connect_Menu_ToolTip")); //$NON-NLS-1$
 		
 		this.languageMenu.setText("Language");

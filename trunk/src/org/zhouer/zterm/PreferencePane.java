@@ -151,8 +151,6 @@ public class PreferencePane extends JOptionPane implements
 		resource.setValue(Resource.ANTI_IDLE_STRING, connectionPanel.antiIdleStringField
 				.getText());
 
-		resource.setValue(Resource.SYSTEM_LOOK_FEEL, apperancePanel.systemLookFeelCheckBox
-				.isSelected());
 		resource.setValue(Config.CURSOR_BLINK, apperancePanel.cursorBlinkCheckBox
 				.isSelected());
 		resource.setValue(Resource.GEOMETRY_WIDTH, apperancePanel.widthModel.getValue()
@@ -189,7 +187,6 @@ public class PreferencePane extends JOptionPane implements
 		// 將修改寫回設定檔
 		resource.writeFile();
 
-		Model.getInstance().updateLookAndFeel();
 		Model.getInstance().updateBounds();
 		Model.getInstance().updateSize();
 		Model.getInstance().updateAntiIdleTime();
@@ -228,9 +225,8 @@ class ApperancePanel extends JPanel {
 			terminalColumnsModel;
 	public JSpinner scrollSpinner, terminalRowsSpinner, terminalColumnsSpinner;
 
-	public JCheckBox systemLookFeelCheckBox,
-			cursorBlinkCheckBox;
-	public JLabel systemLookFeelLabel, cursorBlinkLabel;
+	public JCheckBox cursorBlinkCheckBox;
+	public JLabel cursorBlinkLabel;
 
 	public JCheckBox tabNumberCheckBox, showScrollBarCheckBox;
 	// chitsaou.070726: 分頁編號
@@ -245,38 +241,6 @@ class ApperancePanel extends JPanel {
 	public ApperancePanel(final Resource r) {
 		super();
 		resource = r;
-
-		systemLookFeelLabel = new JLabel(Messages
-				.getString("Preference.SystemLookFeel_Label_Text")); //$NON-NLS-1$
-		systemLookFeelCheckBox = new JCheckBox();
-		systemLookFeelCheckBox.setSelected(resource
-				.getBooleanValue(Resource.SYSTEM_LOOK_FEEL));
-
-		systemLookFeelCheckBox.addActionListener(new ActionListener() {
-			public void actionPerformed(final ActionEvent actionEvent) {
-				Resource.getInstance().setValue(Resource.SYSTEM_LOOK_FEEL,
-						systemLookFeelCheckBox.isSelected());
-				Model.getInstance().updateLookAndFeel();
-				new Thread() {
-					public void run() {
-						final int option = JOptionPane
-								.showConfirmDialog(
-										ApperancePanel.this,
-										Messages
-												.getString("PreferencePane.ConfirmLookFeel_Text"), Messages.getString("PreferencePane.ConfirmLookFeel_Title"), JOptionPane.YES_NO_OPTION); //$NON-NLS-1$ //$NON-NLS-2$
-						if (option == JOptionPane.NO_OPTION) {
-							systemLookFeelCheckBox
-									.setSelected(!systemLookFeelCheckBox
-											.isSelected());
-							Resource.getInstance().setValue(
-									Resource.SYSTEM_LOOK_FEEL,
-									systemLookFeelCheckBox.isSelected());
-							Model.getInstance().updateLookAndFeel();
-						}
-					}
-				}.start();
-			}
-		});
 
 		cursorBlinkLabel = new JLabel(Messages
 				.getString("Preference.CursorBlink_Label_Text")); //$NON-NLS-1$
@@ -336,54 +300,48 @@ class ApperancePanel extends JPanel {
 
 		c.gridx = 0;
 		c.gridy = 0;
-		this.add(systemLookFeelLabel, c);
-		c.gridx = 1;
-		this.add(systemLookFeelCheckBox, c);
-
-		c.gridx = 0;
-		c.gridy = 1;
 		this.add(cursorBlinkLabel, c);
 		c.gridx = 1;
 		this.add(cursorBlinkCheckBox, c);
 
 		c.gridx = 0;
-		c.gridy = 2;
+		c.gridy = 1;
 		this.add(widthLabel, c);
 		c.gridx = 1;
 		this.add(widthSpinner, c);
 
 		c.gridx = 0;
-		c.gridy = 3;
+		c.gridy = 2;
 		this.add(heightLabel, c);
 		c.gridx = 1;
 		this.add(heightSpinner, c);
 
 		c.gridx = 0;
-		c.gridy = 4;
+		c.gridy = 3;
 		this.add(scrollLabel, c);
 		c.gridx = 1;
 		this.add(scrollSpinner, c);
 
 		c.gridx = 0;
-		c.gridy = 5;
+		c.gridy = 4;
 		this.add(terminalColumnsLabel, c);
 		c.gridx = 1;
 		this.add(terminalColumnsSpinner, c);
 
 		c.gridx = 0;
-		c.gridy = 6;
+		c.gridy = 5;
 		this.add(terminalRowsLabel, c);
 		c.gridx = 1;
 		this.add(terminalRowsSpinner, c);
 
 		c.gridx = 0;
-		c.gridy = 7;
+		c.gridy = 6;
 		this.add(tabNumberLabel, c);
 		c.gridx = 1;
 		this.add(tabNumberCheckBox, c);
 
 		c.gridx = 0;
-		c.gridy = 8;
+		c.gridy = 7;
 		this.add(showScrollBarLabel, c);
 		c.gridx = 1;
 		this.add(showScrollBarCheckBox, c);
