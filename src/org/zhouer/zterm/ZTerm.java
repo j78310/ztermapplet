@@ -203,10 +203,15 @@ public class ZTerm extends JApplet {
 		// 設定主畫面 Layout
 		this.getContentPane().setLayout(new BorderLayout());
 
+		// 製作選單
 		this.makeMenu();
 		makePopupMenu();
 		this.makeTabbedPane();
 		this.makeLanguageMenu();
+		
+		// 配製選單
+		this.getContentPane().add(this.tabbedPane, BorderLayout.CENTER);
+		this.getContentPane().addMouseListener(mouseController);
 		
 		// 設定視窗位置、大小
 		this.model.updateBounds();
@@ -350,7 +355,6 @@ public class ZTerm extends JApplet {
 				JTabbedPane.SCROLL_TAB_LAYOUT);
 		this.tabbedPane.addChangeListener(this.changeController);
 		this.tabbedPane.addMouseListener(mouseController);
-		this.getContentPane().add(this.tabbedPane, BorderLayout.CENTER);
 	}
 	
 	public void updateText() {		
