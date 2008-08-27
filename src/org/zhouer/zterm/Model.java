@@ -16,6 +16,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import org.zhouer.protocol.Protocol;
+import org.zhouer.utils.ClipUtils;
 import org.zhouer.utils.Convertor;
 import org.zhouer.vt.Config;
 
@@ -46,8 +47,6 @@ public class Model {
 		return Model.model;
 	}
 
-	private final Clip clip;
-
 	private String colorText = null; // 複製下來的彩色文字
 
 	private final Convertor conv;
@@ -66,7 +65,6 @@ public class Model {
 		sessions = Sessions.getInstance(); // 各個連線
 		resource = Resource.getInstance(); // 各種設定
 		conv = new Convertor(); // 轉碼用
-		clip = new Clip(); // 與系統剪貼簿溝通的橋樑
 		preferencePane = new PreferencePane();
 	}
 
@@ -290,7 +288,7 @@ public class Model {
 		if (session != null) {
 			final String str = session.getSelectedText();
 			if (str.length() != 0) {
-				clip.setContent(str);
+				ClipUtils.setContent(str);
 			}
 			if (resource.getBooleanValue(Config.CLEAR_AFTER_COPY)) {
 				session.resetSelected();
@@ -304,7 +302,7 @@ public class Model {
 	 */
 	public void copyLink() {
 		if (copiedLink != null) {
-			clip.setContent(copiedLink);
+			ClipUtils.setContent(copiedLink);
 		}
 	}
 
@@ -428,7 +426,7 @@ public class Model {
 	public void paste() {
 		final Session session = getCurrentSession();
 		if (session != null) {
-			session.pasteText(clip.getContent());
+			session.pasteText(ClipUtils.getContent());
 		}
 	}
 
