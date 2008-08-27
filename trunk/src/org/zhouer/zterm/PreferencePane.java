@@ -28,6 +28,7 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeSelectionModel;
 
+import org.zhouer.utils.InternationalMessages;
 import org.zhouer.vt.Config;
 
 /**
@@ -69,12 +70,12 @@ public class PreferencePane extends JOptionPane implements
 		panel.setLayout(new GridLayout(1, 1));
 
 		makeCategoryTree();
-		welcomeLabel = new JLabel(Messages
+		welcomeLabel = new JLabel(InternationalMessages
 				.getString("Preference.Welcome_Label_Text"));
 		welcomePanel = new JPanel();
 		welcomePanel.setLayout(new BorderLayout());
 		welcomePanel.add(welcomeLabel, BorderLayout.NORTH); //$NON-NLS-1$
-		welcomeTextArea = new JTextArea(Messages
+		welcomeTextArea = new JTextArea(InternationalMessages
 				.getString("Preference.Welcome_Description_Text")); //$NON-NLS-1$
 		welcomeScrollPane = new JScrollPane(welcomeTextArea);
 		welcomeTextArea.setEditable(false);
@@ -193,15 +194,15 @@ public class PreferencePane extends JOptionPane implements
 	}
 
 	private void makeCategoryTree() {
-		rootNode = new DefaultMutableTreeNode(Messages
+		rootNode = new DefaultMutableTreeNode(InternationalMessages
 				.getString("Preference.Tree_RootNode_Text")); //$NON-NLS-1$
-		generalNode = new DefaultMutableTreeNode(Messages
+		generalNode = new DefaultMutableTreeNode(InternationalMessages
 				.getString("Preference.Tree_GeneralNode_Text")); //$NON-NLS-1$
-		connectionNode = new DefaultMutableTreeNode(Messages
+		connectionNode = new DefaultMutableTreeNode(InternationalMessages
 				.getString("Preference.Tree_ConnectionNode_Text")); //$NON-NLS-1$
-		appearanceNode = new DefaultMutableTreeNode(Messages
+		appearanceNode = new DefaultMutableTreeNode(InternationalMessages
 				.getString("Preference.Tree_AppearanceNode_Text")); //$NON-NLS-1$
-		fontNode = new DefaultMutableTreeNode(Messages
+		fontNode = new DefaultMutableTreeNode(InternationalMessages
 				.getString("Preference.Tree_FontNode_Text")); //$NON-NLS-1$
 
 		rootNode.add(generalNode);
@@ -242,38 +243,38 @@ class ApperancePanel extends JPanel {
 		super();
 		resource = r;
 
-		cursorBlinkLabel = new JLabel(Messages
+		cursorBlinkLabel = new JLabel(InternationalMessages
 				.getString("Preference.CursorBlink_Label_Text")); //$NON-NLS-1$
 		cursorBlinkCheckBox = new JCheckBox();
 		cursorBlinkCheckBox.setSelected(resource
 				.getBooleanValue(Config.CURSOR_BLINK));
 
-		widthLabel = new JLabel(Messages
+		widthLabel = new JLabel(InternationalMessages
 				.getString("Preference.WindowWidth_Label_Text")); //$NON-NLS-1$
 		widthModel = new SpinnerNumberModel(resource
 				.getIntValue(Resource.GEOMETRY_WIDTH), 0, 4096, 1);
 		widthSpinner = new JSpinner(widthModel);
 
-		heightLabel = new JLabel(Messages
+		heightLabel = new JLabel(InternationalMessages
 				.getString("Preference.WindowHeight_Label_Text")); //$NON-NLS-1$
 		heightModel = new SpinnerNumberModel(resource
 				.getIntValue(Resource.GEOMETRY_HEIGHT), 0, 4096, 1);
 		heightSpinner = new JSpinner(heightModel);
 
-		scrollLabel = new JLabel(Messages
+		scrollLabel = new JLabel(InternationalMessages
 				.getString("Preference.Scroll_Label_Text")); //$NON-NLS-1$
 		scrollModel = new SpinnerNumberModel(resource
 				.getIntValue(Config.TERMINAL_SCROLLS), 0, 10000, 1);
 		scrollSpinner = new JSpinner(scrollModel);
 
-		terminalColumnsLabel = new JLabel(Messages
+		terminalColumnsLabel = new JLabel(InternationalMessages
 				.getString("Preference.TerminalColumns_Label_Text")); //$NON-NLS-1$
 		terminalColumnsModel = new SpinnerNumberModel(resource
 				.getIntValue(Config.TERMINAL_COLUMNS), 80, 200, 1);
 		terminalColumnsSpinner = new JSpinner(terminalColumnsModel);
 		terminalColumnsSpinner.setEnabled(false);
 
-		terminalRowsLabel = new JLabel(Messages
+		terminalRowsLabel = new JLabel(InternationalMessages
 				.getString("Preference.TerminalRows_Label_Text")); //$NON-NLS-1$
 		terminalRowsModel = new SpinnerNumberModel(resource
 				.getIntValue(Config.TERMINAL_ROWS), 24, 200, 1);
@@ -281,14 +282,14 @@ class ApperancePanel extends JPanel {
 		terminalRowsSpinner.setEnabled(false);
 
 		// chitsaou.070726: 分頁編號
-		tabNumberLabel = new JLabel(Messages
+		tabNumberLabel = new JLabel(InternationalMessages
 				.getString("Preference.TabNumber_Label_Text")); //$NON-NLS-1$
 		tabNumberCheckBox = new JCheckBox();
 		tabNumberCheckBox.setSelected(resource
 				.getBooleanValue(Resource.TAB_NUMBER));
 
 		// chitsaou.070726: 顯示捲軸
-		showScrollBarLabel = new JLabel(Messages
+		showScrollBarLabel = new JLabel(InternationalMessages
 				.getString("Preference.ShowScrollBar_Label_Text")); //$NON-NLS-1$
 		showScrollBarCheckBox = new JCheckBox();
 		showScrollBarCheckBox.setSelected(resource
@@ -372,34 +373,34 @@ class ConnectionPanel extends JPanel implements ActionListener {
 
 		final boolean autoReconnect = resource
 				.getBooleanValue(Resource.AUTO_RECONNECT);
-		autoReconnectLabel = new JLabel(Messages
+		autoReconnectLabel = new JLabel(InternationalMessages
 				.getString("Preference.AutoReconnect_Label_Text")); //$NON-NLS-1$
 		autoReconnectCheckBox = new JCheckBox();
 		autoReconnectCheckBox.setSelected(autoReconnect);
 		autoReconnectCheckBox.addActionListener(this);
 
-		reconnectTimeLabel = new JLabel(Messages
+		reconnectTimeLabel = new JLabel(InternationalMessages
 				.getString("Preference.ReconnectTime_Label_Text")); //$NON-NLS-1$
 		reconnectTimeModel = new SpinnerNumberModel(resource
 				.getIntValue(Resource.AUTO_RECONNECT_TIME), 0, 3600, 1);
 		reconnectTimeSpinner = new JSpinner(reconnectTimeModel);
 		reconnectTimeSpinner.setEnabled(autoReconnect);
 
-		reconnectIntervalLabel = new JLabel(Messages
+		reconnectIntervalLabel = new JLabel(InternationalMessages
 				.getString("Preference.ReconnectInterval_Label_Text")); //$NON-NLS-1$
 		reconnectIntervalModel = new SpinnerNumberModel(resource
 				.getIntValue(Resource.AUTO_RECONNECT_INTERVAL), 0, 60000, 1);
 		reconnectIntervalSpinner = new JSpinner(reconnectIntervalModel);
 		reconnectIntervalSpinner.setEnabled(autoReconnect);
 
-		antiIdleLabel = new JLabel(Messages
+		antiIdleLabel = new JLabel(InternationalMessages
 				.getString("Preference.AntiIdle_Label_Text")); //$NON-NLS-1$
 		antiIdleCheckBox = new JCheckBox();
 		antiIdleCheckBox.setSelected(resource
 				.getBooleanValue(Resource.ANTI_IDLE));
 		antiIdleCheckBox.addActionListener(this);
 
-		antiIdleTimeLabel = new JLabel(Messages
+		antiIdleTimeLabel = new JLabel(InternationalMessages
 				.getString("Preference.AntiIdleTime_Label_Text")); //$NON-NLS-1$
 		antiIdleModel = new SpinnerNumberModel(resource
 				.getIntValue(Resource.ANTI_IDLE_INTERVAL), 0, 3600, 1);
@@ -408,7 +409,7 @@ class ConnectionPanel extends JPanel implements ActionListener {
 				.getBooleanValue(Resource.ANTI_IDLE));
 
 		// chitsaou.070726: 防閒置字串
-		antiIdleStringLabel = new JLabel(Messages
+		antiIdleStringLabel = new JLabel(InternationalMessages
 				.getString("Preference.AntiIdleString_Label_Text")); //$NON-NLS-1$
 		antiIdleStringField = new JTextField(resource
 				.getStringValue(Resource.ANTI_IDLE_STRING), 15);
@@ -492,7 +493,7 @@ class FontPanel extends JPanel {
 		super();
 		resource = r;
 
-		familyLabel = new JLabel(Messages
+		familyLabel = new JLabel(InternationalMessages
 				.getString("Preference.FontFamily_Label_Text")); //$NON-NLS-1$
 		final GraphicsEnvironment ge = GraphicsEnvironment
 				.getLocalGraphicsEnvironment();
@@ -501,40 +502,40 @@ class FontPanel extends JPanel {
 		familyCombo
 				.setSelectedItem(resource.getStringValue(Config.FONT_FAMILY));
 
-		sizeLabel = new JLabel(Messages
+		sizeLabel = new JLabel(InternationalMessages
 				.getString("Preference.FontSize_Label_Text")); //$NON-NLS-1$
 		sizeModel = new SpinnerNumberModel(resource
 				.getIntValue(Config.FONT_SIZE), 0, 64, 1);
 		sizeSpinner = new JSpinner(sizeModel);
 
-		boldLabel = new JLabel(Messages
+		boldLabel = new JLabel(InternationalMessages
 				.getString("Preference.FontBold_Label_Text")); //$NON-NLS-1$
 		boldCheck = new JCheckBox();
 		boldCheck.setSelected(resource.getBooleanValue(Config.FONT_BOLD));
 
-		italyLabel = new JLabel(Messages
+		italyLabel = new JLabel(InternationalMessages
 				.getString("Preference.FontItaly_Label_Text")); //$NON-NLS-1$
 		italyCheck = new JCheckBox();
 		italyCheck.setSelected(resource.getBooleanValue(Config.FONT_ITALY));
 
-		aaLabel = new JLabel(Messages
+		aaLabel = new JLabel(InternationalMessages
 				.getString("Preference.FontAntiAliasing_Label_Text")); //$NON-NLS-1$
 		aaCheck = new JCheckBox();
 		aaCheck.setSelected(resource.getBooleanValue(Config.FONT_ANTIALIAS));
 
-		fontVerticalGapLabel = new JLabel(Messages
+		fontVerticalGapLabel = new JLabel(InternationalMessages
 				.getString("Preference.FontVerticalGap_Label_Text")); //$NON-NLS-1$
 		fontVerticalGapModel = new SpinnerNumberModel(resource
 				.getIntValue(Config.FONT_VERTICLAL_GAP), -10, 10, 1);
 		fontVerticalGapSpinner = new JSpinner(fontVerticalGapModel);
 
-		fontHorizontalGapLabel = new JLabel(Messages
+		fontHorizontalGapLabel = new JLabel(InternationalMessages
 				.getString("Preference.FontHorizontalGap_Label_Text")); //$NON-NLS-1$
 		fontHorizontalGapModel = new SpinnerNumberModel(resource
 				.getIntValue(Config.FONT_HORIZONTAL_GAP), -10, 10, 1);
 		fontHorizontalGapSpinner = new JSpinner(fontHorizontalGapModel);
 
-		fontDescentAdjustLabel = new JLabel(Messages
+		fontDescentAdjustLabel = new JLabel(InternationalMessages
 				.getString("Preference.FontDescentAdjust_Label_Text")); //$NON-NLS-1$
 		fontDescentAdjustModel = new SpinnerNumberModel(resource
 				.getIntValue(Config.FONT_DESCENT_ADJUST), -10, 10, 1);
@@ -626,37 +627,37 @@ class GeneralPanel extends JPanel implements ActionListener {
 		super();
 		resource = r;
 
-		browserLabel = new JLabel(Messages
+		browserLabel = new JLabel(InternationalMessages
 				.getString("Preference.BrowserCommand_Label_Text")); //$NON-NLS-1$
 		browserField = new JTextField(resource
 				.getStringValue(Resource.EXTERNAL_BROWSER), 20);
 
-		copyOnSelectLabel = new JLabel(Messages
+		copyOnSelectLabel = new JLabel(InternationalMessages
 				.getString("Preference.CopyOnSelect_Label_Text")); //$NON-NLS-1$
 		copyOnSelectCheckBox = new JCheckBox();
 		copyOnSelectCheckBox.setSelected(resource
 				.getBooleanValue(Config.COPY_ON_SELECT));
 
-		clearAfterCopyLabel = new JLabel(Messages
+		clearAfterCopyLabel = new JLabel(InternationalMessages
 				.getString("Preference.ClearAfterCopy_Label_Text")); //$NON-NLS-1$
 		clearAfterCopyCheckBox = new JCheckBox();
 		clearAfterCopyCheckBox.setSelected(resource
 				.getBooleanValue(Config.CLEAR_AFTER_COPY));
 
-		removeManualLabel = new JLabel(Messages
+		removeManualLabel = new JLabel(InternationalMessages
 				.getString("Preference.RemoveManual_Label_Text")); //$NON-NLS-1$
 		removeManualCheckBox = new JCheckBox();
 		removeManualCheckBox.setSelected(resource
 				.getBooleanValue(Resource.REMOVE_MANUAL_DISCONNECT));
 
-		linebreakLabel = new JLabel(Messages
+		linebreakLabel = new JLabel(InternationalMessages
 				.getString("Preference.LineBreak_Label_Text")); //$NON-NLS-1$
 		linebreakCheckBox = new JCheckBox();
 		linebreakCheckBox.setSelected(resource
 				.getBooleanValue(Config.AUTO_LINE_BREAK));
 		linebreakCheckBox.addActionListener(this);
 
-		breaklengthLabel = new JLabel(Messages
+		breaklengthLabel = new JLabel(InternationalMessages
 				.getString("Preference.BreakLength_Label_Text")); //$NON-NLS-1$
 		breaklengthModel = new SpinnerNumberModel(resource
 				.getIntValue(Config.AUTO_LINE_BREAK_LENGTH), 1, 512, 1);
@@ -664,20 +665,20 @@ class GeneralPanel extends JPanel implements ActionListener {
 		breaklengthSpinner.setEnabled(resource
 				.getBooleanValue(Config.AUTO_LINE_BREAK));
 
-		customBellLabel = new JLabel(Messages
+		customBellLabel = new JLabel(InternationalMessages
 				.getString("Preference.CustomBell_Label_Text")); //$NON-NLS-1$
 		customBellCheckBox = new JCheckBox();
 		customBellCheckBox.setSelected(resource
 				.getBooleanValue(Resource.USE_CUSTOM_BELL));
 		customBellCheckBox.addActionListener(this);
 
-		bellPathLabel = new JLabel(Messages
+		bellPathLabel = new JLabel(InternationalMessages
 				.getString("Preference.BellPath_Label_Text")); //$NON-NLS-1$
 		bellPathField = new JTextField(resource
 				.getStringValue(Resource.CUSTOM_BELL_PATH), 8);
 		bellPathField.setEnabled(resource
 				.getBooleanValue(Resource.USE_CUSTOM_BELL));
-		bellPathButton = new JButton(Messages
+		bellPathButton = new JButton(InternationalMessages
 				.getString("Preference.BellPath_Button_Text")); //$NON-NLS-1$
 		bellPathButton.setEnabled(resource
 				.getBooleanValue(Resource.USE_CUSTOM_BELL));

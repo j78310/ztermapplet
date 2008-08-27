@@ -16,6 +16,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 
+import org.zhouer.utils.InternationalMessages;
 import org.zhouer.vt.Config;
 
 /**
@@ -79,13 +80,13 @@ public class ZTerm extends JApplet {
 		Locale.setDefault(this.resource.getLocale());
 
 		// 初始化各種 icon
-		this.tryingIcon = new ImageIcon(ZTerm.class.getResource(Messages
+		this.tryingIcon = new ImageIcon(ZTerm.class.getResource(InternationalMessages
 				.getString("ZTerm.Trying_Icon_File"))); //$NON-NLS-1$
-		this.connectedIcon = new ImageIcon(ZTerm.class.getResource(Messages
+		this.connectedIcon = new ImageIcon(ZTerm.class.getResource(InternationalMessages
 				.getString("ZTerm.Connected_Icon_File"))); //$NON-NLS-1$
-		this.closedIcon = new ImageIcon(ZTerm.class.getResource(Messages
+		this.closedIcon = new ImageIcon(ZTerm.class.getResource(InternationalMessages
 				.getString("ZTerm.Closed_Icon_File"))); //$NON-NLS-1$
-		this.bellIcon = new ImageIcon(ZTerm.class.getResource(Messages
+		this.bellIcon = new ImageIcon(ZTerm.class.getResource(InternationalMessages
 				.getString("ZTerm.Bell_Icon_File"))); //$NON-NLS-1$
 
 		// 建立事件控制器
@@ -105,11 +106,11 @@ public class ZTerm extends JApplet {
 	private void makeLanguageMenu() {
 		final int languageAmount = 2;
 		languageItems = new JMenuItem[languageAmount];
-		languageItems[0] = new JMenuItem(Messages.getString("ZTerm.Language_English_Item"));
-		languageItems[0].setToolTipText(Messages.getString("ZTerm.Language_English_ToolTip"));
+		languageItems[0] = new JMenuItem(InternationalMessages.getString("ZTerm.Language_English_Item"));
+		languageItems[0].setToolTipText(InternationalMessages.getString("ZTerm.Language_English_ToolTip"));
 		languageItems[0].addActionListener(actionController);
-		languageItems[1] = new JMenuItem(Messages.getString("ZTerm.Language_TraditionalChinese_Item"));
-		languageItems[1].setToolTipText(Messages.getString("ZTerm.Language_TraditionalChinese_ToolTip"));
+		languageItems[1] = new JMenuItem(InternationalMessages.getString("ZTerm.Language_TraditionalChinese_Item"));
+		languageItems[1].setToolTipText(InternationalMessages.getString("ZTerm.Language_TraditionalChinese_ToolTip"));
 		languageItems[1].addActionListener(actionController);
 		
 		for (int i = 0; i < languageItems.length; i++) {
@@ -357,119 +358,119 @@ public class ZTerm extends JApplet {
 	}
 	
 	public void updateText() {		
-		this.fileMenu.setText(Messages
+		this.fileMenu.setText(InternationalMessages
 				.getString("ZTerm.Connect_Menu_Text")); //$NON-NLS-1$
-		this.fileMenu.setToolTipText(Messages
+		this.fileMenu.setToolTipText(InternationalMessages
 				.getString("ZTerm.Connect_Menu_ToolTip")); //$NON-NLS-1$
 		
 		this.languageMenu.setText("Language");
 		this.languageMenu.setToolTipText("Change your language");
 		
-		historyMenu.setText(Messages
+		historyMenu.setText(InternationalMessages
 				.getString("ZTerm.Site_Menu_Text"));
 
-		this.viewMenu.setText(Messages.getString("ZTerm.View_Menu_Text")); //$NON-NLS-1$
-		this.viewMenu.setToolTipText(Messages
+		this.viewMenu.setText(InternationalMessages.getString("ZTerm.View_Menu_Text")); //$NON-NLS-1$
+		this.viewMenu.setToolTipText(InternationalMessages
 				.getString("ZTerm.View_Menu_ToolTip")); //$NON-NLS-1$
 		
-		historyMenu.setText(Messages.getString("ZTerm.History_Menu_Text")); //$NON-NLS-1$
-		historyMenu.setToolTipText(Messages
+		historyMenu.setText(InternationalMessages.getString("ZTerm.History_Menu_Text")); //$NON-NLS-1$
+		historyMenu.setToolTipText(InternationalMessages
 				.getString("ZTerm.History_Menu_ToolTip")); //$NON-NLS-1$
 
-		this.editMenu.setText(Messages.getString("ZTerm.Edit_Menu_Text")); //$NON-NLS-1$
-		this.editMenu.setToolTipText(Messages
+		this.editMenu.setText(InternationalMessages.getString("ZTerm.Edit_Menu_Text")); //$NON-NLS-1$
+		this.editMenu.setToolTipText(InternationalMessages
 				.getString("ZTerm.Edit_Menu_ToolTip")); //$NON-NLS-1$
 
-		this.toolsMenu.setText(Messages
+		this.toolsMenu.setText(InternationalMessages
 				.getString("ZTerm.Option_Menu_Text")); //$NON-NLS-1$
-		this.toolsMenu.setToolTipText(Messages
+		this.toolsMenu.setToolTipText(InternationalMessages
 				.getString("ZTerm.Option_Menu_ToolTip")); //$NON-NLS-1$
 
-		this.helpMenu.setText(Messages.getString("ZTerm.Help_Menu_Text")); //$NON-NLS-1$
-		this.helpMenu.setToolTipText(Messages
+		this.helpMenu.setText(InternationalMessages.getString("ZTerm.Help_Menu_Text")); //$NON-NLS-1$
+		this.helpMenu.setToolTipText(InternationalMessages
 				.getString("ZTerm.Help_Menu_ToolTip")); //$NON-NLS-1$
 
-		this.encodingMenu.setText(Messages
+		this.encodingMenu.setText(InternationalMessages
 				.getString("ZTerm.Encoding_Menu_Text")); //$NON-NLS-1$
 
-		this.openItem.setText(Messages
+		this.openItem.setText(InternationalMessages
 				.getString("ZTerm.Open_MenuItem_Text")); //$NON-NLS-1$
-		this.openItem.setToolTipText(Messages
+		this.openItem.setToolTipText(InternationalMessages
 				.getString("ZTerm.Open_MenuItem_ToolTip")); //$NON-NLS-1$
 
-		this.closeItem.setText(Messages
+		this.closeItem.setText(InternationalMessages
 				.getString("ZTerm.Close_MenuItem_Text")); //$NON-NLS-1$
-		this.closeItem.setToolTipText(Messages
+		this.closeItem.setToolTipText(InternationalMessages
 				.getString("ZTerm.Close_MenuItem_ToolTip")); //$NON-NLS-1$
 
-		this.reopenItem.setText(Messages
+		this.reopenItem.setText(InternationalMessages
 				.getString("ZTerm.Reopen_Item_Text")); //$NON-NLS-1$
-		this.reopenItem.setToolTipText(Messages
+		this.reopenItem.setToolTipText(InternationalMessages
 				.getString("ZTerm.Reopen_Item_ToolTip")); //$NON-NLS-1$
 
-		this.copyItem.setText(Messages
+		this.copyItem.setText(InternationalMessages
 				.getString("ZTerm.Copy_MenuItem_Text")); //$NON-NLS-1$
-		this.copyItem.setToolTipText(Messages
+		this.copyItem.setToolTipText(InternationalMessages
 				.getString("ZTerm.Copy_MenuItem_ToolTip")); //$NON-NLS-1$
 
-		this.pasteItem.setText(Messages
+		this.pasteItem.setText(InternationalMessages
 				.getString("ZTerm.Paste_MenuItem_Text")); //$NON-NLS-1$
-		this.pasteItem.setToolTipText(Messages
+		this.pasteItem.setToolTipText(InternationalMessages
 				.getString("ZTerm.Paste_MenuItem_ToolTip")); //$NON-NLS-1$
 
-		this.colorCopyItem.setText(Messages
+		this.colorCopyItem.setText(InternationalMessages
 				.getString("ZTerm.ColorCopy_MenuItem_Text")); //$NON-NLS-1$
-		colorCopyItem.setToolTipText(Messages.getString("ZTerm.ColorCopy_MenuItem__ToolTip")); //$NON-NLS-1$
+		colorCopyItem.setToolTipText(InternationalMessages.getString("ZTerm.ColorCopy_MenuItem__ToolTip")); //$NON-NLS-1$
 
-		this.colorPasteItem.setText(Messages
+		this.colorPasteItem.setText(InternationalMessages
 				.getString("ZTerm.ColorPaste_MenuItem_Text")); //$NON-NLS-1$
-		colorPasteItem.setToolTipText(Messages.getString("ZTerm.ColorPaste_MenuItem__ToolTip")); //$NON-NLS-1$
+		colorPasteItem.setToolTipText(InternationalMessages.getString("ZTerm.ColorPaste_MenuItem__ToolTip")); //$NON-NLS-1$
 
-		this.preferenceItem.setText(Messages
+		this.preferenceItem.setText(InternationalMessages
 				.getString("ZTerm.Preference_MenuItem_Text")); //$NON-NLS-1$
-		this.preferenceItem.setToolTipText(Messages
+		this.preferenceItem.setToolTipText(InternationalMessages
 				.getString("ZTerm.Preference_MenuItem_ToolTip")); //$NON-NLS-1$
 
-		this.siteManagerItem.setText(Messages
+		this.siteManagerItem.setText(InternationalMessages
 				.getString("ZTerm.SiteManager_MenuItem_Text")); //$NON-NLS-1$
-		this.siteManagerItem.setToolTipText(Messages
+		this.siteManagerItem.setToolTipText(InternationalMessages
 				.getString("ZTerm.SiteManager_MenuItem_ToolTip")); //$NON-NLS-1$
 
-		this.usageItem.setText(Messages
+		this.usageItem.setText(InternationalMessages
 				.getString("ZTerm.Usage_MenuItem_Text")); //$NON-NLS-1$
 
-		this.faqItem.setText(Messages
+		this.faqItem.setText(InternationalMessages
 				.getString("ZTerm.FAQ_MenuItem_Text")); //$NON-NLS-1$
 
-		this.aboutItem.setText(Messages
+		this.aboutItem.setText(InternationalMessages
 				.getString("ZTerm.About_MenuItem_Text")); //$NON-NLS-1$
 
-		this.big5Item.setText(Messages
+		this.big5Item.setText(InternationalMessages
 				.getString("ZTerm.Big5_MenuItem_Text")); //$NON-NLS-1$
 
-		this.utf8Item.setText(Messages
+		this.utf8Item.setText(InternationalMessages
 				.getString("ZTerm.UTF8_MenuItem_Text")); //$NON-NLS-1$
 		
-		this.popupCopyLinkItem.setText(Messages
+		this.popupCopyLinkItem.setText(InternationalMessages
 				.getString("ZTerm.Popup_CopyLink_MenuItem_Text")); //$NON-NLS-1$
 		
-		this.popupCopyItem.setText(Messages
+		this.popupCopyItem.setText(InternationalMessages
 				.getString("ZTerm.Copy_MenuItem_Text")); //$NON-NLS-1$
-		this.popupCopyItem.setToolTipText(Messages
+		this.popupCopyItem.setToolTipText(InternationalMessages
 				.getString("ZTerm.Copy_MenuItem_ToolTip")); //$NON-NLS-1$
 
-		this.popupPasteItem.setText(Messages
+		this.popupPasteItem.setText(InternationalMessages
 				.getString("ZTerm.Paste_MenuItem_Text")); //$NON-NLS-1$
 		
-		this.popupPasteItem.setToolTipText(Messages
+		this.popupPasteItem.setToolTipText(InternationalMessages
 				.getString("ZTerm.Paste_MenuItem_ToolTip")); //$NON-NLS-1$
 
-		this.popupColorCopyItem.setText(Messages
+		this.popupColorCopyItem.setText(InternationalMessages
 				.getString("ZTerm.ColorCopy_MenuItem_Text")); //$NON-NLS-1$
-		popupColorCopyItem.setToolTipText(Messages.getString("ZTerm.ColorCopy_MenuItem__ToolTip")); //$NON-NLS-1$
+		popupColorCopyItem.setToolTipText(InternationalMessages.getString("ZTerm.ColorCopy_MenuItem__ToolTip")); //$NON-NLS-1$
 
-		this.popupColorPasteItem.setText(Messages
+		this.popupColorPasteItem.setText(InternationalMessages
 				.getString("ZTerm.ColorPaste_MenuItem_Text")); //$NON-NLS-1$
-		popupColorPasteItem.setToolTipText(Messages.getString("ZTerm.ColorPaste_MenuItem__ToolTip")); //$NON-NLS-1$
+		popupColorPasteItem.setToolTipText(InternationalMessages.getString("ZTerm.ColorPaste_MenuItem__ToolTip")); //$NON-NLS-1$
 	}
 }

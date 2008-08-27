@@ -29,6 +29,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.zhouer.protocol.Protocol;
+import org.zhouer.utils.InternationalMessages;
 
 /**
  * SiteManager is an option pane for users to modify their favorite site.
@@ -79,17 +80,17 @@ public class SiteManager extends JOptionPane {
 			this.setLayout(new GridBagLayout());
 			final GridBagConstraints c = new GridBagConstraints();
 
-			this.nameLabel = new JLabel(Messages.getString("SiteManager.Name")); //$NON-NLS-1$
-			this.hostLabel = new JLabel(Messages.getString("SiteManager.Host")); //$NON-NLS-1$
-			this.portLabel = new JLabel(Messages.getString("SiteManager.Port")); //$NON-NLS-1$
-			this.aliasLabel = new JLabel(Messages.getString("SiteManager.Alias")); //$NON-NLS-1$
-			this.protocolLabel = new JLabel(Messages
+			this.nameLabel = new JLabel(InternationalMessages.getString("SiteManager.Name")); //$NON-NLS-1$
+			this.hostLabel = new JLabel(InternationalMessages.getString("SiteManager.Host")); //$NON-NLS-1$
+			this.portLabel = new JLabel(InternationalMessages.getString("SiteManager.Port")); //$NON-NLS-1$
+			this.aliasLabel = new JLabel(InternationalMessages.getString("SiteManager.Alias")); //$NON-NLS-1$
+			this.protocolLabel = new JLabel(InternationalMessages
 					.getString("SiteManager.Protocal")); //$NON-NLS-1$
-			this.encodingLabel = new JLabel(Messages
+			this.encodingLabel = new JLabel(InternationalMessages
 					.getString("SiteManager.Encoding")); //$NON-NLS-1$
-			this.emulationLabel = new JLabel(Messages
+			this.emulationLabel = new JLabel(InternationalMessages
 					.getString("SiteManager.Emulation")); //$NON-NLS-1$
-			this.autoConnectLabel = new JLabel(Messages
+			this.autoConnectLabel = new JLabel(InternationalMessages
 					.getString("SiteManager.AutoConnect")); //$NON-NLS-1$
 
 			// autoLoginLabel = new JLabel("自動登入");
@@ -107,10 +108,10 @@ public class SiteManager extends JOptionPane {
 			this.aliasField = new JTextField(15);
 			this.aliasField.addKeyListener(this);
 
-			this.telnetButton = new JRadioButton(Messages
+			this.telnetButton = new JRadioButton(InternationalMessages
 					.getString("SiteManager.TelnetButtonText")); //$NON-NLS-1$
 			this.telnetButton.addActionListener(this);
-			this.sshButton = new JRadioButton(Messages
+			this.sshButton = new JRadioButton(InternationalMessages
 					.getString("SiteManager.SSHButtonText")); //$NON-NLS-1$
 			this.sshButton.addActionListener(this);
 
@@ -386,16 +387,16 @@ public class SiteManager extends JOptionPane {
 			this.modifyPanel = new JPanel();
 			this.modifyPanel.setLayout(new GridLayout(0, 2, 3, 3));
 
-			this.addButton = new JButton(Messages
+			this.addButton = new JButton(InternationalMessages
 					.getString("SiteManager.AddButtonText")); //$NON-NLS-1$
 			this.addButton.addActionListener(this);
-			this.removeButton = new JButton(Messages
+			this.removeButton = new JButton(InternationalMessages
 					.getString("SiteManager.RemoveButtonText")); //$NON-NLS-1$
 			this.removeButton.addActionListener(this);
-			this.upButton = new JButton(Messages
+			this.upButton = new JButton(InternationalMessages
 					.getString("SiteManager.UpButtonText")); //$NON-NLS-1$
 			this.upButton.addActionListener(this);
-			this.downButton = new JButton(Messages
+			this.downButton = new JButton(InternationalMessages
 					.getString("SiteManager.DownButtonText")); //$NON-NLS-1$
 			this.downButton.addActionListener(this);
 
