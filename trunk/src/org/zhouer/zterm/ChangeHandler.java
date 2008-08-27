@@ -35,6 +35,8 @@ public class ChangeHandler implements ChangeListener {
 	}
 
 	public void stateChanged(final ChangeEvent e) {
+		model.requestFocusToCurrentSession();
+		
 		// 切換分頁，更新視窗標題、畫面
 		if (e.getSource() == this.view.tabbedPane) {
 			this.model.updateTab();

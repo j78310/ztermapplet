@@ -17,6 +17,7 @@ public class ComponentHandler extends ComponentAdapter {
 	public void componentResized(final ComponentEvent ce) {
 		this.view.validate();
 		this.model.updateSize();
+		model.requestFocusToCurrentSession();
 	}
 
 	/**

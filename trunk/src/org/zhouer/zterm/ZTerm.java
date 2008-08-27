@@ -232,6 +232,7 @@ public class ZTerm extends JApplet {
 		this.componentController.setView(this);
 		this.componentController.setModel(this.model);
 		mouseController.setView(this);
+		mouseController.setModel(model);
 
 		// 設定系統核心的目標介面
 		this.model.setView(this);

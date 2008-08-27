@@ -15,6 +15,8 @@ public class KeyEventHandler implements KeyEventDispatcher {
 	private ZTerm view;
 
 	public boolean dispatchKeyEvent(final KeyEvent keyEvent) {
+		model.requestFocusToCurrentSession();
+		
 		// 只處理按下的狀況
 		if (keyEvent.getID() != KeyEvent.KEY_PRESSED) {
 			return false;

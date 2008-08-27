@@ -9,8 +9,14 @@ public class MouseHandler implements MouseListener {
 	
 	private ZTerm view;
 	
+	private Model model;
+	
 	public void setView(ZTerm view) {
 		this.view = view;
+	}
+	
+	public void setModel(Model model) {
+		this.model = model;
 	}
 
 	public void mouseClicked(MouseEvent e) {
@@ -28,8 +34,7 @@ public class MouseHandler implements MouseListener {
 	}
 
 	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
-
+		model.requestFocusToCurrentSession();
 	}
 
 	public void mouseExited(MouseEvent e) {
@@ -43,8 +48,7 @@ public class MouseHandler implements MouseListener {
 	}
 
 	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
-
+		model.requestFocusToCurrentSession();
 	}
 
 }
