@@ -33,7 +33,7 @@ public class KeyEventHandler implements KeyEventDispatcher {
 			} else if (keyEvent.getKeyCode() == KeyEvent.VK_Q) {
 				this.model.open();
 			} else if (keyEvent.getKeyCode() == KeyEvent.VK_R) {
-				this.model.reopenSession((Session) this.view.tabbedPane
+				this.model.reopenSession((SessionPane) this.view.tabbedPane
 						.getSelectedComponent());
 			} else if (keyEvent.getKeyCode() == KeyEvent.VK_P) {
 				this.model.paste();
