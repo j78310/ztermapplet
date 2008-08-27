@@ -31,6 +31,10 @@ public class ActionHandler implements ActionListener {
 		
 		if (source == this.view.openItem) {
 			this.model.open();
+		} else if (source == this.view.reopenItem) {
+			model.reopenSession(model.getCurrentSession());
+		} else if (source == this.view.closeItem) {
+			model.closeCurrentTab();
 		} else if ((source == this.view.copyItem)
 				|| (source == this.view.popupCopyItem)) {
 			this.model.copy();

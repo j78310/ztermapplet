@@ -3,6 +3,8 @@ package org.zhouer.zterm;
 import java.awt.KeyEventDispatcher;
 import java.awt.event.KeyEvent;
 
+import org.zhouer.vt.VT100;
+
 /**
  * KeyEventHandler is a key event controller for ZTerm applet.
  * 
@@ -15,11 +17,29 @@ public class KeyEventHandler implements KeyEventDispatcher {
 	private ZTerm view;
 
 	public boolean dispatchKeyEvent(final KeyEvent keyEvent) {
+		final SessionPane session = model.getCurrentSession();
+		final VT100 vt = session.getVt();
 		model.requestFocusToCurrentSession();
 		
-		// 只處理按下的狀況
+		if (keyEvent.getID() == KeyEvent.KEY_TYPED) {
+			// 功能鍵，不理會
+			if (keyEvent.isAltDown() || keyEvent.isMetaDown()) {
+				return true;
+			}
+
+			// delete, enter, esc 會在 keyPressed 被處理
+			if ((keyEvent.getKeyChar() == KeyEvent.VK_DELETE)
+					|| (keyEvent.getKeyChar() == KeyEvent.VK_ENTER)
+					|| (keyEvent.getKeyChar() == KeyEvent.VK_ESCAPE)) {
+				return true;
+			}
+
+			// 一般按鍵，直接送出
+			session.writeChar(keyEvent.getKeyChar());
+		}
+		
 		if (keyEvent.getID() != KeyEvent.KEY_PRESSED) {
-			return false;
+			return true;
 		}
 
 		if (keyEvent.isAltDown() || keyEvent.isMetaDown()) {
@@ -78,9 +98,140 @@ public class KeyEventHandler implements KeyEventDispatcher {
 			// 功能鍵不再往下送
 			return true;
 		}
+		
+		int len;
+		final byte[] buf = new byte[4];
 
-		// 一般鍵，繼續往下送。
-		return false;
+		// 其他功能鍵
+		switch (keyEvent.getKeyCode()) {
+		case KeyEvent.VK_UP:
+			if (vt.getKeypadMode() == VT100.NUMERIC_KEYPAD) {
+				buf[0] = 0x1b;
+				buf[1] = 0x5b;
+				buf[2] = 'A';
+				len = 3;
+			} else {
+				buf[0] = 0x1b;
+				buf[1] = 0x4f;
+				buf[2] = 'A';
+				len = 3;
+			}
+			break;
+		case KeyEvent.VK_DOWN:
+			if (vt.getKeypadMode() == VT100.NUMERIC_KEYPAD) {
+				buf[0] = 0x1b;
+				buf[1] = 0x5b;
+				buf[2] = 'B';
+				len = 3;
+			} else {
+				buf[0] = 0x1b;
+				buf[1] = 0x4f;
+				buf[2] = 'B';
+				len = 3;
+			}
+			break;
+		case KeyEvent.VK_RIGHT:
+			if (vt.getKeypadMode() == VT100.NUMERIC_KEYPAD) {
+				buf[0] = 0x1b;
+				buf[1] = 0x5b;
+				buf[2] = 'C';
+				len = 3;
+			} else {
+				buf[0] = 0x1b;
+				buf[1] = 0x4f;
+				buf[2] = 'C';
+				len = 3;
+			}
+			break;
+		case KeyEvent.VK_LEFT:
+			if (vt.getKeypadMode() == VT100.NUMERIC_KEYPAD) {
+				buf[0] = 0x1b;
+				buf[1] = 0x5b;
+				buf[2] = 'D';
+				len = 3;
+			} else {
+				buf[0] = 0x1b;
+				buf[1] = 0x4f;
+				buf[2] = 'D';
+				len = 3;
+			}
+			break;
+		case KeyEvent.VK_INSERT:
+			buf[0] = 0x1b;
+			buf[1] = 0x5b;
+			buf[2] = '2';
+			buf[3] = '~';
+			len = 4;
+			break;
+		case KeyEvent.VK_HOME:
+			if (vt.getKeypadMode() == VT100.NUMERIC_KEYPAD) {
+				buf[0] = 0x1b;
+				buf[1] = 0x5b;
+				buf[2] = '1';
+				buf[3] = '~';
+				len = 4;
+			} else {
+				buf[0] = 0x1b;
+				buf[1] = 0x4f;
+				buf[2] = 'H';
+				len = 3;
+			}
+			break;
+		case KeyEvent.VK_PAGE_UP:
+			buf[0] = 0x1b;
+			buf[1] = 0x5b;
+			buf[2] = '5';
+			buf[3] = '~';
+			len = 4;
+			break;
+		case KeyEvent.VK_DELETE:
+			buf[0] = 0x1b;
+			buf[1] = 0x5b;
+			buf[2] = '3';
+			buf[3] = '~';
+			len = 4;
+			break;
+		case KeyEvent.VK_END:
+			if (vt.getKeypadMode() == VT100.NUMERIC_KEYPAD) {
+				buf[0] = 0x1b;
+				buf[1] = 0x5b;
+				buf[2] = '4';
+				buf[3] = '~';
+				len = 4;
+			} else {
+				buf[0] = 0x1b;
+				buf[1] = 0x4f;
+				buf[2] = 'F';
+				len = 3;
+			}
+			break;
+		case KeyEvent.VK_PAGE_DOWN:
+			buf[0] = 0x1b;
+			buf[1] = 0x5b;
+			buf[2] = '6';
+			buf[3] = '~';
+			len = 4;
+			break;
+		default:
+			len = 0;
+		}
+
+		if (len != 0) {
+			session.writeBytes(buf, 0, len);
+			return true;
+		}
+
+		if (keyEvent.getKeyCode() == KeyEvent.VK_ESCAPE) {
+			session.writeByte((byte) 0x1b);
+			return true;
+		}
+
+		if (keyEvent.getKeyCode() == KeyEvent.VK_ENTER) {
+			session.writeByte((byte) 0x0d);
+			return true;
+		}
+		
+		return true;
 	}
 
 	/**

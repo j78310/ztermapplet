@@ -100,6 +100,10 @@ public class SessionPane extends JPanel implements Runnable, Application,
 
 	private final VT100 vt;
 
+	public VT100 getVt() {
+		return vt;
+	}
+
 	private String windowtitle;
 
 	public SessionPane(final Site s, final Resource r, final Convertor c,
@@ -333,7 +337,13 @@ public class SessionPane extends JPanel implements Runnable, Application,
 	}
 
 	public boolean requestFocusInWindow() {
+		vt.setFocusable(true);
+		vt.setVisible(true);
 		return this.vt.requestFocusInWindow();
+	}
+	
+	public boolean isFocusOwner() {
+		return vt.isFocusOwner();
 	}
 
 	public void resetSelected() {
