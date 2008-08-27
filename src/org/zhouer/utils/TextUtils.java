@@ -4,6 +4,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 public class TextUtils {
+	
+	private TextUtils() {
+		// This class shouldn't be instanced.
+	}
+	
 	public static String BSStringToString(final String s) {
 		char c;
 		final StringBuffer result = new StringBuffer();

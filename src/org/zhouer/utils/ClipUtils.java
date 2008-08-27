@@ -15,6 +15,10 @@ import java.io.IOException;
  */
 public class ClipUtils {
 	
+	private ClipUtils() {
+		// This class shouldn't be instanced.
+	}
+	
 	/**
 	 * Getter of content of system clip board
 	 * 
