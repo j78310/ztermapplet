@@ -12,7 +12,7 @@ import java.util.ResourceBundle;
  */
 public class InternationalMessages {
 	
-	private static final String BUNDLE_NAME = "org.zhouer.zterm.lang.messages"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME = "res.lang.messages"; //$NON-NLS-1$
 
 	private static ResourceBundle RESOURCE_BUNDLE = ResourceBundle
 			.getBundle(InternationalMessages.BUNDLE_NAME);

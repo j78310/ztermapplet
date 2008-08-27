@@ -31,7 +31,7 @@ import org.zhouer.vt.Application;
 import org.zhouer.vt.Config;
 import org.zhouer.vt.VT100;
 
-public class Session extends JPanel implements Runnable, Application,
+public class SessionPane extends JPanel implements Runnable, Application,
 		AdjustmentListener, MouseWheelListener {
 
 	private class AntiIdleTask implements ActionListener {
@@ -39,19 +39,19 @@ public class Session extends JPanel implements Runnable, Application,
 			// 如果超過 antiIdelInterval milliseconds 沒有送出東西，
 			// lastInputTime 在 writeByte, writeBytes 會被更新。
 			final long now = new Date().getTime();
-			if (Session.this.antiidle
-					&& Session.this.isConnected()
-					&& (now - Session.this.lastInputTime > Session.this.antiIdleInterval)) {
+			if (SessionPane.this.antiidle
+					&& SessionPane.this.isConnected()
+					&& (now - SessionPane.this.lastInputTime > SessionPane.this.antiIdleInterval)) {
 				// System.out.println( "Sent antiidle char" );
 				// TODO: 設定 antiidle 送出的字元
-				if (Session.this.site.protocol
+				if (SessionPane.this.site.protocol
 						.equalsIgnoreCase(Protocol.TELNET)) {
 
 					final String buf = TextUtils
-							.BSStringToString(Session.this.resource
+							.BSStringToString(SessionPane.this.resource
 									.getStringValue(Resource.ANTI_IDLE_STRING));
 					final char[] ca = buf.toCharArray();
-					Session.this.writeChars(ca, 0, ca.length);
+					SessionPane.this.writeChars(ca, 0, ca.length);
 
 					// 較正規的防閒置方式
 					// writeByte( Telnet.IAC );
@@ -102,7 +102,7 @@ public class Session extends JPanel implements Runnable, Application,
 
 	private String windowtitle;
 
-	public Session(final Site s, final Resource r, final Convertor c,
+	public SessionPane(final Site s, final Resource r, final Convertor c,
 			final BufferedImage bi, final Model model) {
 		super();
 
@@ -160,7 +160,7 @@ public class Session extends JPanel implements Runnable, Application,
 		this.model.bell(this);
 	}
 
-	public void bell(final Session s) {
+	public void bell(final SessionPane s) {
 		if (this.resource.getBooleanValue(Resource.USE_CUSTOM_BELL)) {
 			try {
 				java.applet.Applet.newAudioClip(
@@ -175,7 +175,7 @@ public class Session extends JPanel implements Runnable, Application,
 		}
 
 		if (!this.model.isTabForeground(s)) {
-			s.setState(Session.STATE_ALERT);
+			s.setState(SessionPane.STATE_ALERT);
 		}
 	}
 
@@ -201,7 +201,7 @@ public class Session extends JPanel implements Runnable, Application,
 		}
 
 		// 將連線狀態改為斷線
-		this.setState(Session.STATE_CLOSED);
+		this.setState(SessionPane.STATE_CLOSED);
 
 		// 若遠端 server 主動斷線則判斷是否需要重連
 		final boolean autoreconnect = this.resource
@@ -342,7 +342,7 @@ public class Session extends JPanel implements Runnable, Application,
 
 	public void run() {
 		// 設定連線狀態為 trying
-		this.setState(Session.STATE_TRYING);
+		this.setState(SessionPane.STATE_TRYING);
 
 		// 新建連線
 		if (this.site.protocol.equalsIgnoreCase(Protocol.TELNET)) {
@@ -358,7 +358,7 @@ public class Session extends JPanel implements Runnable, Application,
 		// 連線失敗
 		if (this.network.connect() == false) {
 			// 設定連線狀態為 closed
-			this.setState(Session.STATE_CLOSED);
+			this.setState(SessionPane.STATE_CLOSED);
 			return;
 		}
 
@@ -368,7 +368,7 @@ public class Session extends JPanel implements Runnable, Application,
 		// TODO: 如果需要 input filter or trigger 可以在這邊套上
 
 		// 設定連線狀態為 connected
-		this.setState(Session.STATE_CONNECTED);
+		this.setState(SessionPane.STATE_CONNECTED);
 
 		// 連線成功，更新或新增連線紀錄
 		this.resource.addFavorite(this.site);

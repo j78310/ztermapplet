@@ -80,13 +80,13 @@ public class ZTerm extends JApplet {
 		Locale.setDefault(this.resource.getLocale());
 
 		// 初始化各種 icon
-		this.tryingIcon = new ImageIcon(ZTerm.class.getResource(InternationalMessages
+		this.tryingIcon = new ImageIcon(ClassLoader.getSystemResource(InternationalMessages
 				.getString("ZTerm.Trying_Icon_File"))); //$NON-NLS-1$
-		this.connectedIcon = new ImageIcon(ZTerm.class.getResource(InternationalMessages
+		this.connectedIcon = new ImageIcon(ClassLoader.getSystemResource(InternationalMessages
 				.getString("ZTerm.Connected_Icon_File"))); //$NON-NLS-1$
-		this.closedIcon = new ImageIcon(ZTerm.class.getResource(InternationalMessages
+		this.closedIcon = new ImageIcon(ClassLoader.getSystemResource(InternationalMessages
 				.getString("ZTerm.Closed_Icon_File"))); //$NON-NLS-1$
-		this.bellIcon = new ImageIcon(ZTerm.class.getResource(InternationalMessages
+		this.bellIcon = new ImageIcon(ClassLoader.getSystemResource(InternationalMessages
 				.getString("ZTerm.Bell_Icon_File"))); //$NON-NLS-1$
 
 		// 建立事件控制器
@@ -141,7 +141,7 @@ public class ZTerm extends JApplet {
 	 * Update screen size of sessions with the dimension of view.
 	 */
 	public void updateSize() {
-		Session session;
+		SessionPane session;
 
 		// 產生跟主視窗一樣大的 image
 		this.terminalImage = new BufferedImage(this.getWidth(), this.getHeight(),
@@ -149,7 +149,7 @@ public class ZTerm extends JApplet {
 
 		// 視窗大小調整時同步更新每個 session 的大小
 		for (int i = 0; i < this.sessions.size(); i++) {
-			session = (Session) this.sessions.elementAt(i);
+			session = (SessionPane) this.sessions.elementAt(i);
 			session.validate();
 			session.updateImage(this.terminalImage);
 			session.updateSize();
@@ -165,21 +165,21 @@ public class ZTerm extends JApplet {
 	 * @param session
 	 *            target session to be modified the icon
 	 */
-	public void updateTabState(final int state, final Session session) {
+	public void updateTabState(final int state, final SessionPane session) {
 		int index;
 		ImageIcon imageIcon;
 
 		switch (state) {
-		case Session.STATE_TRYING:
+		case SessionPane.STATE_TRYING:
 			imageIcon = this.tryingIcon;
 			break;
-		case Session.STATE_CONNECTED:
+		case SessionPane.STATE_CONNECTED:
 			imageIcon = this.connectedIcon;
 			break;
-		case Session.STATE_CLOSED:
+		case SessionPane.STATE_CLOSED:
 			imageIcon = this.closedIcon;
 			break;
-		case Session.STATE_ALERT:
+		case SessionPane.STATE_ALERT:
 			imageIcon = this.bellIcon;
 			break;
 		default:

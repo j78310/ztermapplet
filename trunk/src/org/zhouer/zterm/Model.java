@@ -98,7 +98,7 @@ public class Model {
 	 * @param session
 	 *            sound an alert from this session.
 	 */
-	public void bell(final Session session) {
+	public void bell(final SessionPane session) {
 		if (resource.getBooleanValue(Resource.USE_CUSTOM_BELL)) {
 			try {
 				java.applet.Applet.newAudioClip(
@@ -113,7 +113,7 @@ public class Model {
 		}
 
 		if (!isTabForeground(session)) {
-			session.setState(Session.STATE_ALERT);
+			session.setState(SessionPane.STATE_ALERT);
 		}
 	}
 
@@ -129,7 +129,7 @@ public class Model {
 			// 取得焦點的工作
 			final Runnable sessionFocuser = new Runnable() {
 				public void run() {
-					final Session session = (Session) sessions.get(index);
+					final SessionPane session = (SessionPane) sessions.get(index);
 					session.requestFocusInWindow();
 				}
 			};
@@ -153,7 +153,7 @@ public class Model {
 	public void requestFocusToCurrentSession() {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				final Session session = getCurrentSession();
+				final SessionPane session = getCurrentSession();
 				
 				if (session != null) {
 					getCurrentSession().requestFocusInWindow();
@@ -167,8 +167,8 @@ public class Model {
 	 * 
 	 * @return the current session
 	 */
-	public Session getCurrentSession() {
-		final Session session = (Session) view.tabbedPane
+	public SessionPane getCurrentSession() {
+		final SessionPane session = (SessionPane) view.tabbedPane
 		.getSelectedComponent();
 		
 		return session;
@@ -178,7 +178,7 @@ public class Model {
 	 * Close current tab which is showing on the screen.
 	 */
 	public void closeCurrentTab() {
-		final Session session = getCurrentSession();
+		final SessionPane session = getCurrentSession();
 
 		if (session != null) {
 
@@ -216,7 +216,7 @@ public class Model {
 	 * Do color copying.
 	 */
 	public void colorCopy() {
-		final Session session = getCurrentSession();
+		final SessionPane session = getCurrentSession();
 
 		if (session != null) {
 			final String str = session.getSelectedColorText();
@@ -234,7 +234,7 @@ public class Model {
 	 * Do color pasting.
 	 */
 	public void colorPaste() {
-		final Session session = getCurrentSession();
+		final SessionPane session = getCurrentSession();
 		if ((session != null) && (colorText != null)) {
 			session.pasteColorText(colorText);
 		}
@@ -249,9 +249,9 @@ public class Model {
 	 *            the index of tab page corresponding to this site.
 	 */
 	public void connect(final Site site, final int index) {
-		Session session;
+		SessionPane session;
 
-		session = new Session(site, resource, conv, view.terminalImage, this);
+		session = new SessionPane(site, resource, conv, view.terminalImage, this);
 
 		// index 為連線後放在第幾個分頁，若為 -1 表開新分頁。
 		if (index == -1) {
@@ -284,7 +284,7 @@ public class Model {
 	 * Do text copying to clip.
 	 */
 	public void copy() {
-		final Session session = getCurrentSession();
+		final SessionPane session = getCurrentSession();
 
 		if (session != null) {
 			final String str = session.getSelectedText();
@@ -381,7 +381,7 @@ public class Model {
 	 * @param session
 	 * @return true if the session is selected on tab page; false, otherwise.
 	 */
-	public boolean isTabForeground(final Session session) {
+	public boolean isTabForeground(final SessionPane session) {
 		return (view.tabbedPane.indexOfComponent(session) == view.tabbedPane
 				.getSelectedIndex());
 	}
@@ -425,7 +425,7 @@ public class Model {
 	 * Do paste at current session.
 	 */
 	public void paste() {
-		final Session session = getCurrentSession();
+		final SessionPane session = getCurrentSession();
 		if (session != null) {
 			session.pasteText(ClipUtils.getContent());
 		}
@@ -437,7 +437,7 @@ public class Model {
 	 * @param session
 	 *            session to be reopened.
 	 */
-	public void reopenSession(final Session session) {
+	public void reopenSession(final SessionPane session) {
 		if (session != null) {
 			// 若連線中則開新分頁，已斷線則重連。
 			if (session.isClosed()) {
@@ -594,7 +594,7 @@ public class Model {
 	 */
 	public void updateAntiIdleTime() {
 		for (int i = 0; i < sessions.size(); i++) {
-			final Session session = (Session) sessions.elementAt(i);
+			final SessionPane session = (SessionPane) sessions.elementAt(i);
 			session.updateAntiIdleTime();
 		}
 	}
@@ -620,7 +620,7 @@ public class Model {
 	 *            the encode name to be updated.
 	 */
 	public void updateEncoding(final String encoding) {
-		final Session session = getCurrentSession();
+		final SessionPane session = getCurrentSession();
 		if (session != null) {
 			session.setEncoding(encoding);
 		}
@@ -653,12 +653,12 @@ public class Model {
 	 * Update tab page.
 	 */
 	public void updateTab() {
-		final Session session = getCurrentSession();
+		final SessionPane session = getCurrentSession();
 
 		if (session != null) {
 			// 切換到 alert 的 session 時設定狀態為 connected, 以取消 bell.
-			if (session.state == Session.STATE_ALERT) {
-				session.setState(Session.STATE_CONNECTED);
+			if (session.state == SessionPane.STATE_ALERT) {
+				session.setState(SessionPane.STATE_CONNECTED);
 			}
 
 			// 因為全部的連線共用一張 BufferedImage, 切換分頁時需重繪內容。
@@ -681,7 +681,7 @@ public class Model {
 	 * @param session
 	 *            the session of which tab state to be updated.
 	 */
-	public void updateTabState(final int state, final Session session) {
+	public void updateTabState(final int state, final SessionPane session) {
 		view.updateTabState(state, session);
 	}
 
@@ -690,7 +690,7 @@ public class Model {
 	 */
 	public void updateTabTitle() {
 		for (int i = 0; i < view.tabbedPane.getTabCount(); i++) {
-			final Session session = (Session) getSessions().elementAt(i);
+			final SessionPane session = (SessionPane) getSessions().elementAt(i);
 			
 			view.tabbedPane.setTitleAt(i, (i + 1)
 					+ ". " + session.getSite().name); //$NON-NLS-1$
