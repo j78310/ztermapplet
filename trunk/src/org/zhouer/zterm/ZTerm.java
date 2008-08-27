@@ -79,15 +79,11 @@ public class ZTerm extends JApplet {
 		// 設定語系
 		Locale.setDefault(this.resource.getLocale());
 
-		// 初始化各種 icon
-		this.tryingIcon = new ImageIcon(ClassLoader.getSystemResource(InternationalMessages
-				.getString("ZTerm.Trying_Icon_File"))); //$NON-NLS-1$
-		this.connectedIcon = new ImageIcon(ClassLoader.getSystemResource(InternationalMessages
-				.getString("ZTerm.Connected_Icon_File"))); //$NON-NLS-1$
-		this.closedIcon = new ImageIcon(ClassLoader.getSystemResource(InternationalMessages
-				.getString("ZTerm.Closed_Icon_File"))); //$NON-NLS-1$
-		this.bellIcon = new ImageIcon(ClassLoader.getSystemResource(InternationalMessages
-				.getString("ZTerm.Bell_Icon_File"))); //$NON-NLS-1$
+		// 初始化各種 icon		
+		this.tryingIcon = new ImageIcon(getClass().getResource("/res/icon/trying.png"));
+		this.connectedIcon = new ImageIcon(getClass().getResource("/res/icon/connected.png"));
+		this.closedIcon = new ImageIcon(getClass().getResource("/res/icon/closed.png"));
+		this.bellIcon = new ImageIcon(getClass().getResource("/res/icon/bell.png"));
 
 		// 建立事件控制器
 		this.actionController = new ActionHandler();
