@@ -18,6 +18,7 @@ import javax.swing.SwingUtilities;
 import org.zhouer.protocol.Protocol;
 import org.zhouer.utils.ClipUtils;
 import org.zhouer.utils.Convertor;
+import org.zhouer.utils.InternationalMessages;
 import org.zhouer.vt.Config;
 
 /**
@@ -184,7 +185,7 @@ public class Model {
 			// 連線中則詢問是否要斷線
 			if (!session.isClosed()) {
 				if (showConfirm(
-						Messages.getString("ZTerm.Message_Confirm_Close"), Messages.getString("ZTerm.Title_Confirm_Close"), JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) { //$NON-NLS-1$ //$NON-NLS-2$
+						InternationalMessages.getString("ZTerm.Message_Confirm_Close"), InternationalMessages.getString("ZTerm.Title_Confirm_Close"), JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) { //$NON-NLS-1$ //$NON-NLS-2$
 					return;
 				}
 
@@ -347,8 +348,8 @@ public class Model {
 	 * @return password from user.
 	 */
 	public String getPassword() {
-		return PasswordPane.showPasswordDialog(view, Messages
-				.getString("Model.Password_Text"), Messages
+		return PasswordPane.showPasswordDialog(view, InternationalMessages
+				.getString("Model.Password_Text"), InternationalMessages
 				.getString("Model.Password_Title")); 
 	}
 
@@ -370,7 +371,7 @@ public class Model {
 		return JOptionPane
 				.showInputDialog(
 						view,
-						Messages.getString("Model.User_Name_Text"), Messages.getString("Model.User_Name_Title"), //$NON-NLS-1$ //$NON-NLS-2$
+						InternationalMessages.getString("Model.User_Name_Text"), InternationalMessages.getString("Model.User_Name_Title"), //$NON-NLS-1$ //$NON-NLS-2$
 						JOptionPane.QUESTION_MESSAGE);
 	}
 
@@ -389,7 +390,7 @@ public class Model {
 	 * Ask user host and open the site which user enters to dialog.
 	 */
 	public void open() {
-		final String site = JOptionPane.showInputDialog(view, Messages
+		final String site = JOptionPane.showInputDialog(view, InternationalMessages
 				.getString("ZTerm.Message_Input_Site")); //$NON-NLS-1$
 		this.connect(site);
 	}
@@ -403,7 +404,7 @@ public class Model {
 	public void openExternalBrowser(final String url) {
 		String cmd = resource.getStringValue(Resource.EXTERNAL_BROWSER);
 		if (cmd == null) {
-			showMessage(Messages
+			showMessage(InternationalMessages
 					.getString("ZTerm.Message_Wrong_Explorer_Command")); //$NON-NLS-1$
 			return;
 		}
@@ -411,7 +412,7 @@ public class Model {
 		// 把 %u 置換成給定的 url
 		final int urlIndex = cmd.indexOf("%u"); //$NON-NLS-1$
 		if (urlIndex == -1) {
-			showMessage(Messages
+			showMessage(InternationalMessages
 					.getString("ZTerm.Message_Wrong_Explorer_Command")); //$NON-NLS-1$
 			return;
 		}
@@ -476,7 +477,7 @@ public class Model {
 	 * Show about dialog.
 	 */
 	public void showAbout() {
-		showMessage(Messages.getString("ZTerm.Message_About")); //$NON-NLS-1$
+		showMessage(InternationalMessages.getString("ZTerm.Message_About")); //$NON-NLS-1$
 	}
 
 	/**
@@ -502,7 +503,7 @@ public class Model {
 	public void showFAQ() {
 		final HtmlPane faqHtmlDialog = new HtmlPane(ZTerm.class
 				.getResource("docs/faq.html")); //$NON-NLS-1$ 
-		final JDialog dialog = faqHtmlDialog.createDialog(view, Messages
+		final JDialog dialog = faqHtmlDialog.createDialog(view, InternationalMessages
 				.getString("ZTerm.Title_FAQ")); //$NON-NLS-1$
 		dialog.setSize(640, 400);
 		dialog.setVisible(true);
@@ -542,7 +543,7 @@ public class Model {
 	 * Show preference dialog.
 	 */
 	public void showPreference() {
-		final JDialog dialog = preferencePane.createDialog(view, Messages
+		final JDialog dialog = preferencePane.createDialog(view, InternationalMessages
 				.getString("Preference.Title"));
 		dialog.setSize(620, 300);
 		dialog.setVisible(true);
@@ -582,7 +583,7 @@ public class Model {
 	public void showUsage() {
 		final HtmlPane usageHtmlDialog = new HtmlPane(ZTerm.class
 				.getResource("docs/usage.html")); //$NON-NLS-1$ 
-		final JDialog dialog = usageHtmlDialog.createDialog(view, Messages
+		final JDialog dialog = usageHtmlDialog.createDialog(view, InternationalMessages
 				.getString("ZTerm.Title_Manual")); //$NON-NLS-1$
 		dialog.setSize(640, 400);
 		dialog.setVisible(true);
@@ -730,7 +731,7 @@ public class Model {
 						Protocol.TELNET)) {
 					protocol = Protocol.TELNET;
 				} else {
-					showMessage(Messages
+					showMessage(InternationalMessages
 							.getString("ZTerm.Message_Wrong_Protocal")); //$NON-NLS-1$
 					return;
 				}
@@ -767,7 +768,7 @@ public class Model {
 	 * Refresh messages on the user interface.
 	 */
 	public void refreshMessages() {
-		Messages.restartBundle();
+		InternationalMessages.restartBundle();
 		this.view.updateText();
 		this.preferencePane = new PreferencePane();
 	}
