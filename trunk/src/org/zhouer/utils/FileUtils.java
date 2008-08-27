@@ -8,6 +8,10 @@ import java.io.IOException;
 public class FileUtils {
 	public static final int DIRECTORY = 2;
 	public static final int FILE = 1;
+	
+	private FileUtils() {
+		// This class shouldn't be instanced.
+	}
 
 	public static void checkFile(final File f, final int type) {
 		try {

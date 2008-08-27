@@ -8,6 +8,10 @@ package org.zhouer.utils;
  */
 public class UrlRecognizer {
 
+	private UrlRecognizer() {
+		// This class shouldn't be instanced.
+	}
+	
 	/**
 	 * Detect a position of a message is a part of HTTP.
 	 * 
