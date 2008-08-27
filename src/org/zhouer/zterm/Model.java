@@ -147,13 +147,39 @@ public class Model {
 			SwingUtilities.invokeLater(tabbedSwitcher);
 		}
 	}
+	
+	/**
+	 * Request focus to the current session.
+	 */
+	public void requestFocusToCurrentSession() {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				final Session session = getCurrentSession();
+				
+				if (session != null) {
+					getCurrentSession().requestFocusInWindow();
+				}
+			}
+		});
+	}
+	
+	/**
+	 * Getter of the current session which is able to be viewed 
+	 * 
+	 * @return the current session
+	 */
+	public Session getCurrentSession() {
+		final Session session = (Session) view.tabbedPane
+		.getSelectedComponent();
+		
+		return session;
+	}
 
 	/**
 	 * Close current tab which is showing on the screen.
 	 */
 	public void closeCurrentTab() {
-		final Session session = (Session) view.tabbedPane
-				.getSelectedComponent();
+		final Session session = getCurrentSession();
 
 		if (session != null) {
 
@@ -191,8 +217,7 @@ public class Model {
 	 * Do color copying.
 	 */
 	public void colorCopy() {
-		final Session session = (Session) view.tabbedPane
-				.getSelectedComponent();
+		final Session session = getCurrentSession();
 
 		if (session != null) {
 			final String str = session.getSelectedColorText();
@@ -210,8 +235,7 @@ public class Model {
 	 * Do color pasting.
 	 */
 	public void colorPaste() {
-		final Session session = (Session) view.tabbedPane
-				.getSelectedComponent();
+		final Session session = getCurrentSession();
 		if ((session != null) && (colorText != null)) {
 			session.pasteColorText(colorText);
 		}
@@ -261,8 +285,7 @@ public class Model {
 	 * Do text copying to clip.
 	 */
 	public void copy() {
-		final Session session = (Session) view.tabbedPane
-				.getSelectedComponent();
+		final Session session = getCurrentSession();
 
 		if (session != null) {
 			final String str = session.getSelectedText();
@@ -403,8 +426,7 @@ public class Model {
 	 * Do paste at current session.
 	 */
 	public void paste() {
-		final Session session = (Session) view.tabbedPane
-				.getSelectedComponent();
+		final Session session = getCurrentSession();
 		if (session != null) {
 			session.pasteText(clip.getContent());
 		}
@@ -599,8 +621,7 @@ public class Model {
 	 *            the encode name to be updated.
 	 */
 	public void updateEncoding(final String encoding) {
-		final Session session = (Session) view.tabbedPane
-				.getSelectedComponent();
+		final Session session = getCurrentSession();
 		if (session != null) {
 			session.setEncoding(encoding);
 		}
@@ -633,8 +654,7 @@ public class Model {
 	 * Update tab page.
 	 */
 	public void updateTab() {
-		final Session session = (Session) view.tabbedPane
-				.getSelectedComponent();
+		final Session session = getCurrentSession();
 
 		if (session != null) {
 			// 切換到 alert 的 session 時設定狀態為 connected, 以取消 bell.

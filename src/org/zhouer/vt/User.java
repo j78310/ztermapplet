@@ -186,9 +186,6 @@ public class User implements KeyListener, MouseListener, MouseMotionListener {
 	}
 
 	public void mouseClicked(final MouseEvent e) {
-		// System.out.println( e );
-
-		do {
 			if (e.getButton() == MouseEvent.BUTTON1) {
 				// 左鍵
 				if (this.vt.coverURL(e.getX(), e.getY())) {
@@ -199,19 +196,20 @@ public class User implements KeyListener, MouseListener, MouseMotionListener {
 					if (url.length() != 0) {
 						this.parent.openExternalBrowser(url);
 					}
-					break;
+					
+					return;
 				} else if (e.getClickCount() == 2) {
 					// double click
 					// 選取連續字元
 					this.vt.selectConsequtive(e.getX(), e.getY());
 					this.vt.repaint();
-					break;
+					return;
 				} else if (e.getClickCount() == 3) {
 					// triple click
 					// 選取整行
 					this.vt.selectEntireLine(e.getX(), e.getY());
 					this.vt.repaint();
-					break;
+					return;
 				}
 			} else if (e.getButton() == MouseEvent.BUTTON2) {
 				// 中鍵
@@ -222,19 +220,18 @@ public class User implements KeyListener, MouseListener, MouseMotionListener {
 				} else {
 					this.parent.paste();
 				}
-				break;
+				
+				return;
 			} else if (e.getButton() == MouseEvent.BUTTON3) {
 				// 右鍵
 				// 跳出 popup menu
 				this.parent.showPopup(e.getX(), e.getY());
-				break;
+				return;
 			}
 
 			this.vt.requestFocusInWindow();
 			this.vt.resetSelected();
 			this.vt.repaint();
-
-		} while (false);
 	}
 
 	public void mouseDragged(final MouseEvent e) {

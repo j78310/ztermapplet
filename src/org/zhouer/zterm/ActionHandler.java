@@ -27,7 +27,8 @@ public class ActionHandler implements ActionListener {
 
 	public void actionPerformed(final ActionEvent ae) {
 		final Object source = ae.getSource();
-
+		model.requestFocusToCurrentSession();
+		
 		if (source == this.view.openItem) {
 			this.model.open();
 		} else if ((source == this.view.copyItem)
