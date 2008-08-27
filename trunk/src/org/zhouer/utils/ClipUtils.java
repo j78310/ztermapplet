@@ -1,8 +1,7 @@
-package org.zhouer.zterm;
+package org.zhouer.utils;
 
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
@@ -14,14 +13,14 @@ import java.io.IOException;
  * 
  * @author h45
  */
-public class Clip implements ClipboardOwner {
-
+public class ClipUtils {
+	
 	/**
 	 * Getter of content of system clip board
 	 * 
 	 * @return content.
 	 */
-	public String getContent() {
+	public static String getContent() {
 		final Clipboard clip = Toolkit.getDefaultToolkit().getSystemClipboard();
 		final Transferable contents = clip.getContents(null);
 
@@ -41,20 +40,15 @@ public class Clip implements ClipboardOwner {
 		return null;
 	}
 
-	public void lostOwnership(final Clipboard clipboard,
-			final Transferable contents) {
-		// No activities have to be done when this object lost owner ship.
-	}
-
 	/**
 	 * Setter of content of system clip board
 	 * 
 	 * @param content
 	 *            the clip board to be set
 	 */
-	public void setContent(final String content) {
-		final StringSelection ss = new StringSelection(content);
+	public static void setContent(final String content) {
+		final StringSelection stringSelection = new StringSelection(content);
 		final Clipboard clip = Toolkit.getDefaultToolkit().getSystemClipboard();
-		clip.setContents(ss, this);
+		clip.setContents(stringSelection, stringSelection);
 	}
 }
