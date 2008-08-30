@@ -150,18 +150,16 @@ public class Model {
 	/**
 	 * Request focus to the current session.
 	 */
-	public boolean requestFocusToCurrentSession() {
-		final SessionPane session = getCurrentSession();
-
-		if (session != null) {
-			if (session.isFocusOwner()) {
-				return true;
+	public void requestFocusToCurrentSession() {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				final SessionPane session = getCurrentSession();
+				
+				if (session != null) {
+					getCurrentSession().requestFocusInWindow();
+				}
 			}
-			
-			return session.requestFocusInWindow();
-		}
-
-		return false;
+		});
 	}
 	
 	/**

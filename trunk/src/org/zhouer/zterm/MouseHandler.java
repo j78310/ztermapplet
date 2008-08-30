@@ -20,8 +20,6 @@ public class MouseHandler implements MouseListener {
 	}
 
 	public void mouseClicked(MouseEvent e) {
-		model.requestFocusToCurrentSession();
-		
 		// Clicked right button
 		if (e.getButton() == MouseEvent.BUTTON3) {
 			final int x = e.getX();
@@ -40,11 +38,13 @@ public class MouseHandler implements MouseListener {
 	}
 
 	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
 
 	}
 
 	public void mousePressed(MouseEvent e) {
-		model.requestFocusToCurrentSession();
+		// TODO Auto-generated method stub
+
 	}
 
 	public void mouseReleased(MouseEvent e) {
