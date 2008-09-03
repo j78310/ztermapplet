@@ -2,7 +2,9 @@ package org.zhouer.zterm;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
+import java.awt.GraphicsEnvironment;
 import java.awt.KeyboardFocusManager;
+import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -30,13 +32,16 @@ import org.zhouer.vt.Config;
 public class ZTerm extends JApplet {
 	
 	public static void main(String args[]) {
+		final Rectangle windowBounds = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
 		final JFrame frame = new JFrame("ZTerm Applet");
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				System.exit(0);
 			}
 		});
-		frame.setSize(300, 200);
+		
+		frame.setSize(windowBounds.width, windowBounds.height);
+		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		frame.getContentPane().add(new ZTerm());
 		frame.setVisible(true);
 	}
