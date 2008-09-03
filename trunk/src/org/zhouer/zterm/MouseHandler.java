@@ -27,7 +27,7 @@ public class MouseHandler implements MouseListener {
 			
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
-					view.popupMenu.show(view, x, y);
+					view.popupMenu.show(view.getContentPane(), x, y);
 				}
 			});
 		}
