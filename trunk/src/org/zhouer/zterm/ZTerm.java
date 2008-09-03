@@ -4,12 +4,15 @@ import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.util.Locale;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JApplet;
+import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -25,6 +28,19 @@ import org.zhouer.vt.Config;
  * @author h45
  */
 public class ZTerm extends JApplet {
+	
+	public static void main(String args[]) {
+		final JFrame frame = new JFrame("ZTerm Applet");
+		frame.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				System.exit(0);
+			}
+		});
+		frame.setSize(300, 200);
+		frame.getContentPane().add(new ZTerm());
+		frame.setVisible(true);
+	}
+	
 	private static final long serialVersionUID = 6304594468121008572L;
 
 	protected BufferedImage terminalImage;
