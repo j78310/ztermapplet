@@ -32,7 +32,7 @@
         </javac>
     </target>
     <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
-    <target name="ZTerm">
+    <target depends="build" name="ZTerm">
         <java classname="sun.applet.AppletViewer" dir="." failonerror="true" fork="yes">
 			<jvmarg value="-Djava.security.policy=policy.applet"/>
             <arg line="ZTerm.html"/>
