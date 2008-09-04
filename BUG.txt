@@ -1,5 +1,6 @@
 2.0 BETA:
-[Reopened] 無法或難以取得終端機焦點。
+[Reopened] 無法或難以取得終端機焦點。 (某些瀏覽器，如 GTK firefox, 無解)
+[Reopened] 連結有時候會偵測失敗，例：#18m04zPl (WarCraft) [ptt.cc] [大蛇] 大蛇再臨Ver02c
 
 1.15 RC8:
 [Resolved] 修改語言不會反應在偏好設定視窗內的文字。
