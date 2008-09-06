@@ -45,11 +45,13 @@ public class UrlRecognizer {
 			return false;
 		}
 		
+		final int indexOfEmpty = httpMessage.indexOf(0);
 		final int indexOfSpace = httpMessage.indexOf(' ');
 		final int indexOft = httpMessage.indexOf('\t');
 		final int indexOfn = httpMessage.indexOf('\n');
 		final int indexOfr = httpMessage.indexOf('\r');
 		final int indexOff = httpMessage.indexOf('\f');
+		final boolean emptyNotFound = indexOfEmpty == -1;
 		final boolean spaceNotFound = indexOfSpace == -1;
 		final boolean tNotFound = indexOft == -1;
 		final boolean nNotFound = indexOfn == -1;
@@ -57,7 +59,7 @@ public class UrlRecognizer {
 		final boolean fNotFound = indexOff == -1;
 		
 		// 1. message: "http://test http://test" 2. message: "http://test" 
-		if (spaceNotFound && tNotFound && nNotFound && rNotFound && fNotFound) {
+		if (emptyNotFound && spaceNotFound && tNotFound && nNotFound && rNotFound && fNotFound) {
 			return true;
 		}
 		
