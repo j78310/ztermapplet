@@ -663,4 +663,18 @@ public class Model {
 		this.view.updateText();
 		this.preferencePane = new PreferencePane();
 	}
+	
+	/**
+	 * Hide the menu bar.
+	 */
+	public void hideMenuBar() {
+		view.removeMenuBar();
+	}
+	
+	/**
+	 * Show the menu bar.
+	 */
+	public void showMenuBar() {
+		view.showMenuBar();
+	}
 }
