@@ -12,7 +12,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 
-import org.zhouer.zterm.Model;
+import org.zhouer.zterm.model.Model;
 
 import ch.ethz.ssh2.InteractiveCallback;
 

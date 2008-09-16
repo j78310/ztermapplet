@@ -1,4 +1,4 @@
-package org.zhouer.zterm;
+package org.zhouer.zterm.model;
 
 import java.util.Vector;
 

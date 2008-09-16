@@ -1,7 +1,9 @@
-package org.zhouer.zterm;
+package org.zhouer.zterm.view;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import org.zhouer.zterm.model.Model;
 
 /**
  * ChangeHandler is a change controller for ZTerm Applet.

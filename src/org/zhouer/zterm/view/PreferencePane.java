@@ -1,10 +1,11 @@
-package org.zhouer.zterm;
+package org.zhouer.zterm.view;
 
 import java.awt.BorderLayout;
 import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -30,6 +31,8 @@ import javax.swing.tree.TreeSelectionModel;
 
 import org.zhouer.utils.InternationalMessages;
 import org.zhouer.vt.Config;
+import org.zhouer.zterm.model.Model;
+import org.zhouer.zterm.model.Resource;
 
 /**
  * PreferencePane is an option pane which provides control items which enable
@@ -96,6 +99,17 @@ public class PreferencePane extends JOptionPane implements
 		setOptionType(JOptionPane.OK_CANCEL_OPTION);
 		setMessage(panel);
 	}
+	
+	public void updateSize() {
+		final Rectangle bounds = getBounds();
+		resource.setValue(Resource.GEOMETRY_X, (int) bounds.getX());
+		resource.setValue(Resource.GEOMETRY_Y, (int) bounds.getY());
+		resource.setValue(Resource.GEOMETRY_WIDTH, (int) bounds.getWidth());
+		resource.setValue(Resource.GEOMETRY_HEIGHT, (int) bounds.getHeight());
+		
+		apperancePanel.widthSpinner.setValue(new Integer((int) bounds.getWidth()));
+		apperancePanel.heightSpinner.setValue(new Integer((int) bounds.getHeight()));
+	}
 
 	public void valueChanged(final TreeSelectionEvent tse) {
 
@@ -120,7 +134,7 @@ public class PreferencePane extends JOptionPane implements
 		splitPanel.setDividerLocation(120);
 	}
 
-	protected void submit() {
+	public void submit() {
 		resource.setValue(Resource.EXTERNAL_BROWSER, generalPanel.browserField.getText());
 		resource.setValue(Config.COPY_ON_SELECT, generalPanel.copyOnSelectCheckBox
 				.isSelected());

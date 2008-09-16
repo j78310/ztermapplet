@@ -1,7 +1,9 @@
-package org.zhouer.zterm;
+package org.zhouer.zterm.view;
 
 import java.awt.KeyEventDispatcher;
 import java.awt.event.KeyEvent;
+
+import org.zhouer.zterm.model.Model;
 
 /**
  * KeyEventHandler is a key event controller for ZTerm applet.

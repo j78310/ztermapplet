@@ -1,7 +1,9 @@
-package org.zhouer.zterm;
+package org.zhouer.zterm.view;
 
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+
+import org.zhouer.zterm.model.Model;
 
 /**
  * ComponentHandler is a component controller for ZTerm applet.

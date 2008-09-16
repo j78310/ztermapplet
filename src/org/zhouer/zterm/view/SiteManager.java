@@ -1,4 +1,4 @@
-package org.zhouer.zterm;
+package org.zhouer.zterm.view;
 
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
@@ -30,6 +30,9 @@ import javax.swing.event.ListSelectionListener;
 
 import org.zhouer.protocol.Protocol;
 import org.zhouer.utils.InternationalMessages;
+import org.zhouer.zterm.model.Model;
+import org.zhouer.zterm.model.Resource;
+import org.zhouer.zterm.model.Site;
 
 /**
  * SiteManager is an option pane for users to modify their favorite site.
@@ -233,41 +236,40 @@ public class SiteManager extends JOptionPane {
 		
 		private void update() {
 			final Site s = new Site();
-			s.name = nameField.getText();
-			s.host = hostField.getText();
-			s.port = Integer.parseInt(portField.getText());
-			s.alias = aliasField.getText();
+			s.setName(nameField.getText());
+			s.setHost(hostField.getText());
+			s.setPort(Integer.parseInt(portField.getText()));
+			s.setAlias(aliasField.getText());
 
 			if (telnetButton.isSelected()) {
-				s.protocol = Protocol.TELNET;
+				s.setProtocol(Protocol.TELNET);
 			} else if (sshButton.isSelected()) {
-				s.protocol = Protocol.SSH;
+				s.setProtocol(Protocol.SSH);
 			}
 
-			s.encoding = encodingCombo.getSelectedItem().toString();
-			s.emulation = emulationCombo.getSelectedItem().toString();
-
-			s.autoconnect = autoConnectCheckBox.isSelected();
+			s.setEncoding(encodingCombo.getSelectedItem().toString());
+			s.setEmulation(emulationCombo.getSelectedItem().toString());
+			s.setAutoconnect(autoConnectCheckBox.isSelected());
 			// s.autologin = autoLoginCheckBox.isSelected();
 			parent.updateFavorite(s);
 		}
 
 		public void updateParameter(final Site s) {
-			this.nameField.setText(s.name);
-			this.hostField.setText(s.host);
-			this.portField.setText(Integer.toString(s.port));
-			this.aliasField.setText(s.alias);
+			this.nameField.setText(s.getName());
+			this.hostField.setText(s.getHost());
+			this.portField.setText(Integer.toString(s.getPort()));
+			this.aliasField.setText(s.getAlias());
 
-			if (s.protocol.equalsIgnoreCase(Protocol.TELNET)) {
+			if (s.getProtocol().equalsIgnoreCase(Protocol.TELNET)) {
 				this.telnetButton.setSelected(true);
-			} else if (s.protocol.equalsIgnoreCase(Protocol.SSH)) {
+			} else if (s.getProtocol().equalsIgnoreCase(Protocol.SSH)) {
 				this.sshButton.setSelected(true);
 			}
 
-			this.encodingCombo.setSelectedItem(s.encoding);
-			this.emulationCombo.setSelectedItem(s.emulation);
+			this.encodingCombo.setSelectedItem(s.getEncoding());
+			this.emulationCombo.setSelectedItem(s.getEmulation());
 
-			this.autoConnectCheckBox.setSelected(s.autoconnect);
+			this.autoConnectCheckBox.setSelected(s.isAutoconnect());
 		}
 
 		public void keyPressed(KeyEvent e) {
@@ -356,7 +358,7 @@ public class SiteManager extends JOptionPane {
 		public void updateFavorite(final Site f) {
 			final int index = this.siteList.getSelectedIndex();
 			if (index != -1) {
-				this.siteListModel.setElementAt(f.name, index);
+				this.siteListModel.setElementAt(f.getName(), index);
 				this.favorites.setElementAt(f, index);
 			}
 		}
@@ -374,7 +376,7 @@ public class SiteManager extends JOptionPane {
 
 			while (iter.hasNext()) {
 				final Site site = (Site) iter.next();
-				this.siteListModel.addElement(site.name);
+				this.siteListModel.addElement(site.getName());
 			}
 
 			this.siteList = new JList(this.siteListModel);
@@ -470,26 +472,27 @@ public class SiteManager extends JOptionPane {
 		this.parameterPanel.updateParameter(site);
 	}
 
-	protected void submit() {
+	public void submit() {
 		// 將修改更新後寫回設定檔
 		final Site s = new Site();
-		s.name = this.parameterPanel.nameField.getText();
-		s.host = this.parameterPanel.hostField.getText();
-		s.port = Integer.parseInt(this.parameterPanel.portField.getText());
-		s.alias = this.parameterPanel.aliasField.getText();
+		s.setName(this.parameterPanel.nameField.getText());
+		s.setHost(this.parameterPanel.hostField.getText());
+		s.setPort(Integer.parseInt(this.parameterPanel.portField.getText()));
+		s.setAlias(this.parameterPanel.aliasField.getText());
 
 		if (this.parameterPanel.telnetButton.isSelected()) {
-			s.protocol = Protocol.TELNET;
+			s.setProtocol(Protocol.TELNET);
 		} else if (this.parameterPanel.sshButton.isSelected()) {
-			s.protocol = Protocol.SSH;
+			s.setProtocol(Protocol.SSH);
 		}
 
-		s.encoding = this.parameterPanel.encodingCombo.getSelectedItem()
-				.toString();
-		s.emulation = this.parameterPanel.emulationCombo.getSelectedItem()
-				.toString();
+		s.setEncoding(this.parameterPanel.encodingCombo.getSelectedItem()
+				.toString());
+		
+		s.setEmulation(this.parameterPanel.emulationCombo.getSelectedItem()
+				.toString());
 
-		s.autoconnect = this.parameterPanel.autoConnectCheckBox.isSelected();
+		s.setAutoconnect(this.parameterPanel.autoConnectCheckBox.isSelected());
 		// s.autologin = autoLoginCheckBox.isSelected();
 		this.updateFavorite(s);
 		this.resource.setFavorites(this.favorites);
