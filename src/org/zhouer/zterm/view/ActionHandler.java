@@ -67,6 +67,10 @@ public class ActionHandler implements ActionListener {
 			this.model.updateEncoding("Big5"); //$NON-NLS-1$
 		} else if (source == this.view.utf8Item) {
 			this.model.updateEncoding("UTF-8"); //$NON-NLS-1$
+		} else if (source == this.view.hideMenuBarItem) {
+			model.hideMenuBar();
+		} else if (source == this.view.showMenuBarItem) {
+			model.showMenuBar();
 		} else if (source == this.view.languageItems[0]) {
 			this.model.setLocale(Locale.ENGLISH);
 			model.refreshMessages();

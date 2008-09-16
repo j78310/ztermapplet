@@ -61,7 +61,7 @@ public class ZTerm extends JApplet {
 
 	protected BufferedImage terminalImage;
 	protected JMenuItem big5Item, utf8Item, copyItem, pasteItem, colorCopyItem, colorPasteItem, openItem, closeItem, reopenItem, popupCopyItem, popupPasteItem, popupColorCopyItem,
-		popupColorPasteItem, popupCopyLinkItem, preferenceItem, siteManagerItem, usageItem, faqItem, aboutItem;
+		popupColorPasteItem, popupCopyLinkItem, preferenceItem, siteManagerItem, usageItem, faqItem, aboutItem, hideMenuBarItem, showMenuBarItem;
 	protected JMenuItem[] favoriteItems, languageItems;
 
 	// popup 選單
@@ -483,6 +483,12 @@ public class ZTerm extends JApplet {
 
 		utf8Item.setText(InternationalMessages
 				.getString("ZTerm.UTF8_MenuItem_Text")); //$NON-NLS-1$
+		
+		hideMenuBarItem.setText(InternationalMessages
+				.getString("ZTerm.HideMenuBar_MenuItem_Text")); //$NON-NLS-1$
+		
+		showMenuBarItem.setText(InternationalMessages
+				.getString("ZTerm.ShowMenuBar_MenuItem_Text")); //$NON-NLS-1$
 
 		popupCopyLinkItem.setText(InternationalMessages
 				.getString("ZTerm.Popup_CopyLink_MenuItem_Text")); //$NON-NLS-1$
@@ -600,6 +606,7 @@ public class ZTerm extends JApplet {
 		toolsMenu = new JMenu();
 		helpMenu = new JMenu();
 		encodingMenu = new JMenu();
+		
 		openItem = new JMenuItem();
 		closeItem = new JMenuItem();
 		reopenItem = new JMenuItem();
@@ -614,6 +621,7 @@ public class ZTerm extends JApplet {
 		aboutItem = new JMenuItem();
 		big5Item = new JMenuItem();
 		utf8Item = new JMenuItem();
+		hideMenuBarItem = new JMenuItem();
 
 		fileMenu.setMnemonic(KeyEvent.VK_F);
 		editMenu.setMnemonic(KeyEvent.VK_E);
@@ -636,6 +644,7 @@ public class ZTerm extends JApplet {
 		aboutItem.addActionListener(actionController);
 		big5Item.addActionListener(actionController);
 		utf8Item.addActionListener(actionController);
+		hideMenuBarItem.addActionListener(actionController);
 
 		fileMenu.add(openItem);
 		fileMenu.add(reopenItem);
@@ -651,6 +660,8 @@ public class ZTerm extends JApplet {
 		editMenu.add(colorCopyItem);
 		editMenu.add(colorPasteItem);
 
+		viewMenu.add(hideMenuBarItem);
+		viewMenu.addSeparator();
 		viewMenu.add(encodingMenu);
 		viewMenu.add(languageMenu);
 
@@ -679,12 +690,14 @@ public class ZTerm extends JApplet {
 		popupColorCopyItem = new JMenuItem();
 		popupColorPasteItem = new JMenuItem();
 		popupCopyLinkItem = new JMenuItem();
+		showMenuBarItem = new JMenuItem();
 
 		popupCopyItem.addActionListener(actionController);
 		popupPasteItem.addActionListener(actionController);
 		popupColorCopyItem.addActionListener(actionController);
 		popupColorPasteItem.addActionListener(actionController);
 		popupCopyLinkItem.addActionListener(actionController);
+		showMenuBarItem.addActionListener(actionController);
 		popupCopyLinkItem.setEnabled(false);
 
 		popupMenu.add(popupCopyItem);
@@ -701,5 +714,19 @@ public class ZTerm extends JApplet {
 		tabbedPane.addChangeListener(changeController);
 		tabbedPane.addMouseListener(mouseController);
 		getContentPane().add(tabbedPane, BorderLayout.CENTER);
+	}
+	
+	public void removeMenuBar() {
+		if (menuBar.isVisible()) {
+			menuBar.setVisible(false);
+			popupMenu.add(showMenuBarItem);
+		}
+	}
+	
+	public void showMenuBar() {
+		if (!menuBar.isVisible()) {
+			menuBar.setVisible(true);
+			popupMenu.remove(showMenuBarItem);
+		}
 	}
 }
