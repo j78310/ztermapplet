@@ -1,4 +1,4 @@
-package org.zhouer.zterm;
+package org.zhouer.zterm.view;
 
 import java.awt.Adjustable;
 import java.awt.BorderLayout;
@@ -30,6 +30,9 @@ import org.zhouer.utils.TextUtils;
 import org.zhouer.vt.Application;
 import org.zhouer.vt.Config;
 import org.zhouer.vt.VT100;
+import org.zhouer.zterm.model.Model;
+import org.zhouer.zterm.model.Resource;
+import org.zhouer.zterm.model.Site;
 
 public class SessionPane extends JPanel implements Runnable, Application,
 		AdjustmentListener, MouseWheelListener {
@@ -44,7 +47,7 @@ public class SessionPane extends JPanel implements Runnable, Application,
 					&& (now - SessionPane.this.lastInputTime > SessionPane.this.antiIdleInterval)) {
 				// System.out.println( "Sent antiidle char" );
 				// TODO: 設定 antiidle 送出的字元
-				if (SessionPane.this.site.protocol
+				if (SessionPane.this.site.getProtocol()
 						.equalsIgnoreCase(Protocol.TELNET)) {
 
 					final String buf = TextUtils
@@ -103,20 +106,20 @@ public class SessionPane extends JPanel implements Runnable, Application,
 	private String windowtitle;
 
 	public SessionPane(final Site s, final Resource r, final Convertor c,
-			final BufferedImage bi, final Model model) {
+			final BufferedImage bi) {
 		super();
 
 		this.site = s;
 		this.resource = r;
 		this.conv = c;
-		this.model = model;
+		this.model = Model.getInstance();
 
 		// 設定擁有一個分頁
 		this.hasTab = true;
 
 		// FIXME: 預設成 host
-		this.windowtitle = this.site.host;
-		this.iconname = this.site.host;
+		this.windowtitle = this.site.getHost();
+		this.iconname = this.site.getHost();
 
 		// FIXME: magic number
 		this.setBackground(Color.BLACK);
@@ -125,8 +128,8 @@ public class SessionPane extends JPanel implements Runnable, Application,
 		this.vt = new VT100(this, this.resource, this.conv, bi);
 
 		// FIXME: 是否應該在這邊設定？
-		this.vt.setEncoding(this.site.encoding);
-		this.vt.setEmulation(this.site.emulation);
+		this.vt.setEncoding(this.site.getEncoding());
+		this.vt.setEmulation(this.site.getEmulation());
 
 		// 設定 layout 並把 vt 及 scrollbar 放進去，
 		this.setLayout(new BorderLayout());
@@ -241,7 +244,7 @@ public class SessionPane extends JPanel implements Runnable, Application,
 	}
 
 	public String getEmulation() {
-		return this.site.emulation;
+		return this.site.getEmulation();
 	}
 
 	public String getIconName() {
@@ -345,14 +348,14 @@ public class SessionPane extends JPanel implements Runnable, Application,
 		this.setState(SessionPane.STATE_TRYING);
 
 		// 新建連線
-		if (this.site.protocol.equalsIgnoreCase(Protocol.TELNET)) {
-			this.network = new Telnet(this.site.host, this.site.port);
-			this.network.setTerminalType(this.site.emulation);
-		} else if (this.site.protocol.equalsIgnoreCase(Protocol.SSH)) {
-			this.network = new SSH2(this.site.host, this.site.port);
-			this.network.setTerminalType(this.site.emulation);
+		if (this.site.getProtocol().equalsIgnoreCase(Protocol.TELNET)) {
+			this.network = new Telnet(this.site.getHost(), this.site.getPort());
+			this.network.setTerminalType(this.site.getEmulation());
+		} else if (this.site.getProtocol().equalsIgnoreCase(Protocol.SSH)) {
+			this.network = new SSH2(this.site.getHost(), this.site.getPort());
+			this.network.setTerminalType(this.site.getEmulation());
 		} else {
-			System.err.println("Unknown protocol: " + this.site.protocol); //$NON-NLS-1$
+			System.err.println("Unknown protocol: " + this.site.getProtocol()); //$NON-NLS-1$
 		}
 
 		// 連線失敗
@@ -391,7 +394,7 @@ public class SessionPane extends JPanel implements Runnable, Application,
 	}
 
 	public void setEmulation(final String emu) {
-		this.site.emulation = emu;
+		site.setEmulation(emu);
 
 		// 通知遠端 terminal type 已改變
 		this.network.setTerminalType(emu);
@@ -400,8 +403,8 @@ public class SessionPane extends JPanel implements Runnable, Application,
 	}
 
 	public void setEncoding(final String enc) {
-		this.site.encoding = enc;
-		this.vt.setEncoding(this.site.encoding);
+		site.setEncoding(enc);
+		this.vt.setEncoding(this.site.getEncoding());
 		requestScreenData();
 	}
 	
@@ -495,7 +498,7 @@ public class SessionPane extends JPanel implements Runnable, Application,
 	public void writeChar(final char c) {
 		byte[] buf;
 
-		buf = this.conv.charToBytes(c, this.site.encoding);
+		buf = this.conv.charToBytes(c, this.site.getEncoding());
 
 		this.writeBytes(buf, 0, buf.length);
 	}
@@ -507,7 +510,7 @@ public class SessionPane extends JPanel implements Runnable, Application,
 		byte[] tmp2;
 
 		for (int i = 0; i < len; i++) {
-			tmp2 = this.conv.charToBytes(buf[offset + i], this.site.encoding);
+			tmp2 = this.conv.charToBytes(buf[offset + i], this.site.getEncoding());
 			for (int j = 0; j < tmp2.length; j++) {
 				tmp[count++] = tmp2[j];
 			}

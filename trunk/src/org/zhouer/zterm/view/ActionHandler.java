@@ -1,8 +1,12 @@
-package org.zhouer.zterm;
+package org.zhouer.zterm.view;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Locale;
+
+import org.zhouer.zterm.model.Model;
+import org.zhouer.zterm.model.Resource;
+import org.zhouer.zterm.model.Site;
 
 /**
  * ActionHandler is an action controller for ZTerm Applet.

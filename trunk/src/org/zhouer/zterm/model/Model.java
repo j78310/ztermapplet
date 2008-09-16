@@ -1,7 +1,5 @@
-package org.zhouer.zterm;
+package org.zhouer.zterm.model;
 
-import java.awt.Point;
-import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -10,16 +8,20 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Vector;
 
-import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import org.zhouer.protocol.Protocol;
 import org.zhouer.utils.ClipUtils;
-import org.zhouer.utils.Convertor;
 import org.zhouer.utils.InternationalMessages;
 import org.zhouer.vt.Config;
+import org.zhouer.zterm.view.HtmlPane;
+import org.zhouer.zterm.view.PasswordPane;
+import org.zhouer.zterm.view.PreferencePane;
+import org.zhouer.zterm.view.SessionPane;
+import org.zhouer.zterm.view.SiteManager;
+import org.zhouer.zterm.view.ZTerm;
 
 /**
  * Model is collection of behaviors requested by controllers which registered in
@@ -50,8 +52,6 @@ public class Model {
 
 	private String colorText = null; // 複製下來的彩色文字
 
-	private final Convertor conv;
-
 	private final Resource resource;
 
 	private final Sessions sessions;
@@ -62,10 +62,17 @@ public class Model {
 
 	private PreferencePane preferencePane;
 
+	public String getCopiedLink() {
+		return copiedLink;
+	}
+
+	public void setCopiedLink(String copiedLink) {
+		this.copiedLink = copiedLink;
+	}
+
 	private Model() {
 		sessions = Sessions.getInstance(); // 各個連線
 		resource = Resource.getInstance(); // 各種設定
-		conv = new Convertor(); // 轉碼用
 		preferencePane = new PreferencePane();
 	}
 
@@ -124,27 +131,7 @@ public class Model {
 	 *            the index of session to be showed on the screen.
 	 */
 	public void changeSession(final int index) {
-		if ((0 <= index) && (index < view.tabbedPane.getTabCount())) {
-			
-			// 取得焦點的工作
-			final Runnable sessionFocuser = new Runnable() {
-				public void run() {
-					final SessionPane session = (SessionPane) sessions.get(index);
-					session.requestFocusInWindow();
-				}
-			};
-			
-			// 切換分頁的工作 （包含取得焦點的工作）
-			final Runnable tabbedSwitcher = new Runnable() {
-				public void run() {
-					view.tabbedPane.setSelectedIndex(index);
-					SwingUtilities.invokeLater(sessionFocuser);
-				}
-			};
-			
-			// 啟動切換分頁的工作
-			SwingUtilities.invokeLater(tabbedSwitcher);
-		}
+		view.changeSession(index);
 	}
 	
 	/**
@@ -168,48 +155,14 @@ public class Model {
 	 * @return the current session
 	 */
 	public SessionPane getCurrentSession() {
-		final SessionPane session = (SessionPane) view.tabbedPane
-		.getSelectedComponent();
-		
-		return session;
+		return view.getCurrentSession();
 	}
 
 	/**
 	 * Close current tab which is showing on the screen.
 	 */
 	public void closeCurrentTab() {
-		final SessionPane session = getCurrentSession();
-
-		if (session != null) {
-
-			// 連線中則詢問是否要斷線
-			if (!session.isClosed()) {
-				if (showConfirm(
-						InternationalMessages.getString("ZTerm.Message_Confirm_Close"), InternationalMessages.getString("ZTerm.Title_Confirm_Close"), JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) { //$NON-NLS-1$ //$NON-NLS-2$
-					return;
-				}
-
-				// 通知 session 要中斷連線了
-				session.close(false);
-
-				if (!resource
-						.getBooleanValue(Resource.REMOVE_MANUAL_DISCONNECT)) {
-					return;
-				}
-			}
-
-			// 通知 session 要被移除了
-			session.remove();
-
-			view.tabbedPane.remove(session);
-			getSessions().remove(session);
-
-			// 刪除分頁會影響分頁編號
-			updateTabTitle();
-
-			// 讓現在被選取的分頁取得 focus.
-			updateTab();
-		}
+		view.closeCurrentTab();
 	}
 
 	/**
@@ -249,35 +202,7 @@ public class Model {
 	 *            the index of tab page corresponding to this site.
 	 */
 	public void connect(final Site site, final int index) {
-		SessionPane session;
-
-		session = new SessionPane(site, resource, conv, view.terminalImage, this);
-
-		// index 為連線後放在第幾個分頁，若為 -1 表開新分頁。
-		if (index == -1) {
-			getSessions().add(session);
-
-			// 一開始預設 icon 是連線中斷
-			final ImageIcon icon = view.closedIcon;
-
-			// chitsaou.070726: 分頁編號
-			if (resource.getBooleanValue(Resource.TAB_NUMBER)) {
-				// 分頁 title 會顯示分頁編號加站台名稱，tip 會顯示 hostname.
-				view.tabbedPane.addTab((view.tabbedPane.getTabCount() + 1)
-						+ ". " + site.name, icon, session, site.host); //$NON-NLS-1$
-			} else {
-				// chitsaou:070726: 不要標號
-				view.tabbedPane.addTab(site.name, icon, session, site.host);
-			}
-
-			view.tabbedPane.setSelectedIndex(view.tabbedPane.getTabCount() - 1);
-		} else {
-			getSessions().setElementAt(session, index);
-			view.tabbedPane.setComponentAt(index, session);
-		}
-
-		// 每個 session 都是一個 thread, 解決主程式被 block 住的問題。
-		new Thread(session).start();
+		view.connect(site, index);
 	}
 
 	/**
@@ -382,8 +307,7 @@ public class Model {
 	 * @return true if the session is selected on tab page; false, otherwise.
 	 */
 	public boolean isTabForeground(final SessionPane session) {
-		return (view.tabbedPane.indexOfComponent(session) == view.tabbedPane
-				.getSelectedIndex());
+		return view.isTabForeground(session);
 	}
 
 	/**
@@ -438,15 +362,7 @@ public class Model {
 	 *            session to be reopened.
 	 */
 	public void reopenSession(final SessionPane session) {
-		if (session != null) {
-			// 若連線中則開新分頁，已斷線則重連。
-			if (session.isClosed()) {
-				this.connect(session.getSite(), view.tabbedPane
-						.indexOfComponent(session));
-			} else {
-				this.connect(session.getSite(), -1);
-			}
-		}
+		view.reopenSession(session);
 	}
 
 	/**
@@ -530,13 +446,7 @@ public class Model {
 	 *            the link which is selected.
 	 */
 	public void showPopup(final int x, final int y, final String link) {
-		final Point viewLocation = view.getLocationOnScreen();
-
-		view.popupCopyLinkItem.setEnabled(link != null);
-		copiedLink = link;
-
-		// 傳進來的是滑鼠相對於視窗左上角的座標，減去主視窗相對於螢幕左上角的座標，可得滑鼠相對於主視窗的座標。
-		view.popupMenu.show(view, x - viewLocation.x, y - viewLocation.y);
+		view.showPopup(x, y, link);
 	}
 
 	/**
@@ -637,15 +547,7 @@ public class Model {
 	 * Update size to resource, and also user interface.
 	 */
 	public void updateSize() {
-		final Rectangle bounds = view.getBounds();
-		resource.setValue(Resource.GEOMETRY_X, (int) bounds.getX());
-		resource.setValue(Resource.GEOMETRY_Y, (int) bounds.getY());
-		resource.setValue(Resource.GEOMETRY_WIDTH, (int) bounds.getWidth());
-		resource.setValue(Resource.GEOMETRY_HEIGHT, (int) bounds.getHeight());
-		
-		preferencePane.apperancePanel.widthSpinner.setValue(new Integer((int) bounds.getWidth()));
-		preferencePane.apperancePanel.heightSpinner.setValue(new Integer((int) bounds.getHeight()));
-
+		preferencePane.updateSize();
 		view.updateSize();
 	}
 
@@ -689,18 +591,7 @@ public class Model {
 	 * Update tab title to each tab page.
 	 */
 	public void updateTabTitle() {
-		for (int i = 0; i < view.tabbedPane.getTabCount(); i++) {
-			final SessionPane session = (SessionPane) getSessions().elementAt(i);
-			
-			view.tabbedPane.setTitleAt(i, (i + 1)
-					+ ". " + session.getSite().name); //$NON-NLS-1$
-
-			// FIXME: need revise
-			view.tabbedPane.setTitleAt(i,
-					((resource.getBooleanValue(Resource.TAB_NUMBER)) ? (i + 1)
-							+ ". " : "") //$NON-NLS-1$ //$NON-NLS-2$
-							+ session.getSite().name);
-		}
+		view.updateTabTitle();
 	}
 
 	private void connect(String url) {

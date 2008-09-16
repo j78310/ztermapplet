@@ -1,4 +1,4 @@
-package org.zhouer.zterm;
+package org.zhouer.zterm.model;
 
 import java.util.Date;
 import java.util.Map;
@@ -234,5 +234,69 @@ public class Site implements Comparable {
 	public void update() {
 		this.total++;
 		this.lastvisit = new Date().getTime();
+	}
+
+	public String getHost() {
+		return host;
+	}
+
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public int getPort() {
+		return port;
+	}
+
+	public void setPort(int port) {
+		this.port = port;
+	}
+
+	public String getAlias() {
+		return alias;
+	}
+
+	public void setAlias(String alias) {
+		this.alias = alias;
+	}
+
+	public String getEmulation() {
+		return emulation;
+	}
+
+	public void setEmulation(String emulation) {
+		this.emulation = emulation;
+	}
+
+	public String getEncoding() {
+		return encoding;
+	}
+
+	public void setEncoding(String encoding) {
+		this.encoding = encoding;
+	}
+
+	public String getProtocol() {
+		return protocol;
+	}
+
+	public void setProtocol(String protocol) {
+		this.protocol = protocol;
+	}
+
+	public boolean isAutoconnect() {
+		return autoconnect;
+	}
+
+	public void setAutoconnect(boolean autoconnect) {
+		this.autoconnect = autoconnect;
 	}
 }

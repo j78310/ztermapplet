@@ -92,7 +92,26 @@ public class Convertor {
 
 	private final char[] ucs2chars;
 
-	public Convertor() {
+	private volatile static Convertor convertor = null;
+
+	/**
+	 * Getter of instance in Singleton pattern
+	 * 
+	 * @return singleton instance of model.
+	 */
+	public static Convertor getInstance() {
+		if (Convertor.convertor == null) {
+			synchronized (Convertor.class) {
+				if (Convertor.convertor == null) {
+					Convertor.convertor = new Convertor();
+				}
+			}
+		}
+
+		return Convertor.convertor;
+	}
+	
+	private Convertor() {
 		int i1, i2;
 
 		this.ucs2bytes = new byte[64 * 1024];

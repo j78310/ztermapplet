@@ -1,9 +1,11 @@
-package org.zhouer.zterm;
+package org.zhouer.zterm.view;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 import javax.swing.SwingUtilities;
+
+import org.zhouer.zterm.model.Model;
 
 public class MouseHandler implements MouseListener {
 	

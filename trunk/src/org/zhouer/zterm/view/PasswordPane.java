@@ -1,4 +1,4 @@
-package org.zhouer.zterm;
+package org.zhouer.zterm.view;
 
 import java.awt.Component;
 import java.awt.FlowLayout;
