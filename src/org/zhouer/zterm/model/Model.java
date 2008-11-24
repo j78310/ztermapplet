@@ -512,6 +512,7 @@ public class Model {
 
 	/**
 	 * Update bounds to resource, and also set the bounds of user interface.
+	 * @deprecated applet should never update bounds because of embedded in a browser.
 	 */
 	public void updateBounds() {
 		int locationx, locationy, width, height;

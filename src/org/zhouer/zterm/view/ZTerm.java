@@ -478,15 +478,10 @@ public class ZTerm extends JApplet {
 		makeTabbedPane();
 		makeLanguageMenu();
 
-		// 設定視窗位置、大小
-		model.updateBounds();
-		// 設定好視窗大小後才知道 image 大小
-		terminalImage = new BufferedImage(getWidth(), getHeight(),
-			BufferedImage.TYPE_INT_RGB);
-
 		// 更新畫面上的文字
 		updateText();
 
+		// 顯示此元件
 		setVisible(true);
 
 		// 設定事件控制器的目標主題
