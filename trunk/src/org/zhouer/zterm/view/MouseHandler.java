@@ -1,13 +1,13 @@
 package org.zhouer.zterm.view;
 
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 
 import javax.swing.SwingUtilities;
 
 import org.zhouer.zterm.model.Model;
 
-public class MouseHandler implements MouseListener {
+public class MouseHandler extends MouseAdapter {
 	
 	private ZTerm view;	
 	private Model model;
@@ -36,16 +36,6 @@ public class MouseHandler implements MouseListener {
 
 	public void mouseEntered(MouseEvent e) {
 		model.requestFocusToCurrentSession();
-	}
-
-	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void mouseReleased(MouseEvent e) {

@@ -234,8 +234,9 @@ public class ZTerm extends JApplet {
 			// chitsaou.070726: 分頁編號
 			if (resource.getBooleanValue(Resource.TAB_NUMBER)) {
 				// 分頁 title 會顯示分頁編號加站台名稱，tip 會顯示 hostname.
-				tabbedPane.addTab((tabbedPane.getTabCount() + 1)
-						+ ". " + site.getName(), icon, session, site.getHost()); //$NON-NLS-1$
+				final int number = tabbedPane.getTabCount() + 1;
+				final String title = number + ". " + site.getName();
+				tabbedPane.addTab(title, icon, session, site.getHost());
 			} else {
 				// chitsaou:070726: 不要標號
 				tabbedPane.addTab(site.getName(), icon, session, site.getHost());
