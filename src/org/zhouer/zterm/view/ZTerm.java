@@ -377,85 +377,36 @@ public class ZTerm extends JApplet {
 
 	public void updateText() {
 		fileMenu.setText(InternationalMessages.getString("ZTerm.Connect_Menu_Text")); //$NON-NLS-1$
-		fileMenu.setToolTipText(InternationalMessages.getString("ZTerm.Connect_Menu_ToolTip")); //$NON-NLS-1$
-
 		languageMenu.setText("Language");
 		languageMenu.setToolTipText("Change your language");
-
 		historyMenu.setText(InternationalMessages.getString("ZTerm.Site_Menu_Text"));
-
 		viewMenu.setText(InternationalMessages.getString("ZTerm.View_Menu_Text")); //$NON-NLS-1$
-		viewMenu.setToolTipText(InternationalMessages.getString("ZTerm.View_Menu_ToolTip")); //$NON-NLS-1$
-
 		historyMenu.setText(InternationalMessages.getString("ZTerm.History_Menu_Text")); //$NON-NLS-1$
-		historyMenu.setToolTipText(InternationalMessages.getString("ZTerm.History_Menu_ToolTip")); //$NON-NLS-1$
-
 		editMenu.setText(InternationalMessages.getString("ZTerm.Edit_Menu_Text")); //$NON-NLS-1$
-		editMenu.setToolTipText(InternationalMessages.getString("ZTerm.Edit_Menu_ToolTip")); //$NON-NLS-1$
-
 		toolsMenu.setText(InternationalMessages.getString("ZTerm.Option_Menu_Text")); //$NON-NLS-1$
-		toolsMenu.setToolTipText(InternationalMessages.getString("ZTerm.Option_Menu_ToolTip")); //$NON-NLS-1$
-
 		helpMenu.setText(InternationalMessages.getString("ZTerm.Help_Menu_Text")); //$NON-NLS-1$
-		helpMenu.setToolTipText(InternationalMessages.getString("ZTerm.Help_Menu_ToolTip")); //$NON-NLS-1$
-
 		encodingMenu.setText(InternationalMessages.getString("ZTerm.Encoding_Menu_Text")); //$NON-NLS-1$
-
 		openItem.setText(InternationalMessages.getString("ZTerm.Open_MenuItem_Text")); //$NON-NLS-1$
-		openItem.setToolTipText(InternationalMessages.getString("ZTerm.Open_MenuItem_ToolTip")); //$NON-NLS-1$
-
 		closeItem.setText(InternationalMessages.getString("ZTerm.Close_MenuItem_Text")); //$NON-NLS-1$
-		closeItem.setToolTipText(InternationalMessages.getString("ZTerm.Close_MenuItem_ToolTip")); //$NON-NLS-1$
-
 		reopenItem.setText(InternationalMessages.getString("ZTerm.Reopen_Item_Text")); //$NON-NLS-1$
-		reopenItem.setToolTipText(InternationalMessages.getString("ZTerm.Reopen_Item_ToolTip")); //$NON-NLS-1$
-
 		copyItem.setText(InternationalMessages.getString("ZTerm.Copy_MenuItem_Text")); //$NON-NLS-1$
-		copyItem.setToolTipText(InternationalMessages.getString("ZTerm.Copy_MenuItem_ToolTip")); //$NON-NLS-1$
-
 		pasteItem.setText(InternationalMessages.getString("ZTerm.Paste_MenuItem_Text")); //$NON-NLS-1$
-		pasteItem.setToolTipText(InternationalMessages.getString("ZTerm.Paste_MenuItem_ToolTip")); //$NON-NLS-1$
-
 		colorCopyItem.setText(InternationalMessages.getString("ZTerm.ColorCopy_MenuItem_Text")); //$NON-NLS-1$
-		colorCopyItem.setToolTipText(InternationalMessages.getString("ZTerm.ColorCopy_MenuItem__ToolTip")); //$NON-NLS-1$
-
 		colorPasteItem.setText(InternationalMessages.getString("ZTerm.ColorPaste_MenuItem_Text")); //$NON-NLS-1$
-		colorPasteItem.setToolTipText(InternationalMessages.getString("ZTerm.ColorPaste_MenuItem__ToolTip")); //$NON-NLS-1$
-
 		preferenceItem.setText(InternationalMessages.getString("ZTerm.Preference_MenuItem_Text")); //$NON-NLS-1$
-		preferenceItem.setToolTipText(InternationalMessages.getString("ZTerm.Preference_MenuItem_ToolTip")); //$NON-NLS-1$
-
 		siteManagerItem.setText(InternationalMessages.getString("ZTerm.SiteManager_MenuItem_Text")); //$NON-NLS-1$
-		siteManagerItem.setToolTipText(InternationalMessages.getString("ZTerm.SiteManager_MenuItem_ToolTip")); //$NON-NLS-1$
-
 		usageItem.setText(InternationalMessages.getString("ZTerm.Usage_MenuItem_Text")); //$NON-NLS-1$
-
 		faqItem.setText(InternationalMessages.getString("ZTerm.FAQ_MenuItem_Text")); //$NON-NLS-1$
-
 		aboutItem.setText(InternationalMessages.getString("ZTerm.About_MenuItem_Text")); //$NON-NLS-1$
-
 		big5Item.setText(InternationalMessages.getString("ZTerm.Big5_MenuItem_Text")); //$NON-NLS-1$
-
 		utf8Item.setText(InternationalMessages.getString("ZTerm.UTF8_MenuItem_Text")); //$NON-NLS-1$
-
 		hideMenuBarItem.setText(InternationalMessages.getString("ZTerm.HideMenuBar_MenuItem_Text")); //$NON-NLS-1$
-
 		showMenuBarItem.setText(InternationalMessages.getString("ZTerm.ShowMenuBar_MenuItem_Text")); //$NON-NLS-1$
-
 		popupCopyLinkItem.setText(InternationalMessages.getString("ZTerm.Popup_CopyLink_MenuItem_Text")); //$NON-NLS-1$
-
 		popupCopyItem.setText(InternationalMessages.getString("ZTerm.Copy_MenuItem_Text")); //$NON-NLS-1$
-		popupCopyItem.setToolTipText(InternationalMessages.getString("ZTerm.Copy_MenuItem_ToolTip")); //$NON-NLS-1$
-
 		popupPasteItem.setText(InternationalMessages.getString("ZTerm.Paste_MenuItem_Text")); //$NON-NLS-1$
-
-		popupPasteItem.setToolTipText(InternationalMessages.getString("ZTerm.Paste_MenuItem_ToolTip")); //$NON-NLS-1$
-
 		popupColorCopyItem.setText(InternationalMessages.getString("ZTerm.ColorCopy_MenuItem_Text")); //$NON-NLS-1$
-		popupColorCopyItem.setToolTipText(InternationalMessages.getString("ZTerm.ColorCopy_MenuItem__ToolTip")); //$NON-NLS-1$
-
 		popupColorPasteItem.setText(InternationalMessages.getString("ZTerm.ColorPaste_MenuItem_Text")); //$NON-NLS-1$
-		popupColorPasteItem.setToolTipText(InternationalMessages.getString("ZTerm.ColorPaste_MenuItem__ToolTip")); //$NON-NLS-1$
 	}
 
 	/**
@@ -581,6 +532,16 @@ public class ZTerm extends JApplet {
 		big5Item.addActionListener(actionController);
 		utf8Item.addActionListener(actionController);
 		hideMenuBarItem.addActionListener(actionController);
+		
+		openItem.setMnemonic(KeyEvent.VK_Q);
+		closeItem.setMnemonic(KeyEvent.VK_W);
+		reopenItem.setMnemonic(KeyEvent.VK_R);
+		copyItem.setMnemonic(KeyEvent.VK_O);
+		pasteItem.setMnemonic(KeyEvent.VK_P);
+		colorCopyItem.setMnemonic(KeyEvent.VK_U);
+		colorPasteItem.setMnemonic(KeyEvent.VK_I);
+		preferenceItem.setMnemonic(KeyEvent.VK_COMMA);
+		siteManagerItem.setMnemonic(KeyEvent.VK_PERIOD);
 
 		fileMenu.add(openItem);
 		fileMenu.add(reopenItem);
