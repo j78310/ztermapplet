@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class Convertor {
+	
 	public static boolean isValidBig5(final byte[] b, final int offset,
 			final int limit) {
 		// TODO: 改為較嚴謹的 Big5 規格
@@ -87,9 +88,7 @@ public class Convertor {
 	}
 
 	private final byte[] big5bytes;
-
 	private final byte[] ucs2bytes;
-
 	private final char[] ucs2chars;
 
 	private volatile static Convertor convertor = null;

@@ -26,7 +26,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
-import org.zhouer.utils.Convertor;
 import org.zhouer.utils.InternationalMessages;
 import org.zhouer.vt.Config;
 import org.zhouer.zterm.model.Model;
@@ -223,8 +222,7 @@ public class ZTerm extends JApplet {
 	 *            the index of tab page corresponding to this site.
 	 */
 	public void connect(final Site site, final int index) {
-		final SessionPane session = new SessionPane(site, resource, Convertor.getInstance(),
-			terminalImage);
+		final SessionPane session = new SessionPane(site, terminalImage);
 
 		// index 為連線後放在第幾個分頁，若為 -1 表開新分頁。
 		if (index == -1) {
