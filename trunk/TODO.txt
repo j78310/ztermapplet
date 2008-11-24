@@ -1,5 +1,4 @@
 2.0
-- ALT+A to select all
 - Save an "article" to a file
 - Search for the specified text on the terminal
 - Detect telnet and ssh link

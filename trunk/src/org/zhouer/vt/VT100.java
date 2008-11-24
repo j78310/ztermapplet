@@ -625,6 +625,23 @@ public class VT100 extends JComponent {
 		// TODO: 應改可以不用每次都重繪整個畫面
 		updateScreen();
 	}
+	
+	/**
+	 * 設定選取所有可見區域
+	 */
+	public void setSelectedAll() {
+		for (int i = 1; i <= maxrow; i++) {
+			for (int j = 1; j <= maxcol; j++) {
+				final int prow = physicalRow(i - scrolluprow);
+				final boolean originalSelected = selected[prow][j - 1];
+				selected[prow][j - 1] = true;
+
+				if (selected[prow][j - 1] != originalSelected) {
+					setRepaintPhysical(prow, j - 1);
+				}
+			}
+		}
+	}
 
 	/**
 	 * 設定選取區域
@@ -672,6 +689,7 @@ public class VT100 extends JComponent {
 		}
 
 		resetSelected();
+		
 		// TODO: 只能選取當前畫面的內容，不會自動捲頁
 		for (i = 1; i <= maxrow; i++) {
 			for (j = 1; j <= maxcol; j++) {
