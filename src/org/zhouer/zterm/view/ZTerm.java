@@ -41,11 +41,10 @@ import org.zhouer.zterm.model.Site;
  */
 public class ZTerm extends JApplet {
 
-	private static final long serialVersionUID = 1L;
+	private static final long	serialVersionUID	= 1L;
 
 	public static void main(final String args[]) {
-		final Rectangle windowBounds = GraphicsEnvironment
-				.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+		final Rectangle windowBounds = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
 		final JFrame frame = new JFrame("ZTerm Applet");
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(final WindowEvent e) {
@@ -59,35 +58,38 @@ public class ZTerm extends JApplet {
 		frame.setVisible(true);
 	}
 
-	protected BufferedImage terminalImage;
-	protected JMenuItem big5Item, utf8Item, copyItem, pasteItem, colorCopyItem, colorPasteItem, openItem, closeItem, reopenItem, popupCopyItem, popupPasteItem, popupColorCopyItem,
-		popupColorPasteItem, popupCopyLinkItem, preferenceItem, siteManagerItem, usageItem, faqItem, aboutItem, hideMenuBarItem, showMenuBarItem;
-	protected JMenuItem[] favoriteItems, languageItems;
+	protected BufferedImage			terminalImage;
+	protected JMenuItem				big5Item, utf8Item, copyItem, pasteItem,
+			colorCopyItem, colorPasteItem, openItem, closeItem, reopenItem,
+			popupCopyItem, popupPasteItem, popupColorCopyItem,
+			popupColorPasteItem, popupCopyLinkItem, preferenceItem,
+			siteManagerItem, usageItem, faqItem, aboutItem, hideMenuBarItem,
+			showMenuBarItem;
+	protected JMenuItem[]			favoriteItems, languageItems;
 
 	// popup 選單
-	protected JPopupMenu popupMenu;
+	protected JPopupMenu			popupMenu;
 
 	// 分頁
-	protected JTabbedPane tabbedPane;
+	protected JTabbedPane			tabbedPane;
 
 	// 分頁 icon
-	protected final ImageIcon tryingIcon, connectedIcon, closedIcon, bellIcon;
-	
-	private final ActionHandler actionController;
-	private final ChangeHandler changeController;
-	private final ComponentHandler componentController;
-	private final MouseHandler mouseController;
-	private final KeyEventHandler keyEventController;
-	
-	private JMenu fileMenu, editMenu, viewMenu, toolsMenu, helpMenu, encodingMenu, languageMenu, historyMenu;
+	protected final ImageIcon		tryingIcon, connectedIcon, closedIcon,
+			bellIcon;
 
-	private JMenuBar menuBar;
+	private final ActionHandler		actionController	= new ActionHandler();
+	private final ChangeHandler		changeController	= new ChangeHandler();
+	private final ComponentHandler	componentController	= new ComponentHandler();
+	private final MouseHandler		mouseController		= new MouseHandler();
+	private final KeyEventHandler	keyEventController	= new KeyEventHandler();
 
-	private final Model model;
+	private JMenu					fileMenu, editMenu, viewMenu, toolsMenu,
+			helpMenu, encodingMenu, languageMenu, historyMenu;
 
-	private final Resource resource;
-
-	private final Sessions sessions;
+	private JMenuBar				menuBar;
+	private final Model				model;
+	private final Resource			resource;
+	private final Sessions			sessions;
 
 	/**
 	 * Constructor with no arguments
@@ -101,19 +103,12 @@ public class ZTerm extends JApplet {
 
 		// 初始化各種 icon
 		tryingIcon = new ImageIcon(getClass().getResource(
-				"/res/icon/trying.png"));
+			"/res/icon/trying.png"));
 		connectedIcon = new ImageIcon(getClass().getResource(
-				"/res/icon/connected.png"));
+			"/res/icon/connected.png"));
 		closedIcon = new ImageIcon(getClass().getResource(
-				"/res/icon/closed.png"));
+			"/res/icon/closed.png"));
 		bellIcon = new ImageIcon(getClass().getResource("/res/icon/bell.png"));
-
-		// 建立事件控制器
-		actionController = new ActionHandler();
-		changeController = new ChangeHandler();
-		componentController = new ComponentHandler();
-		keyEventController = new KeyEventHandler();
-		mouseController = new MouseHandler();
 
 		// 建立系統核心
 		model = Model.getInstance();
@@ -121,7 +116,7 @@ public class ZTerm extends JApplet {
 
 		configMemberField();
 	}
-	
+
 	/**
 	 * Change current session showed on the screen.
 	 * 
@@ -130,7 +125,7 @@ public class ZTerm extends JApplet {
 	 */
 	public void changeSession(final int index) {
 		if ((0 <= index) && (index < tabbedPane.getTabCount())) {
-			
+
 			// 取得焦點的工作
 			final Runnable sessionFocuser = new Runnable() {
 				public void run() {
@@ -138,7 +133,7 @@ public class ZTerm extends JApplet {
 					session.requestFocusInWindow();
 				}
 			};
-			
+
 			// 切換分頁的工作 （包含取得焦點的工作）
 			final Runnable tabbedSwitcher = new Runnable() {
 				public void run() {
@@ -146,24 +141,23 @@ public class ZTerm extends JApplet {
 					SwingUtilities.invokeLater(sessionFocuser);
 				}
 			};
-			
+
 			// 啟動切換分頁的工作
 			SwingUtilities.invokeLater(tabbedSwitcher);
 		}
 	}
-	
+
 	/**
-	 * Getter of the current session which is able to be viewed 
+	 * Getter of the current session which is able to be viewed
 	 * 
 	 * @return the current session
 	 */
 	public SessionPane getCurrentSession() {
-		final SessionPane session = (SessionPane) tabbedPane
-		.getSelectedComponent();
-		
+		final SessionPane session = (SessionPane) tabbedPane.getSelectedComponent();
+
 		return session;
 	}
-	
+
 	/**
 	 * Close current tab which is showing on the screen.
 	 */
@@ -175,15 +169,14 @@ public class ZTerm extends JApplet {
 			// 連線中則詢問是否要斷線
 			if (!session.isClosed()) {
 				if (model.showConfirm(
-						InternationalMessages.getString("ZTerm.Message_Confirm_Close"), InternationalMessages.getString("ZTerm.Title_Confirm_Close"), JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) { //$NON-NLS-1$ //$NON-NLS-2$
+					InternationalMessages.getString("ZTerm.Message_Confirm_Close"), InternationalMessages.getString("ZTerm.Title_Confirm_Close"), JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) { //$NON-NLS-1$ //$NON-NLS-2$
 					return;
 				}
 
 				// 通知 session 要中斷連線了
 				session.close(false);
 
-				if (!resource
-						.getBooleanValue(Resource.REMOVE_MANUAL_DISCONNECT)) {
+				if (!resource.getBooleanValue(Resource.REMOVE_MANUAL_DISCONNECT)) {
 					return;
 				}
 			}
@@ -220,7 +213,7 @@ public class ZTerm extends JApplet {
 			historyMenu.add(favoriteItems[i]);
 		}
 	}
-	
+
 	/**
 	 * Connect to the site at certain index of tab page.
 	 * 
@@ -230,9 +223,8 @@ public class ZTerm extends JApplet {
 	 *            the index of tab page corresponding to this site.
 	 */
 	public void connect(final Site site, final int index) {
-		SessionPane session;
-
-		session = new SessionPane(site, resource, Convertor.getInstance(), terminalImage);
+		final SessionPane session = new SessionPane(site, resource, Convertor.getInstance(),
+			terminalImage);
 
 		// index 為連線後放在第幾個分頁，若為 -1 表開新分頁。
 		if (index == -1) {
@@ -260,7 +252,7 @@ public class ZTerm extends JApplet {
 		// 每個 session 都是一個 thread, 解決主程式被 block 住的問題。
 		new Thread(session).start();
 	}
-	
+
 	/**
 	 * Check if the session is selected on tab page.
 	 * 
@@ -268,8 +260,7 @@ public class ZTerm extends JApplet {
 	 * @return true if the session is selected on tab page; false, otherwise.
 	 */
 	public boolean isTabForeground(final SessionPane session) {
-		return (tabbedPane.indexOfComponent(session) == tabbedPane
-				.getSelectedIndex());
+		return (tabbedPane.indexOfComponent(session) == tabbedPane.getSelectedIndex());
 	}
 
 	/**
@@ -282,15 +273,15 @@ public class ZTerm extends JApplet {
 		if (session != null) {
 			// 若連線中則開新分頁，已斷線則重連。
 			if (session.isClosed()) {
-				this.connect(session.getSite(), tabbedPane
-						.indexOfComponent(session));
+				this.connect(session.getSite(),
+					tabbedPane.indexOfComponent(session));
 			} else {
 				// FIXME magic number -1
 				this.connect(session.getSite(), -1);
 			}
 		}
 	}
-	
+
 	/**
 	 * Show pop-up menu at current position.
 	 * 
@@ -310,25 +301,26 @@ public class ZTerm extends JApplet {
 		// 傳進來的是滑鼠相對於視窗左上角的座標，減去主視窗相對於螢幕左上角的座標，可得滑鼠相對於主視窗的座標。
 		popupMenu.show(this, x - viewLocation.x, y - viewLocation.y);
 	}
-	
+
 	/**
 	 * Update tab title to each tab page.
 	 */
 	public void updateTabTitle() {
 		for (int i = 0; i < tabbedPane.getTabCount(); i++) {
-			final SessionPane session = (SessionPane) model.getSessions().elementAt(i);
-			
+			final SessionPane session = (SessionPane) model.getSessions().elementAt(
+				i);
+
 			tabbedPane.setTitleAt(i, (i + 1)
 					+ ". " + session.getSite().getName()); //$NON-NLS-1$
 
 			// FIXME: need revise
 			tabbedPane.setTitleAt(i,
-					((resource.getBooleanValue(Resource.TAB_NUMBER)) ? (i + 1)
-							+ ". " : "") //$NON-NLS-1$ //$NON-NLS-2$
-							+ session.getSite().getName());
+				((resource.getBooleanValue(Resource.TAB_NUMBER)) ? (i + 1)
+						+ ". " : "") //$NON-NLS-1$ //$NON-NLS-2$
+						+ session.getSite().getName());
 		}
 	}
-	
+
 	/**
 	 * Update screen size of sessions with the dimension of view.
 	 */
@@ -337,7 +329,7 @@ public class ZTerm extends JApplet {
 
 		// 產生跟主視窗一樣大的 image
 		terminalImage = new BufferedImage(getWidth(), getHeight(),
-				BufferedImage.TYPE_INT_RGB);
+			BufferedImage.TYPE_INT_RGB);
 
 		// 視窗大小調整時同步更新每個 session 的大小
 		for (int i = 0; i < sessions.size(); i++) {
@@ -385,134 +377,86 @@ public class ZTerm extends JApplet {
 	}
 
 	public void updateText() {
-		fileMenu.setText(InternationalMessages
-				.getString("ZTerm.Connect_Menu_Text")); //$NON-NLS-1$
-		fileMenu.setToolTipText(InternationalMessages
-				.getString("ZTerm.Connect_Menu_ToolTip")); //$NON-NLS-1$
+		fileMenu.setText(InternationalMessages.getString("ZTerm.Connect_Menu_Text")); //$NON-NLS-1$
+		fileMenu.setToolTipText(InternationalMessages.getString("ZTerm.Connect_Menu_ToolTip")); //$NON-NLS-1$
 
 		languageMenu.setText("Language");
 		languageMenu.setToolTipText("Change your language");
 
-		historyMenu.setText(InternationalMessages
-				.getString("ZTerm.Site_Menu_Text"));
+		historyMenu.setText(InternationalMessages.getString("ZTerm.Site_Menu_Text"));
 
-		viewMenu.setText(InternationalMessages
-				.getString("ZTerm.View_Menu_Text")); //$NON-NLS-1$
-		viewMenu.setToolTipText(InternationalMessages
-				.getString("ZTerm.View_Menu_ToolTip")); //$NON-NLS-1$
+		viewMenu.setText(InternationalMessages.getString("ZTerm.View_Menu_Text")); //$NON-NLS-1$
+		viewMenu.setToolTipText(InternationalMessages.getString("ZTerm.View_Menu_ToolTip")); //$NON-NLS-1$
 
-		historyMenu.setText(InternationalMessages
-				.getString("ZTerm.History_Menu_Text")); //$NON-NLS-1$
-		historyMenu.setToolTipText(InternationalMessages
-				.getString("ZTerm.History_Menu_ToolTip")); //$NON-NLS-1$
+		historyMenu.setText(InternationalMessages.getString("ZTerm.History_Menu_Text")); //$NON-NLS-1$
+		historyMenu.setToolTipText(InternationalMessages.getString("ZTerm.History_Menu_ToolTip")); //$NON-NLS-1$
 
-		editMenu.setText(InternationalMessages
-				.getString("ZTerm.Edit_Menu_Text")); //$NON-NLS-1$
-		editMenu.setToolTipText(InternationalMessages
-				.getString("ZTerm.Edit_Menu_ToolTip")); //$NON-NLS-1$
+		editMenu.setText(InternationalMessages.getString("ZTerm.Edit_Menu_Text")); //$NON-NLS-1$
+		editMenu.setToolTipText(InternationalMessages.getString("ZTerm.Edit_Menu_ToolTip")); //$NON-NLS-1$
 
-		toolsMenu.setText(InternationalMessages
-				.getString("ZTerm.Option_Menu_Text")); //$NON-NLS-1$
-		toolsMenu.setToolTipText(InternationalMessages
-				.getString("ZTerm.Option_Menu_ToolTip")); //$NON-NLS-1$
+		toolsMenu.setText(InternationalMessages.getString("ZTerm.Option_Menu_Text")); //$NON-NLS-1$
+		toolsMenu.setToolTipText(InternationalMessages.getString("ZTerm.Option_Menu_ToolTip")); //$NON-NLS-1$
 
-		helpMenu.setText(InternationalMessages
-				.getString("ZTerm.Help_Menu_Text")); //$NON-NLS-1$
-		helpMenu.setToolTipText(InternationalMessages
-				.getString("ZTerm.Help_Menu_ToolTip")); //$NON-NLS-1$
+		helpMenu.setText(InternationalMessages.getString("ZTerm.Help_Menu_Text")); //$NON-NLS-1$
+		helpMenu.setToolTipText(InternationalMessages.getString("ZTerm.Help_Menu_ToolTip")); //$NON-NLS-1$
 
-		encodingMenu.setText(InternationalMessages
-				.getString("ZTerm.Encoding_Menu_Text")); //$NON-NLS-1$
+		encodingMenu.setText(InternationalMessages.getString("ZTerm.Encoding_Menu_Text")); //$NON-NLS-1$
 
-		openItem.setText(InternationalMessages
-				.getString("ZTerm.Open_MenuItem_Text")); //$NON-NLS-1$
-		openItem.setToolTipText(InternationalMessages
-				.getString("ZTerm.Open_MenuItem_ToolTip")); //$NON-NLS-1$
+		openItem.setText(InternationalMessages.getString("ZTerm.Open_MenuItem_Text")); //$NON-NLS-1$
+		openItem.setToolTipText(InternationalMessages.getString("ZTerm.Open_MenuItem_ToolTip")); //$NON-NLS-1$
 
-		closeItem.setText(InternationalMessages
-				.getString("ZTerm.Close_MenuItem_Text")); //$NON-NLS-1$
-		closeItem.setToolTipText(InternationalMessages
-				.getString("ZTerm.Close_MenuItem_ToolTip")); //$NON-NLS-1$
+		closeItem.setText(InternationalMessages.getString("ZTerm.Close_MenuItem_Text")); //$NON-NLS-1$
+		closeItem.setToolTipText(InternationalMessages.getString("ZTerm.Close_MenuItem_ToolTip")); //$NON-NLS-1$
 
-		reopenItem.setText(InternationalMessages
-				.getString("ZTerm.Reopen_Item_Text")); //$NON-NLS-1$
-		reopenItem.setToolTipText(InternationalMessages
-				.getString("ZTerm.Reopen_Item_ToolTip")); //$NON-NLS-1$
+		reopenItem.setText(InternationalMessages.getString("ZTerm.Reopen_Item_Text")); //$NON-NLS-1$
+		reopenItem.setToolTipText(InternationalMessages.getString("ZTerm.Reopen_Item_ToolTip")); //$NON-NLS-1$
 
-		copyItem.setText(InternationalMessages
-				.getString("ZTerm.Copy_MenuItem_Text")); //$NON-NLS-1$
-		copyItem.setToolTipText(InternationalMessages
-				.getString("ZTerm.Copy_MenuItem_ToolTip")); //$NON-NLS-1$
+		copyItem.setText(InternationalMessages.getString("ZTerm.Copy_MenuItem_Text")); //$NON-NLS-1$
+		copyItem.setToolTipText(InternationalMessages.getString("ZTerm.Copy_MenuItem_ToolTip")); //$NON-NLS-1$
 
-		pasteItem.setText(InternationalMessages
-				.getString("ZTerm.Paste_MenuItem_Text")); //$NON-NLS-1$
-		pasteItem.setToolTipText(InternationalMessages
-				.getString("ZTerm.Paste_MenuItem_ToolTip")); //$NON-NLS-1$
+		pasteItem.setText(InternationalMessages.getString("ZTerm.Paste_MenuItem_Text")); //$NON-NLS-1$
+		pasteItem.setToolTipText(InternationalMessages.getString("ZTerm.Paste_MenuItem_ToolTip")); //$NON-NLS-1$
 
-		colorCopyItem.setText(InternationalMessages
-				.getString("ZTerm.ColorCopy_MenuItem_Text")); //$NON-NLS-1$
-		colorCopyItem.setToolTipText(InternationalMessages
-				.getString("ZTerm.ColorCopy_MenuItem__ToolTip")); //$NON-NLS-1$
+		colorCopyItem.setText(InternationalMessages.getString("ZTerm.ColorCopy_MenuItem_Text")); //$NON-NLS-1$
+		colorCopyItem.setToolTipText(InternationalMessages.getString("ZTerm.ColorCopy_MenuItem__ToolTip")); //$NON-NLS-1$
 
-		colorPasteItem.setText(InternationalMessages
-				.getString("ZTerm.ColorPaste_MenuItem_Text")); //$NON-NLS-1$
-		colorPasteItem.setToolTipText(InternationalMessages
-				.getString("ZTerm.ColorPaste_MenuItem__ToolTip")); //$NON-NLS-1$
+		colorPasteItem.setText(InternationalMessages.getString("ZTerm.ColorPaste_MenuItem_Text")); //$NON-NLS-1$
+		colorPasteItem.setToolTipText(InternationalMessages.getString("ZTerm.ColorPaste_MenuItem__ToolTip")); //$NON-NLS-1$
 
-		preferenceItem.setText(InternationalMessages
-				.getString("ZTerm.Preference_MenuItem_Text")); //$NON-NLS-1$
-		preferenceItem.setToolTipText(InternationalMessages
-				.getString("ZTerm.Preference_MenuItem_ToolTip")); //$NON-NLS-1$
+		preferenceItem.setText(InternationalMessages.getString("ZTerm.Preference_MenuItem_Text")); //$NON-NLS-1$
+		preferenceItem.setToolTipText(InternationalMessages.getString("ZTerm.Preference_MenuItem_ToolTip")); //$NON-NLS-1$
 
-		siteManagerItem.setText(InternationalMessages
-				.getString("ZTerm.SiteManager_MenuItem_Text")); //$NON-NLS-1$
-		siteManagerItem.setToolTipText(InternationalMessages
-				.getString("ZTerm.SiteManager_MenuItem_ToolTip")); //$NON-NLS-1$
+		siteManagerItem.setText(InternationalMessages.getString("ZTerm.SiteManager_MenuItem_Text")); //$NON-NLS-1$
+		siteManagerItem.setToolTipText(InternationalMessages.getString("ZTerm.SiteManager_MenuItem_ToolTip")); //$NON-NLS-1$
 
-		usageItem.setText(InternationalMessages
-				.getString("ZTerm.Usage_MenuItem_Text")); //$NON-NLS-1$
+		usageItem.setText(InternationalMessages.getString("ZTerm.Usage_MenuItem_Text")); //$NON-NLS-1$
 
-		faqItem.setText(InternationalMessages
-				.getString("ZTerm.FAQ_MenuItem_Text")); //$NON-NLS-1$
+		faqItem.setText(InternationalMessages.getString("ZTerm.FAQ_MenuItem_Text")); //$NON-NLS-1$
 
-		aboutItem.setText(InternationalMessages
-				.getString("ZTerm.About_MenuItem_Text")); //$NON-NLS-1$
+		aboutItem.setText(InternationalMessages.getString("ZTerm.About_MenuItem_Text")); //$NON-NLS-1$
 
-		big5Item.setText(InternationalMessages
-				.getString("ZTerm.Big5_MenuItem_Text")); //$NON-NLS-1$
+		big5Item.setText(InternationalMessages.getString("ZTerm.Big5_MenuItem_Text")); //$NON-NLS-1$
 
-		utf8Item.setText(InternationalMessages
-				.getString("ZTerm.UTF8_MenuItem_Text")); //$NON-NLS-1$
-		
-		hideMenuBarItem.setText(InternationalMessages
-				.getString("ZTerm.HideMenuBar_MenuItem_Text")); //$NON-NLS-1$
-		
-		showMenuBarItem.setText(InternationalMessages
-				.getString("ZTerm.ShowMenuBar_MenuItem_Text")); //$NON-NLS-1$
+		utf8Item.setText(InternationalMessages.getString("ZTerm.UTF8_MenuItem_Text")); //$NON-NLS-1$
 
-		popupCopyLinkItem.setText(InternationalMessages
-				.getString("ZTerm.Popup_CopyLink_MenuItem_Text")); //$NON-NLS-1$
+		hideMenuBarItem.setText(InternationalMessages.getString("ZTerm.HideMenuBar_MenuItem_Text")); //$NON-NLS-1$
 
-		popupCopyItem.setText(InternationalMessages
-				.getString("ZTerm.Copy_MenuItem_Text")); //$NON-NLS-1$
-		popupCopyItem.setToolTipText(InternationalMessages
-				.getString("ZTerm.Copy_MenuItem_ToolTip")); //$NON-NLS-1$
+		showMenuBarItem.setText(InternationalMessages.getString("ZTerm.ShowMenuBar_MenuItem_Text")); //$NON-NLS-1$
 
-		popupPasteItem.setText(InternationalMessages
-				.getString("ZTerm.Paste_MenuItem_Text")); //$NON-NLS-1$
+		popupCopyLinkItem.setText(InternationalMessages.getString("ZTerm.Popup_CopyLink_MenuItem_Text")); //$NON-NLS-1$
 
-		popupPasteItem.setToolTipText(InternationalMessages
-				.getString("ZTerm.Paste_MenuItem_ToolTip")); //$NON-NLS-1$
+		popupCopyItem.setText(InternationalMessages.getString("ZTerm.Copy_MenuItem_Text")); //$NON-NLS-1$
+		popupCopyItem.setToolTipText(InternationalMessages.getString("ZTerm.Copy_MenuItem_ToolTip")); //$NON-NLS-1$
 
-		popupColorCopyItem.setText(InternationalMessages
-				.getString("ZTerm.ColorCopy_MenuItem_Text")); //$NON-NLS-1$
-		popupColorCopyItem.setToolTipText(InternationalMessages
-				.getString("ZTerm.ColorCopy_MenuItem__ToolTip")); //$NON-NLS-1$
+		popupPasteItem.setText(InternationalMessages.getString("ZTerm.Paste_MenuItem_Text")); //$NON-NLS-1$
 
-		popupColorPasteItem.setText(InternationalMessages
-				.getString("ZTerm.ColorPaste_MenuItem_Text")); //$NON-NLS-1$
-		popupColorPasteItem.setToolTipText(InternationalMessages
-				.getString("ZTerm.ColorPaste_MenuItem__ToolTip")); //$NON-NLS-1$
+		popupPasteItem.setToolTipText(InternationalMessages.getString("ZTerm.Paste_MenuItem_ToolTip")); //$NON-NLS-1$
+
+		popupColorCopyItem.setText(InternationalMessages.getString("ZTerm.ColorCopy_MenuItem_Text")); //$NON-NLS-1$
+		popupColorCopyItem.setToolTipText(InternationalMessages.getString("ZTerm.ColorCopy_MenuItem__ToolTip")); //$NON-NLS-1$
+
+		popupColorPasteItem.setText(InternationalMessages.getString("ZTerm.ColorPaste_MenuItem_Text")); //$NON-NLS-1$
+		popupColorPasteItem.setToolTipText(InternationalMessages.getString("ZTerm.ColorPaste_MenuItem__ToolTip")); //$NON-NLS-1$
 	}
 
 	/**
@@ -539,7 +483,7 @@ public class ZTerm extends JApplet {
 		model.updateBounds();
 		// 設定好視窗大小後才知道 image 大小
 		terminalImage = new BufferedImage(getWidth(), getHeight(),
-				BufferedImage.TYPE_INT_RGB);
+			BufferedImage.TYPE_INT_RGB);
 
 		// 更新畫面上的文字
 		updateText();
@@ -565,8 +509,8 @@ public class ZTerm extends JApplet {
 		addComponentListener(componentController);
 
 		// 攔截鍵盤 event 以處理快速鍵
-		KeyboardFocusManager.getCurrentKeyboardFocusManager()
-				.addKeyEventDispatcher(keyEventController);
+		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(
+			keyEventController);
 
 		// 在程式啟動時就先讀一次字型，讓使用者開第一個連線視窗時不會感覺太慢。
 		cacheFont();
@@ -578,15 +522,13 @@ public class ZTerm extends JApplet {
 	private void makeLanguageMenu() {
 		final int languageAmount = 2;
 		languageItems = new JMenuItem[languageAmount];
-		languageItems[0] = new JMenuItem(InternationalMessages
-				.getString("ZTerm.Language_English_Item"));
-		languageItems[0].setToolTipText(InternationalMessages
-				.getString("ZTerm.Language_English_ToolTip"));
+		languageItems[0] = new JMenuItem(
+			InternationalMessages.getString("ZTerm.Language_English_Item"));
+		languageItems[0].setToolTipText(InternationalMessages.getString("ZTerm.Language_English_ToolTip"));
 		languageItems[0].addActionListener(actionController);
-		languageItems[1] = new JMenuItem(InternationalMessages
-				.getString("ZTerm.Language_TraditionalChinese_Item"));
-		languageItems[1].setToolTipText(InternationalMessages
-				.getString("ZTerm.Language_TraditionalChinese_ToolTip"));
+		languageItems[1] = new JMenuItem(
+			InternationalMessages.getString("ZTerm.Language_TraditionalChinese_Item"));
+		languageItems[1].setToolTipText(InternationalMessages.getString("ZTerm.Language_TraditionalChinese_ToolTip"));
 		languageItems[1].addActionListener(actionController);
 
 		for (int i = 0; i < languageItems.length; i++) {
@@ -597,7 +539,7 @@ public class ZTerm extends JApplet {
 	// 建立主選單
 	private void makeMenu() {
 		menuBar = new JMenuBar();
-		
+
 		fileMenu = new JMenu();
 		languageMenu = new JMenu();
 		editMenu = new JMenu();
@@ -606,7 +548,7 @@ public class ZTerm extends JApplet {
 		toolsMenu = new JMenu();
 		helpMenu = new JMenu();
 		encodingMenu = new JMenu();
-		
+
 		openItem = new JMenuItem();
 		closeItem = new JMenuItem();
 		reopenItem = new JMenuItem();
@@ -710,19 +652,19 @@ public class ZTerm extends JApplet {
 	private void makeTabbedPane() {
 		// tab 擺在上面，太多 tab 時使用捲頁的顯示方式
 		tabbedPane = new JTabbedPane(SwingConstants.TOP,
-				JTabbedPane.SCROLL_TAB_LAYOUT);
+			JTabbedPane.SCROLL_TAB_LAYOUT);
 		tabbedPane.addChangeListener(changeController);
 		tabbedPane.addMouseListener(mouseController);
 		getContentPane().add(tabbedPane, BorderLayout.CENTER);
 	}
-	
+
 	public void removeMenuBar() {
 		if (menuBar.isVisible()) {
 			menuBar.setVisible(false);
 			popupMenu.add(showMenuBarItem);
 		}
 	}
-	
+
 	public void showMenuBar() {
 		if (!menuBar.isVisible()) {
 			menuBar.setVisible(true);

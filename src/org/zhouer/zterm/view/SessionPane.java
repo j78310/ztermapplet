@@ -64,13 +64,14 @@ public class SessionPane extends JPanel implements Runnable, Application,
 		}
 	}
 
+	// 連線狀態常數
 	public static final int STATE_ALERT = 4;
 	public static final int STATE_CLOSED = 3;
-	public static final int STATE_CONNECTED = 2;
-	// 連線狀態常數
+	public static final int STATE_CONNECTED = 2;	
 	public static final int STATE_TRYING = 1;
-
+	
 	private static final long serialVersionUID = 2180544188833033537L;
+	
 	// 連線狀態
 	public int state;
 
@@ -81,7 +82,6 @@ public class SessionPane extends JPanel implements Runnable, Application,
 	// 這個 session 是否擁有一個 tab, 可能 session 還沒結束，但 tab 已被關閉。
 	private boolean hasTab;
 
-	private String iconname;
 	private InputStream is;
 	private long lastInputTime, antiIdleInterval;
 
@@ -103,8 +103,6 @@ public class SessionPane extends JPanel implements Runnable, Application,
 
 	private final VT100 vt;
 
-	private String windowtitle;
-
 	public SessionPane(final Site s, final Resource r, final Convertor c,
 			final BufferedImage bi) {
 		super();
@@ -117,11 +115,6 @@ public class SessionPane extends JPanel implements Runnable, Application,
 		// 設定擁有一個分頁
 		this.hasTab = true;
 
-		// FIXME: 預設成 host
-		this.windowtitle = this.site.getHost();
-		this.iconname = this.site.getHost();
-
-		// FIXME: magic number
 		this.setBackground(Color.BLACK);
 
 		// VT100
@@ -246,11 +239,6 @@ public class SessionPane extends JPanel implements Runnable, Application,
 	public String getEmulation() {
 		return this.site.getEmulation();
 	}
-
-	public String getIconName() {
-		return this.iconname;
-	}
-
 	public String getSelectedColorText() {
 		return this.vt.getSelectedColorText();
 	}
@@ -265,10 +253,6 @@ public class SessionPane extends JPanel implements Runnable, Application,
 
 	public String getURL() {
 		return this.site.getURL();
-	}
-
-	public String getWindowTitle() {
-		return this.windowtitle;
 	}
 
 	public boolean isClosed() {
@@ -413,23 +397,14 @@ public class SessionPane extends JPanel implements Runnable, Application,
 		this.writeChar((char) CTRL_L);
 	}
 
-	public void setIconName(final String in) {
-		// TODO: 未完成
-		this.iconname = in;
-		this.model.updateTab();
-	}
-
 	public void setState(final int s) {
 		this.state = s;
 		this.model.updateTabState(s, this);
 	}
 
-	public void setWindowTitle(final String wt) {
-		// TODO: 未完成
-		this.windowtitle = wt;
-		this.model.updateTab();
-	}
-
+	/* (non-Javadoc)
+	 * @see org.zhouer.vt.Application#showMessage(java.lang.String)
+	 */
 	public void showMessage(final String msg) {
 		// 當分頁仍存在時才會顯示訊息
 		if (this.hasTab) {
@@ -437,6 +412,9 @@ public class SessionPane extends JPanel implements Runnable, Application,
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.zhouer.vt.Application#showPopup(int, int)
+	 */
 	public void showPopup(final int x, final int y) {
 		final Point p = this.vt.getLocationOnScreen();
 		String link;

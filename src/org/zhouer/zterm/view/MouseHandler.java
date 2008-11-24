@@ -9,8 +9,7 @@ import org.zhouer.zterm.model.Model;
 
 public class MouseHandler implements MouseListener {
 	
-	private ZTerm view;
-	
+	private ZTerm view;	
 	private Model model;
 	
 	public void setView(ZTerm view) {

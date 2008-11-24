@@ -1816,9 +1816,6 @@ public class VT100 extends JComponent {
 		case '[': // 0x5b
 			parse_csi();
 			break;
-		case ']':
-			parse_text_parameter();
-			break;
 		default:
 			System.out.println("Unknown control sequence: ESC " + (char) b);
 			break;
@@ -1863,44 +1860,6 @@ public class VT100 extends JComponent {
 			default:
 				break;
 			}
-		}
-	}
-
-	private void parse_text_parameter() {
-		byte b;
-		// FIXME: magic number
-		final byte[] text = new byte[80];
-		int f, count;
-
-		f = 0;
-		b = getNextByte();
-		while (b != ';') {
-			f *= 10;
-			f += b - '0';
-			b = getNextByte();
-		}
-
-		count = 0;
-		b = getNextByte();
-		while (b != 0x07) {
-			text[count++] = b;
-			b = getNextByte();
-		}
-
-		switch (f) {
-		case 0:
-			parent.setIconName(new String(text, 0, count));
-			parent.setWindowTitle(new String(text, 0, count));
-			break;
-		case 1:
-			parent.setIconName(new String(text, 0, count));
-			break;
-		case 2:
-			parent.setWindowTitle(new String(text, 0, count));
-			break;
-		default:
-			System.out.println("Set text parameters(not fully support)");
-			break;
 		}
 	}
 

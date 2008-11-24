@@ -316,6 +316,7 @@ public class Model {
 	public void open() {
 		final String site = JOptionPane.showInputDialog(view, InternationalMessages
 				.getString("ZTerm.Message_Input_Site")); //$NON-NLS-1$
+		
 		this.connect(site);
 	}
 
