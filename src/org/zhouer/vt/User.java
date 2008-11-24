@@ -8,11 +8,11 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
 public class User implements KeyListener, MouseListener, MouseMotionListener {
-	private final Config config;
-	private boolean isDefaultCursor;
-	private final Application parent;
-	private int pressX, pressY, dragX, dragY;
-	private final VT100 vt;
+	private final Config		config;
+	private boolean				isDefaultCursor;
+	private final Application	parent;
+	private int					pressX, pressY, dragX, dragY;
+	private final VT100			vt;
 
 	public User(final Application p, final VT100 v, final Config c) {
 		this.parent = p;
@@ -29,6 +29,15 @@ public class User implements KeyListener, MouseListener, MouseMotionListener {
 		 * System.out.println( "key presses: " + e ); System.out.println( "key
 		 * modifier: " + e.getModifiers() );
 		 */
+
+		if (e.isAltDown() || e.isMetaDown()) {
+			if (e.getKeyCode() == KeyEvent.VK_A) {
+				vt.setSelectedAll();
+				vt.repaint();
+			}
+			
+			return;
+		}
 
 		// 其他功能鍵
 		switch (e.getKeyCode()) {
@@ -150,13 +159,13 @@ public class User implements KeyListener, MouseListener, MouseMotionListener {
 		}
 
 		if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-			// XXX: 在 Mac 上 keyTyped 似乎收不到 esc
+			// 在 Mac 上 keyTyped 似乎收不到 esc
 			this.parent.writeByte((byte) 0x1b);
 			return;
 		}
 
 		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-			// XXX: ptt 只吃 0x0d, 只送 0x0a 沒用
+			// ptt 只吃 0x0d, 只送 0x0a 沒用
 			this.parent.writeByte((byte) 0x0d);
 			return;
 		}
@@ -169,7 +178,7 @@ public class User implements KeyListener, MouseListener, MouseMotionListener {
 	public void keyTyped(final KeyEvent e) {
 		// System.out.println( "key typed: " + e );
 
-		// 功能鍵，不理會
+		// 功能鍵
 		if (e.isAltDown() || e.isMetaDown()) {
 			return;
 		}
@@ -186,52 +195,52 @@ public class User implements KeyListener, MouseListener, MouseMotionListener {
 	}
 
 	public void mouseClicked(final MouseEvent e) {
-			if (e.getButton() == MouseEvent.BUTTON1) {
-				// 左鍵
-				if (this.vt.coverURL(e.getX(), e.getY())) {
-					// click
-					// 開啟瀏覽器
-					final String url = this.vt.getURL(e.getX(), e.getY());
+		if (e.getButton() == MouseEvent.BUTTON1) {
+			// 左鍵
+			if (this.vt.coverURL(e.getX(), e.getY())) {
+				// click
+				// 開啟瀏覽器
+				final String url = this.vt.getURL(e.getX(), e.getY());
 
-					if (url.length() != 0) {
-						this.parent.openExternalBrowser(url);
-					}
-					
-					return;
-				} else if (e.getClickCount() == 2) {
-					// double click
-					// 選取連續字元
-					this.vt.selectConsequtive(e.getX(), e.getY());
-					this.vt.repaint();
-					return;
-				} else if (e.getClickCount() == 3) {
-					// triple click
-					// 選取整行
-					this.vt.selectEntireLine(e.getX(), e.getY());
-					this.vt.repaint();
-					return;
+				if (url.length() != 0) {
+					this.parent.openExternalBrowser(url);
 				}
-			} else if (e.getButton() == MouseEvent.BUTTON2) {
-				// 中鍵
-				// 貼上
-				if (e.isControlDown()) {
-					// 按下 ctrl 則彩色貼上
-					this.parent.colorPaste();
-				} else {
-					this.parent.paste();
-				}
-				
+
 				return;
-			} else if (e.getButton() == MouseEvent.BUTTON3) {
-				// 右鍵
-				// 跳出 popup menu
-				this.parent.showPopup(e.getX(), e.getY());
+			} else if (e.getClickCount() == 2) {
+				// double click
+				// 選取連續字元
+				this.vt.selectConsequtive(e.getX(), e.getY());
+				this.vt.repaint();
+				return;
+			} else if (e.getClickCount() == 3) {
+				// triple click
+				// 選取整行
+				this.vt.selectEntireLine(e.getX(), e.getY());
+				this.vt.repaint();
 				return;
 			}
+		} else if (e.getButton() == MouseEvent.BUTTON2) {
+			// 中鍵
+			// 貼上
+			if (e.isControlDown()) {
+				// 按下 ctrl 則彩色貼上
+				this.parent.colorPaste();
+			} else {
+				this.parent.paste();
+			}
 
-			this.vt.requestFocusInWindow();
-			this.vt.resetSelected();
-			this.vt.repaint();
+			return;
+		} else if (e.getButton() == MouseEvent.BUTTON3) {
+			// 右鍵
+			// 跳出 popup menu
+			this.parent.showPopup(e.getX(), e.getY());
+			return;
+		}
+
+		this.vt.requestFocusInWindow();
+		this.vt.resetSelected();
+		this.vt.repaint();
 	}
 
 	public void mouseDragged(final MouseEvent e) {
