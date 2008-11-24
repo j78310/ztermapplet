@@ -103,13 +103,12 @@ public class SessionPane extends JPanel implements Runnable, Application,
 
 	private final VT100 vt;
 
-	public SessionPane(final Site s, final Resource r, final Convertor c,
-			final BufferedImage bi) {
+	public SessionPane(final Site site, final BufferedImage image) {
 		super();
 
-		this.site = s;
-		this.resource = r;
-		this.conv = c;
+		this.site = site;
+		this.resource = Resource.getInstance();
+		this.conv = Convertor.getInstance();
 		this.model = Model.getInstance();
 
 		// 設定擁有一個分頁
@@ -118,7 +117,7 @@ public class SessionPane extends JPanel implements Runnable, Application,
 		this.setBackground(Color.BLACK);
 
 		// VT100
-		this.vt = new VT100(this, this.resource, this.conv, bi);
+		this.vt = new VT100(this, this.resource, this.conv, image);
 
 		// FIXME: 是否應該在這邊設定？
 		this.vt.setEncoding(this.site.getEncoding());
