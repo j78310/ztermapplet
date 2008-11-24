@@ -104,8 +104,6 @@ public class SessionPane extends JPanel implements Runnable, Application,
 	private final VT100 vt;
 
 	public SessionPane(final Site site, final BufferedImage image) {
-		super();
-
 		this.site = site;
 		this.resource = Resource.getInstance();
 		this.conv = Convertor.getInstance();
@@ -123,7 +121,7 @@ public class SessionPane extends JPanel implements Runnable, Application,
 		this.vt.setEncoding(this.site.getEncoding());
 		this.vt.setEmulation(this.site.getEmulation());
 
-		// 設定 layout 並把 vt 及 scrollbar 放進去，
+		// 設定 layout 並把 vt 及 scrollbar 放進去
 		this.setLayout(new BorderLayout());
 		this.add(this.vt, BorderLayout.CENTER);
 
