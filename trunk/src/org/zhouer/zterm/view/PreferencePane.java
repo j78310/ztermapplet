@@ -202,7 +202,6 @@ public class PreferencePane extends JOptionPane implements
 		// 將修改寫回設定檔
 		resource.writeFile();
 
-		Model.getInstance().updateBounds();
 		Model.getInstance().updateSize();
 		Model.getInstance().updateAntiIdleTime();
 	}
