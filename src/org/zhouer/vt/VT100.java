@@ -833,9 +833,17 @@ public class VT100 extends JComponent {
 			final String message = String.valueOf(text[prow]);
 			
 			for (int j = 0; j < maxcol; j++) {
+				final boolean originalIsURL = isurl[prow][j];
+				
 				// 判斷 (prow, j) 座標上的字元是否落於一個 http://xxx.xxx 字串裡面
 				if (UrlRecognizer.isPartOfHttp(message, j)) {
 					isurl[prow][j] = true;
+				} else {
+					isurl[prow][j] = false;
+				}
+				
+				final boolean updatedIsURL = isurl[prow][j];
+				if (originalIsURL != updatedIsURL) {
 					setRepaintPhysical(prow, j);
 				}
 			}
