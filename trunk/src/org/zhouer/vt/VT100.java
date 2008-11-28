@@ -1307,7 +1307,7 @@ public class VT100 extends JComponent {
 		// 一個 char 可能對應數個 bytes, 但在顯示及儲存時最雙寬字多佔兩格，單寬字最多佔一格，
 		// 紀錄 char 後要把對應的屬性及色彩等資料從 buffer 複製過來，並設定重繪。
 		final int prow = physicalRow(crow);
-		text[prow][ccol - 1] = c;
+		text[prow][ccol - 1] = c; // FIXME may cause array index out of bounds exception: 80
 
 		// 紀錄暫存的資料，寬字元每個字最多用兩個 bytes，一般字元每字一個 byte
 		for (int i = 0; i < (isWide ? Math.min(textBufPos, 2) : 1); i++) {
