@@ -79,6 +79,8 @@ public class ActionHandler implements ActionListener {
 			this.model.setLocale(Locale.TAIWAN);
 			model.refreshMessages();
 			this.resource.writeFile();
+		} else if (source == this.view.popupCloseItem) {
+			model.closeCurrentTab();
 		} else {
 			// 我的最愛列表
 			for (int i = 0; i < this.view.favoriteItems.length; i++) {

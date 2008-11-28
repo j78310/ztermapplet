@@ -2,21 +2,15 @@ package org.zhouer.zterm.view;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
-import java.awt.Frame;
-import java.awt.GraphicsEnvironment;
 import java.awt.KeyboardFocusManager;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.util.Locale;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JApplet;
-import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -42,26 +36,11 @@ public class ZTerm extends JApplet {
 
 	private static final long	serialVersionUID	= 1L;
 
-	public static void main(final String args[]) {
-		final Rectangle windowBounds = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
-		final JFrame frame = new JFrame("ZTerm Applet");
-		frame.addWindowListener(new WindowAdapter() {
-			public void windowClosing(final WindowEvent e) {
-				System.exit(0);
-			}
-		});
-
-		frame.setSize(windowBounds.width, windowBounds.height);
-		frame.setExtendedState(Frame.MAXIMIZED_BOTH);
-		frame.getContentPane().add(new ZTerm());
-		frame.setVisible(true);
-	}
-
 	protected BufferedImage			terminalImage;
 	protected JMenuItem				big5Item, utf8Item, copyItem, pasteItem,
 			colorCopyItem, colorPasteItem, openItem, closeItem, reopenItem,
 			popupCopyItem, popupPasteItem, popupColorCopyItem,
-			popupColorPasteItem, popupCopyLinkItem, preferenceItem,
+			popupColorPasteItem, popupCopyLinkItem, popupCloseItem, preferenceItem,
 			siteManagerItem, usageItem, faqItem, aboutItem, hideMenuBarItem,
 			showMenuBarItem;
 	protected JMenuItem[]			favoriteItems, languageItems;
@@ -407,6 +386,7 @@ public class ZTerm extends JApplet {
 		popupPasteItem.setText(InternationalMessages.getString("ZTerm.Paste_MenuItem_Text")); //$NON-NLS-1$
 		popupColorCopyItem.setText(InternationalMessages.getString("ZTerm.ColorCopy_MenuItem_Text")); //$NON-NLS-1$
 		popupColorPasteItem.setText(InternationalMessages.getString("ZTerm.ColorPaste_MenuItem_Text")); //$NON-NLS-1$
+		popupCloseItem.setText(InternationalMessages.getString("ZTerm.Close_MenuItem_Text"));
 	}
 
 	/**
@@ -588,6 +568,7 @@ public class ZTerm extends JApplet {
 		popupColorPasteItem = new JMenuItem();
 		popupCopyLinkItem = new JMenuItem();
 		showMenuBarItem = new JMenuItem();
+		popupCloseItem = new JMenuItem();
 
 		popupCopyItem.addActionListener(actionController);
 		popupPasteItem.addActionListener(actionController);
@@ -595,6 +576,7 @@ public class ZTerm extends JApplet {
 		popupColorPasteItem.addActionListener(actionController);
 		popupCopyLinkItem.addActionListener(actionController);
 		showMenuBarItem.addActionListener(actionController);
+		popupCloseItem.addActionListener(actionController);
 		popupCopyLinkItem.setEnabled(false);
 
 		popupMenu.add(popupCopyItem);
@@ -602,6 +584,7 @@ public class ZTerm extends JApplet {
 		popupMenu.add(popupColorCopyItem);
 		popupMenu.add(popupColorPasteItem);
 		popupMenu.add(popupCopyLinkItem);
+		popupMenu.add(popupCloseItem);
 	}
 
 	private void makeTabbedPane() {
