@@ -32,19 +32,10 @@ public class Resource implements Config {
 	public static final String CUSTOM_BELL_PATH = "custom-bell-path";
 
 	public static final String EXTERNAL_BROWSER = "external-browser-command";
-	public static final String GEOMETRY_HEIGHT = "geometry.height";
-	public static final String GEOMETRY_WIDTH = "geometry.width";
-
-	public static final String GEOMETRY_X = "geometry.x";
-	public static final String GEOMETRY_Y = "geometry.y";
 	public static final String REMOVE_MANUAL_DISCONNECT = "remove-manual-disconnect";
-	// chitsaou.070726: 顯示捲軸
-	public static final String SHOW_SCROLL_BAR = "show-scroll-bar";
 	public static final String SHOW_TOOLBAR = "show-toolbar";
 	public static final String SYSTEM_LOOK_FEEL = "use-system-look-and-feel";
 
-	// chitsaou.070726: 分頁編號
-	public static final String TAB_NUMBER = "tab-number";
 	public static final String USE_CUSTOM_BELL = "use-custom-bell";
 
 	private volatile static Resource resource = null;
@@ -281,18 +272,6 @@ public class Resource implements Config {
 		this.defmap.put(Resource.LOCALE_COUNTRY, Locale.getDefault().getCountry());
 		this.defmap.put(Resource.LOCALE_LANGUAGE, Locale.getDefault().getLanguage());
 		this.defmap.put(Resource.LOCALE_VARIANT, Locale.getDefault().getVariant());
-		
-		// 設定視窗相關資訊
-		this.defmap.put(Resource.GEOMETRY_X, "0");
-		this.defmap.put(Resource.GEOMETRY_Y, "0");
-		this.defmap.put(Resource.GEOMETRY_WIDTH, "980");
-		this.defmap.put(Resource.GEOMETRY_HEIGHT, "720");
-		this.defmap.put(Resource.SHOW_TOOLBAR, "true");
-
-		// chitsaou.070726: 分頁編號
-		this.defmap.put(Resource.TAB_NUMBER, "true");
-		// chitsaou.070726: 顯示捲軸
-		this.defmap.put(Resource.SHOW_SCROLL_BAR, "true");
 
 		// 設定模擬終端機大小
 		this.defmap.put(Config.TERMINAL_COLUMNS, "80");

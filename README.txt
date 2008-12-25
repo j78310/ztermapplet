@@ -1,7 +1,7 @@
 Pre-requirement:
 
-1. Java SE Development Kit (JDK) 5.0 or later.
-	Your system should have Java SE Development Kit (JDK) installed version 5.0 or later. If not, please go to http://java.sun.com/ and install it.
+1. Java SE Development Kit (JDK) 1.4 or later.
+	Your system should have Java SE Development Kit (JDK) installed version 1.4 or later. If not, please go to http://java.sun.com/ and install it.
 	
 2. ant
 	Your system should have ant installed. If not, please go to http://ant.apache.org/ and install it.

@@ -1,6 +1,5 @@
 package org.zhouer.zterm.view;
 
-import java.awt.Adjustable;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Point;
@@ -23,12 +22,10 @@ import javax.swing.JScrollBar;
 import javax.swing.Timer;
 
 import org.zhouer.protocol.Protocol;
-import org.zhouer.protocol.SSH2;
 import org.zhouer.protocol.Telnet;
 import org.zhouer.utils.Convertor;
 import org.zhouer.utils.TextUtils;
 import org.zhouer.vt.Application;
-import org.zhouer.vt.Config;
 import org.zhouer.vt.VT100;
 import org.zhouer.zterm.model.Model;
 import org.zhouer.zterm.model.Resource;
@@ -94,8 +91,6 @@ public class SessionPane extends JPanel implements Runnable, Application,
 
 	private JScrollBar scrollbar;
 
-	// 捲頁緩衝區的行數
-	private int scrolllines;
 	private final Site site;
 	// 自動重連用
 	private long startTime;
@@ -124,22 +119,6 @@ public class SessionPane extends JPanel implements Runnable, Application,
 		// 設定 layout 並把 vt 及 scrollbar 放進去
 		this.setLayout(new BorderLayout());
 		this.add(this.vt, BorderLayout.CENTER);
-
-		// chitsaou.070726: 顯示捲軸
-		if (this.resource.getBooleanValue(Resource.SHOW_SCROLL_BAR)) {
-			this.scrolllines = this.resource
-					.getIntValue(Config.TERMINAL_SCROLLS);
-			// FIXME: magic number
-			this.scrollbar = new JScrollBar(Adjustable.VERTICAL,
-					this.scrolllines - 1, 24, 0, this.scrolllines + 23);
-			this.scrollbar.addAdjustmentListener(this);
-
-			this.add(this.scrollbar, BorderLayout.EAST);
-
-			// 處理滑鼠滾輪事件
-			this.addMouseWheelListener(this);
-		}
-
 	}
 
 	public void adjustmentValueChanged(final AdjustmentEvent ae) {
@@ -332,11 +311,11 @@ public class SessionPane extends JPanel implements Runnable, Application,
 		if (this.site.getProtocol().equalsIgnoreCase(Protocol.TELNET)) {
 			this.network = new Telnet(this.site.getHost(), this.site.getPort());
 			this.network.setTerminalType(this.site.getEmulation());
-		} else if (this.site.getProtocol().equalsIgnoreCase(Protocol.SSH)) {
-			this.network = new SSH2(this.site.getHost(), this.site.getPort());
-			this.network.setTerminalType(this.site.getEmulation());
 		} else {
 			System.err.println("Unknown protocol: " + this.site.getProtocol()); //$NON-NLS-1$
+			// 設定連線狀態為 closed
+			this.setState(SessionPane.STATE_CLOSED);
+			return;
 		}
 
 		// 連線失敗

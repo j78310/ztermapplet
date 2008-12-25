@@ -418,8 +418,8 @@ public class Model {
 	 * Show FAQ dialog.
 	 */
 	public void showFAQ() {
-		final HtmlPane faqHtmlDialog = new HtmlPane(ZTerm.class
-				.getResource("docs/faq.html")); //$NON-NLS-1$ 
+		final HtmlPane faqHtmlDialog = new HtmlPane(getClass().getResource(
+			"/res/docs/faq.html")); //$NON-NLS-1$ 
 		final JDialog dialog = faqHtmlDialog.createDialog(view, InternationalMessages
 				.getString("ZTerm.Title_FAQ")); //$NON-NLS-1$
 		dialog.setSize(640, 400);
@@ -492,8 +492,8 @@ public class Model {
 	 * Show usage dialog.
 	 */
 	public void showUsage() {
-		final HtmlPane usageHtmlDialog = new HtmlPane(ZTerm.class
-				.getResource("docs/usage.html")); //$NON-NLS-1$ 
+		final HtmlPane usageHtmlDialog = new HtmlPane(getClass().getResource(
+			"/res/docs/usage.html")); //$NON-NLS-1$ 
 		final JDialog dialog = usageHtmlDialog.createDialog(view, InternationalMessages
 				.getString("ZTerm.Title_Manual")); //$NON-NLS-1$
 		dialog.setSize(640, 400);
@@ -508,21 +508,6 @@ public class Model {
 			final SessionPane session = (SessionPane) sessions.elementAt(i);
 			session.updateAntiIdleTime();
 		}
-	}
-
-	/**
-	 * Update bounds to resource, and also set the bounds of user interface.
-	 * @deprecated applet should never update bounds because of embedded in a browser.
-	 */
-	public void updateBounds() {
-		int locationx, locationy, width, height;
-		locationx = resource.getIntValue(Resource.GEOMETRY_X);
-		locationy = resource.getIntValue(Resource.GEOMETRY_Y);
-		width = resource.getIntValue(Resource.GEOMETRY_WIDTH);
-		height = resource.getIntValue(Resource.GEOMETRY_HEIGHT);
-
-		view.setBounds(locationx, locationy, width, height);
-		view.validate();
 	}
 
 	/**
@@ -549,7 +534,6 @@ public class Model {
 	 * Update size to resource, and also user interface.
 	 */
 	public void updateSize() {
-		preferencePane.updateSize();
 		view.updateSize();
 	}
 
@@ -671,6 +655,7 @@ public class Model {
 	 */
 	public void hideMenuBar() {
 		view.removeMenuBar();
+		view.updateSize();
 	}
 	
 	/**
@@ -678,5 +663,6 @@ public class Model {
 	 */
 	public void showMenuBar() {
 		view.showMenuBar();
+		view.updateSize();
 	}
 }

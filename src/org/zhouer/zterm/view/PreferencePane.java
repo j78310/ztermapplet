@@ -5,7 +5,6 @@ import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -99,17 +98,6 @@ public class PreferencePane extends JOptionPane implements
 		setOptionType(JOptionPane.OK_CANCEL_OPTION);
 		setMessage(panel);
 	}
-	
-	public void updateSize() {
-		final Rectangle bounds = getBounds();
-		resource.setValue(Resource.GEOMETRY_X, (int) bounds.getX());
-		resource.setValue(Resource.GEOMETRY_Y, (int) bounds.getY());
-		resource.setValue(Resource.GEOMETRY_WIDTH, (int) bounds.getWidth());
-		resource.setValue(Resource.GEOMETRY_HEIGHT, (int) bounds.getHeight());
-		
-		apperancePanel.widthSpinner.setValue(new Integer((int) bounds.getWidth()));
-		apperancePanel.heightSpinner.setValue(new Integer((int) bounds.getHeight()));
-	}
 
 	public void valueChanged(final TreeSelectionEvent tse) {
 
@@ -168,23 +156,6 @@ public class PreferencePane extends JOptionPane implements
 
 		resource.setValue(Config.CURSOR_BLINK, apperancePanel.cursorBlinkCheckBox
 				.isSelected());
-		resource.setValue(Resource.GEOMETRY_WIDTH, apperancePanel.widthModel.getValue()
-				.toString());
-		resource.setValue(Resource.GEOMETRY_HEIGHT, apperancePanel.heightModel.getValue()
-				.toString());
-		resource.setValue(Config.TERMINAL_SCROLLS, apperancePanel.scrollModel.getValue()
-				.toString());
-		resource.setValue(Config.TERMINAL_COLUMNS, apperancePanel.terminalColumnsModel
-				.getValue().toString());
-		resource.setValue(Config.TERMINAL_ROWS, apperancePanel.terminalRowsModel.getValue()
-				.toString());
-
-		// chitsaou.070726: 分頁編號
-		// chitsaou.070726: 顯示捲軸
-		resource.setValue(Resource.TAB_NUMBER, apperancePanel.tabNumberCheckBox
-				.isSelected());
-		resource.setValue(Resource.SHOW_SCROLL_BAR, apperancePanel.showScrollBarCheckBox
-				.isSelected());
 
 		resource.setValue(Config.FONT_FAMILY, fontPanel.familyCombo.getSelectedItem()
 				.toString());
@@ -233,23 +204,9 @@ public class PreferencePane extends JOptionPane implements
 class ApperancePanel extends JPanel {
 	private static final long serialVersionUID = -2051345281384271839L;
 
-	public JLabel scrollLabel, terminalRowsLabel, terminalColumnsLabel;
-
-	public SpinnerNumberModel scrollModel, terminalRowsModel,
-			terminalColumnsModel;
-	public JSpinner scrollSpinner, terminalRowsSpinner, terminalColumnsSpinner;
-
 	public JCheckBox cursorBlinkCheckBox;
 	public JLabel cursorBlinkLabel;
 
-	public JCheckBox tabNumberCheckBox, showScrollBarCheckBox;
-	// chitsaou.070726: 分頁編號
-	// chitsaou.070726: 顯示捲軸
-	public JLabel tabNumberLabel, showScrollBarLabel;
-	public JLabel widthLabel, heightLabel;
-
-	public SpinnerNumberModel widthModel, heightModel;
-	public JSpinner widthSpinner, heightSpinner;
 	private final Resource resource;
 
 	public ApperancePanel(final Resource r) {
@@ -262,52 +219,6 @@ class ApperancePanel extends JPanel {
 		cursorBlinkCheckBox.setSelected(resource
 				.getBooleanValue(Config.CURSOR_BLINK));
 
-		widthLabel = new JLabel(InternationalMessages
-				.getString("Preference.WindowWidth_Label_Text")); //$NON-NLS-1$
-		widthModel = new SpinnerNumberModel(resource
-				.getIntValue(Resource.GEOMETRY_WIDTH), 0, 4096, 1);
-		widthSpinner = new JSpinner(widthModel);
-
-		heightLabel = new JLabel(InternationalMessages
-				.getString("Preference.WindowHeight_Label_Text")); //$NON-NLS-1$
-		heightModel = new SpinnerNumberModel(resource
-				.getIntValue(Resource.GEOMETRY_HEIGHT), 0, 4096, 1);
-		heightSpinner = new JSpinner(heightModel);
-
-		scrollLabel = new JLabel(InternationalMessages
-				.getString("Preference.Scroll_Label_Text")); //$NON-NLS-1$
-		scrollModel = new SpinnerNumberModel(resource
-				.getIntValue(Config.TERMINAL_SCROLLS), 0, 10000, 1);
-		scrollSpinner = new JSpinner(scrollModel);
-
-		terminalColumnsLabel = new JLabel(InternationalMessages
-				.getString("Preference.TerminalColumns_Label_Text")); //$NON-NLS-1$
-		terminalColumnsModel = new SpinnerNumberModel(resource
-				.getIntValue(Config.TERMINAL_COLUMNS), 80, 200, 1);
-		terminalColumnsSpinner = new JSpinner(terminalColumnsModel);
-		terminalColumnsSpinner.setEnabled(false);
-
-		terminalRowsLabel = new JLabel(InternationalMessages
-				.getString("Preference.TerminalRows_Label_Text")); //$NON-NLS-1$
-		terminalRowsModel = new SpinnerNumberModel(resource
-				.getIntValue(Config.TERMINAL_ROWS), 24, 200, 1);
-		terminalRowsSpinner = new JSpinner(terminalRowsModel);
-		terminalRowsSpinner.setEnabled(false);
-
-		// chitsaou.070726: 分頁編號
-		tabNumberLabel = new JLabel(InternationalMessages
-				.getString("Preference.TabNumber_Label_Text")); //$NON-NLS-1$
-		tabNumberCheckBox = new JCheckBox();
-		tabNumberCheckBox.setSelected(resource
-				.getBooleanValue(Resource.TAB_NUMBER));
-
-		// chitsaou.070726: 顯示捲軸
-		showScrollBarLabel = new JLabel(InternationalMessages
-				.getString("Preference.ShowScrollBar_Label_Text")); //$NON-NLS-1$
-		showScrollBarCheckBox = new JCheckBox();
-		showScrollBarCheckBox.setSelected(resource
-				.getBooleanValue(Resource.SHOW_SCROLL_BAR));
-
 		setLayout(new GridBagLayout());
 		final GridBagConstraints c = new GridBagConstraints();
 		c.anchor = GridBagConstraints.WEST;
@@ -317,48 +228,6 @@ class ApperancePanel extends JPanel {
 		this.add(cursorBlinkLabel, c);
 		c.gridx = 1;
 		this.add(cursorBlinkCheckBox, c);
-
-		c.gridx = 0;
-		c.gridy = 1;
-		this.add(widthLabel, c);
-		c.gridx = 1;
-		this.add(widthSpinner, c);
-
-		c.gridx = 0;
-		c.gridy = 2;
-		this.add(heightLabel, c);
-		c.gridx = 1;
-		this.add(heightSpinner, c);
-
-		c.gridx = 0;
-		c.gridy = 3;
-		this.add(scrollLabel, c);
-		c.gridx = 1;
-		this.add(scrollSpinner, c);
-
-		c.gridx = 0;
-		c.gridy = 4;
-		this.add(terminalColumnsLabel, c);
-		c.gridx = 1;
-		this.add(terminalColumnsSpinner, c);
-
-		c.gridx = 0;
-		c.gridy = 5;
-		this.add(terminalRowsLabel, c);
-		c.gridx = 1;
-		this.add(terminalRowsSpinner, c);
-
-		c.gridx = 0;
-		c.gridy = 6;
-		this.add(tabNumberLabel, c);
-		c.gridx = 1;
-		this.add(tabNumberCheckBox, c);
-
-		c.gridx = 0;
-		c.gridy = 7;
-		this.add(showScrollBarLabel, c);
-		c.gridx = 1;
-		this.add(showScrollBarCheckBox, c);
 	}
 }
 
