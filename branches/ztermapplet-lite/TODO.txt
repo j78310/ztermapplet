@@ -1,0 +1,8 @@
+2.0
+- Save an "article" to a file
+- Search for the specified text on the terminal
+- Detect telnet and ssh link
+- Preview for any new settings
+- Resize the display of terminal 
+- Right-click on tab title to show pop-up menu
+- Remove boundary settings

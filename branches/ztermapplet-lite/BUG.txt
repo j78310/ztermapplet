@@ -1,0 +1,28 @@
+2.0 BETA:
+[Reopened] 無法或難以取得終端機焦點。 (某些瀏覽器，如 GTK firefox, 無解)
+[Resolved] 連結有時候會偵測失敗，例：#18m04zPl (WarCraft) [ptt.cc] [大蛇] 大蛇再臨Ver02c
+
+1.15 RC8:
+[Resolved] 修改語言不會反應在偏好設定視窗內的文字。
+
+1.15 RC7:
+[Resolved] 連結有時候會偵測失敗。
+[Resolved] 切換分頁之後，焦點不會落在該分頁的終端機內。
+
+1.15 RC6:
+[Resolved] 連結有時候會偵測失敗。
+
+1.15 RC5:
+[Resolved] 更改至錯誤的編碼再更改回正確的編碼以後，有些地方呈現亂碼。
+
+1.15 RC4:
+[Resolved] 切換「檢視 -> 顯示/隱藏工具列」之後，不會反應在偏好設定的「顯示工具列」。
+[Resolved] 偵測連結異常。
+[Resolved] 偵測含有中文的連結異常。
+
+1.15 RC3:
+[Resolved] 連結有時候會偵測失敗。
+[Resolved] 彩色複製、貼上的結果與原來的不一樣。
+
+1.15 RC2:
+[Resolved] 調整 Descent 無反應
