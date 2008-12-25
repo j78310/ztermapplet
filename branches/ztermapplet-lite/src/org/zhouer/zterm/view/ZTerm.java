@@ -210,17 +210,7 @@ public class ZTerm extends JApplet {
 			// 一開始預設 icon 是連線中斷
 			final ImageIcon icon = closedIcon;
 
-			// chitsaou.070726: 分頁編號
-			if (resource.getBooleanValue(Resource.TAB_NUMBER)) {
-				// 分頁 title 會顯示分頁編號加站台名稱，tip 會顯示 hostname.
-				final int number = tabbedPane.getTabCount() + 1;
-				final String title = number + ". " + site.getName();
-				tabbedPane.addTab(title, icon, session, site.getHost());
-			} else {
-				// chitsaou:070726: 不要標號
-				tabbedPane.addTab(site.getName(), icon, session, site.getHost());
-			}
-
+			tabbedPane.addTab(site.getName(), icon, session, site.getHost());
 			tabbedPane.setSelectedIndex(tabbedPane.getTabCount() - 1);
 		} else {
 			model.getSessions().setElementAt(session, index);
@@ -288,14 +278,7 @@ public class ZTerm extends JApplet {
 			final SessionPane session = (SessionPane) model.getSessions().elementAt(
 				i);
 
-			tabbedPane.setTitleAt(i, (i + 1)
-					+ ". " + session.getSite().getName()); //$NON-NLS-1$
-
-			// FIXME: need revise
-			tabbedPane.setTitleAt(i,
-				((resource.getBooleanValue(Resource.TAB_NUMBER)) ? (i + 1)
-						+ ". " : "") //$NON-NLS-1$ //$NON-NLS-2$
-						+ session.getSite().getName());
+			tabbedPane.setTitleAt(i, session.getSite().getName());
 		}
 	}
 

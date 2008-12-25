@@ -23,14 +23,6 @@ public class Standalone {
 				port = Integer.parseInt(args[2]);
 			}
 			p = new Telnet(args[1], port);
-		} else if (args[0].equalsIgnoreCase("ssh2")) {
-			if (args.length == 2) {
-				port = 22;
-			} else {
-				port = Integer.parseInt(args[2]);
-			}
-			p = new SSH2(args[1], port);
-			p.setTerminalType("vt100");
 		} else {
 			System.out.println("Unknown protocol!");
 			return;

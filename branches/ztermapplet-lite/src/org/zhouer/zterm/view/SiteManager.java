@@ -54,8 +54,7 @@ public class SiteManager extends JOptionPane {
 		private final String[] encodingList = { "Big5", "UTF-8" }; //$NON-NLS-1$ //$NON-NLS-2$
 
 		// 名稱, 位置, 埠號, 通訊協定. 帳號提示, 帳號, 密碼提示, 密碼, 自動連線, 自動登入
-		private final JLabel nameLabel, hostLabel, portLabel, protocolLabel,
-				aliasLabel;
+		private final JLabel nameLabel, hostLabel, portLabel, aliasLabel;
 		private final SiteManager parent;
 		private final ButtonGroup protocolGroup;
 
@@ -73,7 +72,6 @@ public class SiteManager extends JOptionPane {
 		final JTextField hostField, portField, aliasField;
 
 		final JTextField nameField;
-		final JRadioButton sshButton;
 
 		JRadioButton telnetButton;
 
@@ -87,8 +85,6 @@ public class SiteManager extends JOptionPane {
 			this.hostLabel = new JLabel(InternationalMessages.getString("SiteManager.Host")); //$NON-NLS-1$
 			this.portLabel = new JLabel(InternationalMessages.getString("SiteManager.Port")); //$NON-NLS-1$
 			this.aliasLabel = new JLabel(InternationalMessages.getString("SiteManager.Alias")); //$NON-NLS-1$
-			this.protocolLabel = new JLabel(InternationalMessages
-					.getString("SiteManager.Protocal")); //$NON-NLS-1$
 			this.encodingLabel = new JLabel(InternationalMessages
 					.getString("SiteManager.Encoding")); //$NON-NLS-1$
 			this.emulationLabel = new JLabel(InternationalMessages
@@ -114,13 +110,9 @@ public class SiteManager extends JOptionPane {
 			this.telnetButton = new JRadioButton(InternationalMessages
 					.getString("SiteManager.TelnetButtonText")); //$NON-NLS-1$
 			this.telnetButton.addActionListener(this);
-			this.sshButton = new JRadioButton(InternationalMessages
-					.getString("SiteManager.SSHButtonText")); //$NON-NLS-1$
-			this.sshButton.addActionListener(this);
 
 			this.protocolGroup = new ButtonGroup();
 			this.protocolGroup.add(this.telnetButton);
-			this.protocolGroup.add(this.sshButton);
 
 			this.encodingCombo = new JComboBox(this.encodingList);
 			this.encodingCombo.addActionListener(this);
@@ -174,28 +166,19 @@ public class SiteManager extends JOptionPane {
 			c.gridx = 0;
 			c.gridy = 4;
 			c.gridwidth = 1;
-			this.add(this.protocolLabel, c);
-			c.gridx = 1;
-			this.add(this.telnetButton, c);
-			c.gridx = 2;
-			this.add(this.sshButton, c);
-
-			c.gridx = 0;
-			c.gridy = 5;
-			c.gridwidth = 1;
 			this.add(this.encodingLabel, c);
 			c.gridx = 1;
 			this.add(this.encodingCombo, c);
 
 			c.gridx = 0;
-			c.gridy = 6;
+			c.gridy = 5;
 			c.gridwidth = 1;
 			this.add(this.emulationLabel, c);
 			c.gridx = 1;
 			this.add(this.emulationCombo, c);
 
 			c.gridx = 0;
-			c.gridy = 7;
+			c.gridy = 6;
 			c.gridwidth = 1;
 			this.add(this.autoConnectLabel, c);
 			c.gridx = 1;
@@ -229,8 +212,6 @@ public class SiteManager extends JOptionPane {
 		public void actionPerformed(final ActionEvent ae) {
 			if (ae.getSource() == this.telnetButton) {
 				this.portField.setText(Integer.toString(23));
-			} else if (ae.getSource() == this.sshButton) {
-				this.portField.setText(Integer.toString(22));
 			}
 		}
 		
@@ -243,8 +224,6 @@ public class SiteManager extends JOptionPane {
 
 			if (telnetButton.isSelected()) {
 				s.setProtocol(Protocol.TELNET);
-			} else if (sshButton.isSelected()) {
-				s.setProtocol(Protocol.SSH);
 			}
 
 			s.setEncoding(encodingCombo.getSelectedItem().toString());
@@ -262,10 +241,8 @@ public class SiteManager extends JOptionPane {
 
 			if (s.getProtocol().equalsIgnoreCase(Protocol.TELNET)) {
 				this.telnetButton.setSelected(true);
-			} else if (s.getProtocol().equalsIgnoreCase(Protocol.SSH)) {
-				this.sshButton.setSelected(true);
 			}
-
+			
 			this.encodingCombo.setSelectedItem(s.getEncoding());
 			this.emulationCombo.setSelectedItem(s.getEmulation());
 
@@ -482,8 +459,6 @@ public class SiteManager extends JOptionPane {
 
 		if (this.parameterPanel.telnetButton.isSelected()) {
 			s.setProtocol(Protocol.TELNET);
-		} else if (this.parameterPanel.sshButton.isSelected()) {
-			s.setProtocol(Protocol.SSH);
 		}
 
 		s.setEncoding(this.parameterPanel.encodingCombo.getSelectedItem()

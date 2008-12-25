@@ -8,7 +8,7 @@ Recommended development environment:
 Eclipse + Subclipse:
 
 	File -> New -> Other -> SVN 
-	-> http://ztermapplet.googlecode.com/svn/trunk/
+	-> http://ztermapplet.googlecode.com/svn/branches/ztermapplet-lite
 	
 --
 
