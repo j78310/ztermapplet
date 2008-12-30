@@ -1578,6 +1578,10 @@ public class VT100 extends JComponent {
 			break;
 		case 9: // HT (Horizontal Tab)
 			ccol = ((ccol - 1) / 8 + 1) * 8 + 1;
+			if( ccol > rightmargin ) {
+				// 如果會跳超過 rightmargin 就只跳到 rightmargin
+				ccol = rightmargin;
+			}
 			break;
 		case 10: // LF (Line Feed)
 			crow++;
