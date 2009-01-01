@@ -33,8 +33,9 @@ public class Site implements Comparable {
 	// 文字編碼
 	protected String encoding;
 
-	// hostname and port
+	// host name and port
 	protected String host;
+	
 	// 最近連線時間。
 	protected long lastvisit;
 
@@ -192,8 +193,7 @@ public class Site implements Comparable {
 		String url = this.protocol + "://" + this.host; //$NON-NLS-1$
 
 		// 當連線 port 不等於該 protocol 預設值時要顯示連線 port
-		if ((this.protocol.equalsIgnoreCase(Protocol.TELNET) && (this.port != 23))
-				|| (this.protocol.equalsIgnoreCase(Protocol.SSH) && (this.port != 22))) {
+		if (this.protocol.equalsIgnoreCase(Protocol.TELNET) && (this.port != 23)) {
 			url = url + ":" + this.port; //$NON-NLS-1$
 		}
 

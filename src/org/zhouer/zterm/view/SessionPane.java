@@ -70,7 +70,7 @@ public class SessionPane extends JPanel implements Runnable, Application,
 	private static final long serialVersionUID = 2180544188833033537L;
 	
 	// 連線狀態
-	public int state;
+	private int state;
 
 	// 防閒置用
 	private boolean antiidle;
@@ -229,6 +229,15 @@ public class SessionPane extends JPanel implements Runnable, Application,
 
 	public String getURL() {
 		return this.site.getURL();
+	}
+
+	/**
+	 * Getter of state
+	 *
+	 * @return the state
+	 */
+	public int getState() {
+		return state;
 	}
 
 	public boolean isClosed() {
@@ -460,16 +469,16 @@ public class SessionPane extends JPanel implements Runnable, Application,
 	public void writeChars(final char[] buf, final int offset, final int len) {
 		int count = 0;
 		// FIXME: magic number
-		final byte[] tmp = new byte[len * 4];
-		byte[] tmp2;
+		final byte[] writeBuffer = new byte[len * 4];
+		byte[] byteBuffer;
 
 		for (int i = 0; i < len; i++) {
-			tmp2 = this.conv.charToBytes(buf[offset + i], this.site.getEncoding());
-			for (int j = 0; j < tmp2.length; j++) {
-				tmp[count++] = tmp2[j];
+			byteBuffer = this.conv.charToBytes(buf[offset + i], this.site.getEncoding());
+			for (int j = 0; j < byteBuffer.length; j++) {
+				writeBuffer[count++] = byteBuffer[j];
 			}
 		}
 
-		this.writeBytes(tmp, 0, count);
+		this.writeBytes(writeBuffer, 0, count);
 	}
 }

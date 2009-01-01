@@ -13,7 +13,6 @@ import org.zhouer.zterm.model.Model;
 public class ComponentHandler extends ComponentAdapter {
 
 	private Model model;
-
 	private ZTerm view;
 
 	public void componentResized(final ComponentEvent ce) {

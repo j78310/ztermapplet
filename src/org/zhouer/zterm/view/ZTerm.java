@@ -24,13 +24,13 @@ import org.zhouer.utils.InternationalMessages;
 import org.zhouer.vt.Config;
 import org.zhouer.zterm.model.Model;
 import org.zhouer.zterm.model.Resource;
-import org.zhouer.zterm.model.Sessions;
+import org.zhouer.zterm.model.SessionPool;
 import org.zhouer.zterm.model.Site;
 
 /**
  * ZTerm is view for Java applet, and also entrance of program.
  * 
- * @author h45
+ * @author Chin-Chang Yang
  */
 public class ZTerm extends JApplet {
 
@@ -67,13 +67,13 @@ public class ZTerm extends JApplet {
 	private JMenuBar				menuBar;
 	private final Model				model;
 	private final Resource			resource;
-	private final Sessions			sessions;
+	private final SessionPool			sessions;
 
 	/**
 	 * Constructor with no arguments
 	 */
 	public ZTerm() {
-		sessions = Sessions.getInstance(); // 各個連線
+		sessions = SessionPool.getInstance(); // 各個連線
 		resource = Resource.getInstance(); // 各種設定
 
 		// 設定語系

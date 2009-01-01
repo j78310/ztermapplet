@@ -27,7 +27,7 @@ public class Convertor {
 		} else if ((b[offset] >= -16) && (b[offset] <= -9)) {
 			return limit == 4;
 		} else {
-			// XXX: 不是合法的 UTF-8
+			// 不是合法的 UTF-8
 			return true;
 		}
 	}
@@ -71,7 +71,7 @@ public class Convertor {
 		final InputStream is = Convertor.class.getResourceAsStream(name);
 
 		try {
-			// XXX: 本來應該 is.read( b ) 就可以才對，
+			// 本來應該 is.read( b ) 就可以才對，
 			// 但是我發現在包裝成 jar 以後就會讀不完整，一定要這樣讀。
 			while (true) {
 				len = is.read(b, size, b.length - size);
@@ -188,7 +188,7 @@ public class Convertor {
 	public byte[] charToBig5Bytes(final char c) {
 		byte[] b;
 
-		// XXX: 假設非 ASCII 都是 2 bytes
+		// 假設非 ASCII 都是 2 bytes
 		if (c < 0x80) {
 			b = new byte[1];
 			b[0] = (byte) c;

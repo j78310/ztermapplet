@@ -8,7 +8,7 @@ import java.util.ResourceBundle;
  * International messages is created automatically by Eclipse used to manage internal strings
  * in source code.
  * 
- * @author h45
+ * @author Chin-Chang Yang
  */
 public class InternationalMessages {
 	
@@ -17,6 +17,9 @@ public class InternationalMessages {
 	private static ResourceBundle RESOURCE_BUNDLE = ResourceBundle
 			.getBundle(InternationalMessages.BUNDLE_NAME);
 
+	/**
+	 * Restart the resource bundle. This method should be called after modifying Locale.
+	 */
 	public static void restartBundle() {
 		InternationalMessages.RESOURCE_BUNDLE = ResourceBundle
 				.getBundle(InternationalMessages.BUNDLE_NAME);
@@ -43,6 +46,6 @@ public class InternationalMessages {
 	}
 
 	private InternationalMessages() {
-		// This class shouldn't be instanced.
+		// This class shouldn't be instantialized.
 	}
 }

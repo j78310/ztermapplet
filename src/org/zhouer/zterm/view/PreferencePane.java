@@ -54,12 +54,9 @@ public class PreferencePane extends JOptionPane implements
 	private DefaultMutableTreeNode rootNode, generalNode, connectionNode,
 			appearanceNode, fontNode;
 
-	private final JPanel welcomePanel;
-	
+	private final JPanel welcomePanel;	
 	private final JLabel welcomeLabel;
-	
-	private final JTextArea welcomeTextArea;
-	
+	private final JTextArea welcomeTextArea;	
 	private final JScrollPane welcomeScrollPane;
 
 	/**

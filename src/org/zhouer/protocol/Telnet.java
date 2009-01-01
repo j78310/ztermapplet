@@ -39,6 +39,7 @@ public class Telnet implements Protocol {
 
 	public final static byte WONT = (byte) 252;
 	public final static byte WS = 31; // Window Size
+	
 	// 從下層來的資料暫存起來
 	private final byte[] buf;
 	private int bufpos, buflen;
@@ -50,9 +51,9 @@ public class Telnet implements Protocol {
 	private Socket sock;
 	private String terminal_type;
 
-	public Telnet(final String h, final int p) {
-		this.host = h;
-		this.port = p;
+	public Telnet(final String host, final int port) {
+		this.host = host;
+		this.port = port;
 
 		// 預設的 terminal type 是 vt100
 		this.terminal_type = "vt100";
@@ -64,8 +65,6 @@ public class Telnet implements Protocol {
 
 	public boolean connect() {
 		try {
-			// System.out.println("Connecting to host: " + host + ", port: " +
-			// port + " ...");
 			this.sock = new Socket(this.host, this.port);
 
 			// disable Nagle's algorithm
@@ -80,13 +79,10 @@ public class Telnet implements Protocol {
 			this.os = this.sock.getOutputStream();
 		} catch (final UnknownHostException e) {
 			// 可能是未連線或連線位置錯誤
-			// e.printStackTrace();
-			System.out
-					.println("Caught UnknownHostException in Telnet::connect()");
+			e.printStackTrace();
 			return false;
 		} catch (final IOException e) {
-			// e.printStackTrace();
-			System.out.println("Caught IOException in Telnet::connect()");
+			e.printStackTrace();
 			return false;
 		}
 
@@ -94,7 +90,7 @@ public class Telnet implements Protocol {
 	}
 
 	public void disconnect() {
-		// 如果跟本沒連線成功或是連線已被關閉則不做任何事。
+		// 如果根本沒連線成功或是連線已被關閉則不做任何事。
 		if ((this.sock == null) || this.sock.isClosed()) {
 			return;
 		}
@@ -104,14 +100,11 @@ public class Telnet implements Protocol {
 			this.os.close();
 			this.sock.close();
 		} catch (final IOException e) {
-			// e.printStackTrace();
-			System.out.println("Caught IOException in Network::disconnect()");
+			e.printStackTrace();
 		}
 
-		if (this.sock.isClosed()) {
-			// System.out.println( "Connection closed!");
-		} else {
-			System.out.println("Disconnect failed!");
+		if (!this.sock.isClosed()) {
+			System.err.println("Disconnect failed!");
 		}
 	}
 
@@ -142,9 +135,6 @@ public class Telnet implements Protocol {
 		}
 		return this.sock.isConnected();
 	}
-
-	// 使用 buffer
-	// fillBuf(), read(), readByes( byte[] )
 
 	public int readByte() throws IOException {
 		return this.read();
@@ -357,48 +347,5 @@ public class Telnet implements Protocol {
 		buf[5 + size] = Telnet.SE;
 
 		this.writeBytes(buf, 0, size + 6);
-	}
-}
-
-class TelnetInputStream extends InputStream {
-	private final Telnet telnet;
-
-	public TelnetInputStream(final Telnet tel) {
-		this.telnet = tel;
-	}
-
-	public int read() throws IOException {
-		return this.telnet.readByte();
-	}
-
-	public int read(final byte[] buf) throws IOException {
-		return this.telnet.readBytes(buf);
-	}
-
-	public int read(final byte[] buf, final int offset, final int length)
-			throws IOException {
-		return this.telnet.readBytes(buf, offset, length);
-	}
-}
-
-class TelnetOutputStream extends OutputStream {
-	private final Telnet telnet;
-
-	public TelnetOutputStream(final Telnet tel) {
-		this.telnet = tel;
-	}
-
-	public void write(final byte[] buf) throws IOException {
-		this.telnet.writeBytes(buf);
-	}
-
-	public void write(final byte[] buf, final int offset, final int length)
-			throws IOException {
-		this.telnet.writeBytes(buf, offset, length);
-	}
-
-	public void write(final int b) throws IOException {
-		// java doc: The 24 high-order bits of b are ignored.
-		this.telnet.writeByte((byte) b);
 	}
 }

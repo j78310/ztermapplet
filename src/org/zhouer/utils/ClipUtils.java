@@ -16,7 +16,7 @@ import java.io.IOException;
 public class ClipUtils {
 	
 	private ClipUtils() {
-		// This class shouldn't be instanced.
+		// This class shouldn't be instantialized.
 	}
 	
 	/**
