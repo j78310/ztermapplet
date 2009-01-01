@@ -27,7 +27,7 @@ import org.zhouer.zterm.view.ZTerm;
  * Model is collection of behaviors requested by controllers which registered in
  * view, ZTerm applet.
  * 
- * @author h45
+ * @author Chin-Chang Yang
  */
 public class Model {
 
@@ -51,16 +51,12 @@ public class Model {
 	}
 
 	private String colorText = null; // 複製下來的彩色文字
-
 	private final Resource resource;
-
-	private final Sessions sessions;
-
+	private final SessionPool sessions;
 	private String copiedLink; // 按滑鼠右鍵時滑鼠下的連結
-
 	private ZTerm view;
-
 	private PreferencePane preferencePane;
+	private SiteManager siteManager;
 
 	public String getCopiedLink() {
 		return copiedLink;
@@ -71,9 +67,10 @@ public class Model {
 	}
 
 	private Model() {
-		sessions = Sessions.getInstance(); // 各個連線
+		sessions = SessionPool.getInstance(); // 各個連線
 		resource = Resource.getInstance(); // 各種設定
-		preferencePane = new PreferencePane();
+		preferencePane = new PreferencePane();		
+		siteManager = new SiteManager();
 	}
 
 	public void setLocale(final Locale locale) {
@@ -473,7 +470,6 @@ public class Model {
 	 * Show site manager dialog.
 	 */
 	public void showSiteManager() {
-		final SiteManager siteManager = new SiteManager();
 		final JDialog dialog = siteManager.createDialog(view, "Site Manager");
 		dialog.setSize(600, 350);
 		dialog.setVisible(true);
@@ -545,7 +541,7 @@ public class Model {
 
 		if (session != null) {
 			// 切換到 alert 的 session 時設定狀態為 connected, 以取消 bell.
-			if (session.state == SessionPane.STATE_ALERT) {
+			if (session.getState() == SessionPane.STATE_ALERT) {
 				session.setState(SessionPane.STATE_CONNECTED);
 			}
 
@@ -602,9 +598,7 @@ public class Model {
 			// Default 就是 telnet
 			protocol = Protocol.TELNET;
 			if (position != -1) {
-				if (url.substring(0, position).equalsIgnoreCase(Protocol.SSH)) {
-					protocol = Protocol.SSH;
-				} else if (url.substring(0, position).equalsIgnoreCase(
+				if (url.substring(0, position).equalsIgnoreCase(
 						Protocol.TELNET)) {
 					protocol = Protocol.TELNET;
 				} else {
@@ -648,6 +642,7 @@ public class Model {
 		InternationalMessages.restartBundle();
 		this.view.updateText();
 		this.preferencePane = new PreferencePane();
+		siteManager = new SiteManager();
 	}
 	
 	/**

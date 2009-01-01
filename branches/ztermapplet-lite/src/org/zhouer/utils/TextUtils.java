@@ -6,7 +6,7 @@ import java.util.Iterator;
 public class TextUtils {
 	
 	private TextUtils() {
-		// This class shouldn't be instanced.
+		// This class shouldn't be instantialized.
 	}
 	
 	public static String BSStringToString(final String s) {

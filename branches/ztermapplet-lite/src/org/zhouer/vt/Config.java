@@ -23,8 +23,6 @@ public interface Config {
 	public static final String TERMINAL_SCROLLS = "terminal.scrolls";
 
 	public boolean getBooleanValue(String key);
-
 	public int getIntValue(String key);
-
 	public String getStringValue(String key);
 }

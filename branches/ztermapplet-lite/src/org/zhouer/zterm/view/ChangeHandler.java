@@ -13,7 +13,6 @@ import org.zhouer.zterm.model.Model;
 public class ChangeHandler implements ChangeListener {
 
 	private Model model;
-
 	private ZTerm view;
 
 	/**

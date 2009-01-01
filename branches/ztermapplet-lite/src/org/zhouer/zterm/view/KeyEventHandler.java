@@ -13,7 +13,6 @@ import org.zhouer.zterm.model.Model;
 public class KeyEventHandler implements KeyEventDispatcher {
 
 	private Model model;
-
 	private ZTerm view;
 
 	public boolean dispatchKeyEvent(final KeyEvent keyEvent) {

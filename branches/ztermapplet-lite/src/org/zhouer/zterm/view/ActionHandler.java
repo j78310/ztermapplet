@@ -16,9 +16,7 @@ import org.zhouer.zterm.model.Site;
 public class ActionHandler implements ActionListener {
 
 	private Model model;
-
 	private final Resource resource;
-
 	private ZTerm view;
 
 	/**
@@ -33,6 +31,7 @@ public class ActionHandler implements ActionListener {
 		final Object source = ae.getSource();
 		model.requestFocusToCurrentSession();
 		
+		// TODO 減少 IF-ELSE 結構以提升效能，如：多個 Handler 實體。
 		if (source == this.view.openItem) {
 			this.model.open();
 		} else if (source == this.view.reopenItem) {
