@@ -12,7 +12,9 @@ import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.util.NoSuchElementException;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.JComponent;
@@ -73,7 +75,6 @@ public class VT100 extends JComponent {
 	private static final byte BOLD = 1;
 	private static final byte CURSOR = 2;
 	private static Color cursorColor = Color.GREEN;
-	private final static boolean DEBUG = false;
 
 	private static byte defAttr = 0;
 
@@ -115,7 +116,6 @@ public class VT100 extends JComponent {
 	// 轉碼用
 	private final Convertor conv;
 
-	private int debug_counter = 0;
 	private String emulation;
 
 	private String encoding;
@@ -147,9 +147,9 @@ public class VT100 extends JComponent {
 	private int nvtBufPos, nvtBufLen;
 
 	private final Application parent;
-	private Object repaintLock;
+	
 	// 記錄螢幕上何處需要 repaint
-	private FIFOSet repaintSet;
+	private List repaintSet;
 
 	// 各種參數
 	private final Config resource;
@@ -495,14 +495,38 @@ public class VT100 extends JComponent {
 
 		// 至此應該所有的初始化動作都完成了
 		init_ready = true;
-
-		while (!parent.isClosed()) {
-			parse();
-
-			// buffer 裡的東西都處理完才重繪
-			if (isBufferEmpty()) {
-				this.repaint();
+		
+		Thread urlChecker = new Thread() {
+			public void run() {
+				while (true) {
+					try {
+						synchronized(this) {
+							wait();
+						}
+					} catch (InterruptedException e) {
+						// 檢查在螢幕上面的 URL 連結
+						checkURLOnScreen();
+					}					
+				}
 			}
+		};
+		
+		urlChecker.start();
+
+		try {
+			while (!parent.isClosed()) {
+				parse();
+
+				// buffer 裡的東西都處理完才重繪
+				if (isBufferEmpty()) {
+					this.repaint();
+					urlChecker.interrupt();
+				}
+			}
+		} catch (IOException e) {
+			// e.printStackTrace();
+			// 可能是正常中斷，也可能是異常中斷
+			parent.close(true);
 		}
 	}
 
@@ -809,9 +833,6 @@ public class VT100 extends JComponent {
 		if (!parent.isTabForeground() || !init_ready) {
 			return;
 		}
-
-		// 檢查在螢幕上面的 URL 連結
-		checkURLOnScreen();
 		
 		// TODO: 考慮 draw 是否一定要擺在這邊，或是是否只在這裡呼叫？
 		// 偶爾呼叫一次而不只是在顯示前才呼叫應該可以增進顯示速度。
@@ -937,11 +958,9 @@ public class VT100 extends JComponent {
 
 		while (!repaintSet.isEmpty()) {
 			// 取得下一個需要重繪的位置
-			synchronized (repaintLock) {
-				v = repaintSet.remove();
-				prow = v >> 8;
-				pcol = v & 0xff;
-			}
+			v = ((Integer) repaintSet.remove(0)).intValue();
+			prow = v >> 8;
+			pcol = v & 0xff;
 
 			// 取得待重繪的字在畫面上的位置
 			// 加上捲動的判斷
@@ -1118,8 +1137,9 @@ public class VT100 extends JComponent {
 	 * 取得下一個需要被處理的 byte
 	 * 
 	 * @return
+	 * @throws IOException 
 	 */
-	private byte getNextByte() {
+	private byte getNextByte() throws IOException {
 		// buffer 用光了，再跟下層拿。
 		// 應該用 isBufferEmpty() 判斷的，但為了效率直接判斷。
 		if (nvtBufPos == nvtBufLen) {
@@ -1157,8 +1177,7 @@ public class VT100 extends JComponent {
 
 		// 初始化記載重繪位置用 FIFOSet
 		// XXX: 假設 column 數小於 256
-		repaintSet = new FIFOSet(totalrow << 8);
-		repaintLock = new Object();
+		repaintSet = new LinkedList();
 
 		for (i = 0; i < totalrow; i++) {
 			for (j = 0; j < totalcol; j++) {
@@ -1500,18 +1519,8 @@ public class VT100 extends JComponent {
 		return sb.toString();
 	}
 
-	private void parse() {
-		byte b;
-
-		b = getNextByte();
-
-		if (DEBUG) {
-			System.out.print((char) b);
-
-			if (debug_counter++ % 100 == 99) {
-				System.out.println();
-			}
-		}
+	private void parse() throws IOException {
+		byte b = getNextByte();
 
 		// 先把原來的游標位置存下來
 		lcol = ccol;
@@ -1551,7 +1560,7 @@ public class VT100 extends JComponent {
 		}
 	}
 
-	private void parse_control(final byte b) {
+	private void parse_control(final byte b) throws IOException {
 		switch (b) {
 		case 0: // NUL (Null)
 			// TODO:
@@ -1634,7 +1643,7 @@ public class VT100 extends JComponent {
 		}
 	}
 
-	private void parse_csi() {
+	private void parse_csi() throws IOException {
 		int i, argc;
 		int arg;
 		final int[] argv = new int[256];
@@ -1811,7 +1820,7 @@ public class VT100 extends JComponent {
 		}
 	}
 
-	private void parse_esc() {
+	private void parse_esc() throws IOException {
 		byte b;
 
 		b = getNextByte();
@@ -1852,7 +1861,7 @@ public class VT100 extends JComponent {
 		}
 	}
 
-	private void parse_scs(final byte a) {
+	private void parse_scs(final byte a) throws IOException {
 		byte b;
 		// TODO:
 		b = getNextByte();
@@ -2073,9 +2082,7 @@ public class VT100 extends JComponent {
 		}
 
 		final int prow = physicalRow(row);
-		synchronized (repaintLock) {
-			repaintSet.add((prow << 8) | (col - 1));
-		}
+		repaintSet.add(new Integer((prow << 8) | (col - 1)));
 	}
 
 	/**
@@ -2090,66 +2097,6 @@ public class VT100 extends JComponent {
 			return;
 		}
 
-		synchronized (repaintLock) {
-			repaintSet.add((prow << 8) | pcol);
-		}
-	}
-}
-
-class FIFOSet {
-	boolean[] contain;
-	int front, rear;
-	int[] set;
-
-	/**
-	 * @param range
-	 *            Set 的值域 1...(range - 1)
-	 */
-	public FIFOSet(final int range) {
-		front = rear = 0;
-
-		// 假設最多 256 column
-		contain = new boolean[range];
-		set = new int[range];
-
-		for (int i = 0; i < contain.length; i++) {
-			contain[i] = false;
-		}
-	}
-
-	public void add(final int v) {
-		if (contain[v] == true) {
-			return;
-		}
-
-		// XXX: 沒有檢查空間是否足夠
-
-		set[rear] = v;
-		contain[v] = true;
-
-		if (++rear == set.length) {
-			rear = 0;
-		}
-	}
-
-	public boolean isEmpty() {
-		return (front == rear);
-	}
-
-	public int remove() {
-		int v;
-
-		if (front == rear) {
-			throw new NoSuchElementException();
-		}
-
-		v = set[front];
-		contain[v] = false;
-
-		if (++front == set.length) {
-			front = 0;
-		}
-
-		return v;
+		repaintSet.add(new Integer((prow << 8) | pcol));
 	}
 }
