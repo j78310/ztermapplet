@@ -1,5 +1,7 @@
 package org.zhouer.protocol;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -76,8 +78,8 @@ public class Telnet implements Protocol {
 			// 設定 keep alive
 			this.sock.setKeepAlive(true);
 
-			this.is = this.sock.getInputStream();
-			this.os = this.sock.getOutputStream();
+			this.is = new BufferedInputStream(this.sock.getInputStream());
+			this.os = new BufferedOutputStream(this.sock.getOutputStream());
 		} catch (final UnknownHostException e) {
 			// 可能是未連線或連線位置錯誤
 			// e.printStackTrace();

@@ -296,19 +296,8 @@ public class SessionPane extends JPanel implements Runnable, Application,
 		this.vt.pasteText(str);
 	}
 
-	/*
-	 * 自己的
-	 */
-
-	public int readBytes(final byte[] buf) {
-		try {
-			return this.is.read(buf);
-		} catch (final IOException e) {
-			// e.printStackTrace();
-			// 可能是正常中斷，也可能是異常中斷，在下層沒有區分
-			this.close(true);
-			return -1;
-		}
+	public int readBytes(final byte[] buf) throws IOException {
+		return this.is.read(buf);
 	}
 
 	public void remove() {
