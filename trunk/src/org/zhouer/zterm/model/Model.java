@@ -92,7 +92,7 @@ public class Model {
 
 		while (favoriteIterator.hasNext()) {
 			final Site site = (Site) favoriteIterator.next();
-			if (site.autoconnect) {
+			if (site.isAutoconnect()) {
 				// XXX: here's magic number, -1.
 				this.connect(site, -1);
 			}
@@ -275,8 +275,8 @@ public class Model {
 		siteIterator = resource.getFavorites().iterator();
 		while (siteIterator.hasNext()) {
 			site = (Site) siteIterator.next();
-			if ((site.name.indexOf(keyWordSite) != -1)
-					|| (site.alias.indexOf(keyWordSite) != -1)
+			if ((site.getName().indexOf(keyWordSite) != -1)
+					|| (site.getAlias().indexOf(keyWordSite) != -1)
 					|| (site.getURL().indexOf(keyWordSite) != -1)) {
 				candidateSites.addElement(site);
 			}
@@ -589,7 +589,7 @@ public class Model {
 
 		if (session != null) {
 			// 切換到 alert 的 session 時設定狀態為 connected, 以取消 bell.
-			if (session.state == SessionPane.STATE_ALERT) {
+			if (session.getState() == SessionPane.STATE_ALERT) {
 				session.setState(SessionPane.STATE_CONNECTED);
 			}
 
