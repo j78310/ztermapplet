@@ -140,7 +140,7 @@ public class Resource implements Config {
 		while (iter.hasNext()) {
 			fa = (Site) iter.next();
 			// 尋找時可用 name 或是 alias
-			if (id.equalsIgnoreCase(fa.name) || id.equalsIgnoreCase(fa.alias)) {
+			if (id.equalsIgnoreCase(fa.getName()) || id.equalsIgnoreCase(fa.getAlias())) {
 				return fa;
 			}
 		}

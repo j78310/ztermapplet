@@ -73,7 +73,7 @@ public class SessionPane extends JPanel implements Runnable, Application,
 	private static final long serialVersionUID = 2180544188833033537L;
 	
 	// 連線狀態
-	public int state;
+	private int state;
 
 	// 防閒置用
 	private boolean antiidle;
@@ -481,5 +481,14 @@ public class SessionPane extends JPanel implements Runnable, Application,
 		}
 
 		this.writeBytes(tmp, 0, count);
+	}
+
+	/**
+	 * Getter of state
+	 *
+	 * @return the state
+	 */
+	public int getState() {
+		return state;
 	}
 }

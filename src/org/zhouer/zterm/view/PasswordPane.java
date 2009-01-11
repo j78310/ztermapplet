@@ -19,8 +19,8 @@ import javax.swing.SwingUtilities;
 public class PasswordPane extends JOptionPane {
 	private static final long serialVersionUID = 475389458121763833L;
 
-	protected JPasswordField passField;
-	protected JLabel passLabel;
+	private JPasswordField passField;
+	private JLabel passLabel;
 
 	/**
 	 * Constructor with a prompt
@@ -56,7 +56,7 @@ public class PasswordPane extends JOptionPane {
 		// 建立把焦點放在密碼輸入欄位中的工作
 		final Runnable focusPasswordField = new Runnable() {
 			public void run() {
-				passwordPane.passField.requestFocusInWindow();
+				passwordPane.requestFocusInField();
 			}
 		};
 		
@@ -100,5 +100,12 @@ public class PasswordPane extends JOptionPane {
 	 */
 	public String getPassword() {
 		return String.valueOf(this.passField.getPassword());
+	}
+	
+	/**
+	 * Request focus in the password field.
+	 */
+	public void requestFocusInField() {
+		passField.requestFocusInWindow();
 	}
 }

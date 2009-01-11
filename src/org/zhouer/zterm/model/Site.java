@@ -11,49 +11,49 @@ import org.zhouer.utils.TextUtils;
 /**
  * Site is preference management or said collection of preference set by user.
  * 
- * @author h45
+ * @author Chin-Chang Yang
  */
 public class Site implements Comparable {
 
+	public final static String DEFAULT_EMULATION = "vt100"; //$NON-NLS-1$
+	public final static String DEFAULT_ENCODING = "Big5"; //$NON-NLS-1$
+	public final static String DEFAULT_PROTOCOL = Protocol.TELNET;
+
 	// 別名
-	protected String alias;
+	private String alias;
 
 	// 自動連線
-	protected boolean autoconnect;
+	private boolean autoconnect;
 	// 連線後自動登入
-	protected boolean autologin;
-
-	protected final String defEmulation = "vt100"; //$NON-NLS-1$
-
-	protected final String defEncoding = "Big5"; //$NON-NLS-1$
-	protected final String defProtocol = Protocol.TELNET;
+	private boolean autologin;
 
 	// 終端機模擬
-	protected String emulation;
+	private String emulation;
 	// 文字編碼
-	protected String encoding;
+	private String encoding;
 
 	// hostname and port
-	protected String host;
+	private String host;
+	
 	// 最近連線時間。
-	protected long lastvisit;
+	private long lastvisit;
 
 	// 識別名稱
-	protected String name;
+	private String name;
 
-	protected int port;
+	private int port;
 
 	// 登入前以及登入後該自動輸入的字串。
-	protected String prelogin, postlogin;
+	// private String prelogin, postlogin;
 
 	// 通訊協定 (telnet or ssh)
-	protected String protocol;
+	private String protocol;
 
 	// 連線總次數
-	protected int total;
+	private int total;
 
 	// 使用者帳號、密碼及其提示字串。
-	protected String usernameprompt, username, userpassprompt, userpass;
+	// private String usernameprompt, username, userpassprompt, userpass;
 
 	/**
 	 * 沒有任何參數的 Site constructor
@@ -80,7 +80,7 @@ public class Site implements Comparable {
 		if (m.containsKey("protocol")) { //$NON-NLS-1$
 			this.protocol = (String) m.get("protocol"); //$NON-NLS-1$
 		} else {
-			this.protocol = this.defProtocol;
+			this.protocol = DEFAULT_PROTOCOL;
 		}
 
 		if (m.containsKey("alias")) { //$NON-NLS-1$
@@ -92,13 +92,13 @@ public class Site implements Comparable {
 		if (m.containsKey("encoding")) { //$NON-NLS-1$
 			this.encoding = (String) m.get("encoding"); //$NON-NLS-1$
 		} else {
-			this.encoding = this.defEncoding;
+			this.encoding = DEFAULT_ENCODING;
 		}
 
 		if (m.containsKey("emulation")) { //$NON-NLS-1$
 			this.emulation = (String) m.get("emulation"); //$NON-NLS-1$
 		} else {
-			this.emulation = this.defEmulation;
+			this.emulation = DEFAULT_EMULATION;
 		}
 
 		if (m.containsKey("lastvisit")) { //$NON-NLS-1$
@@ -148,8 +148,8 @@ public class Site implements Comparable {
 
 		// 以下使用預設值
 		this.alias = ""; //$NON-NLS-1$
-		this.encoding = this.defEncoding;
-		this.emulation = this.defEmulation;
+		this.encoding = DEFAULT_ENCODING;
+		this.emulation = DEFAULT_EMULATION;
 		this.lastvisit = 0;
 		this.total = 0;
 		this.autoconnect = false;
