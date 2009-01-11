@@ -17,7 +17,7 @@ public class UrlRecognizer {
 	 * @param protocol the protocol to check
 	 * @param message message that contains the protocol
 	 * @param index index of message to be detected whether it is part of the protocol
-	 * @return true, if the character corresponding to the index in the massage is a part of the protocol; false, otherwise. 
+	 * @return true, if the character corresponding to the index in the message is a part of the protocol; false, otherwise. 
 	 */
 	public static boolean partialMatch(final String protocol, final String message, final int index) {
 		// 1. message: null 2. message: "words" 3. message: "http://test http://test" 4. message: "http://test/測試"  5. message: "http://test" 
@@ -76,7 +76,7 @@ public class UrlRecognizer {
 	 * 
 	 * @param message message that contains HTTP
 	 * @param index index of message to be detected whether it is part of HTTP
-	 * @return true, if the character corresponding to the index in the massage is a part of HTTP; false, otherwise. 
+	 * @return true, if the character corresponding to the index in the message is a part of HTTP; false, otherwise. 
 	 */
 	public static boolean isPartOfHttp(final String message, final int index) {
 		return partialMatch("http", message, index);
@@ -86,7 +86,7 @@ public class UrlRecognizer {
 	 * Detect a position of a message is a part of FTP.
 	 * @param message message that contains FTP
 	 * @param index index of message to be detected whether it is part of FTP
-	 * @return true, if the character corresponding to the index in the massage is a part of FTP; false, otherwise. 
+	 * @return true, if the character corresponding to the index in the message is a part of FTP; false, otherwise. 
 	 */
 	public static boolean isPartOfFtp(final String message, final int index) {
 		return partialMatch("ftp", message, index);
@@ -97,9 +97,20 @@ public class UrlRecognizer {
 	 * 
 	 * @param message message that contains HTTPS
 	 * @param index index of message to be detected whether it is part of HTTPS
-	 * @return true, if the character corresponding to the index in the massage is a part of HTTPS; false, otherwise. 
+	 * @return true, if the character corresponding to the index in the message is a part of HTTPS; false, otherwise. 
 	 */
 	public static boolean isPartOfHttps(final String message, final int index) {
 		return partialMatch("https", message, index);
+	}
+	
+	/**
+	 * Detect a position of a message is a part of TELNET.
+	 * 
+	 * @param message message that may contain TELNET
+	 * @param index index of message to be detected whether it is part of TELNET
+	 * @return true, if the character at the index of the message is a part of TELNET; false, otherwise. 
+	 */
+	public static boolean isPartOfTelnet(final String message, final int index) {
+		return partialMatch("telnet", message, index);
 	}
 }
