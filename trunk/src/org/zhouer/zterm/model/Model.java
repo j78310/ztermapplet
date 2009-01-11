@@ -130,8 +130,29 @@ public class Model {
 	 * @param index
 	 *            the index of session to be showed on the screen.
 	 */
-	public void changeSession(final int index) {
-		view.changeSession(index);
+	public void switchSessionTo(final int index) {
+		view.switchSessionTo(index);
+	}
+	
+	/**
+	 * Switch current tab page to the next session. 
+	 */
+	public void switchToNextSession() {
+		view.switchToNextSession();
+	}
+	
+	/**
+	 * Switch current tab page to the previous session. 
+	 */
+	public void switchToPreviousSession() {
+		view.switchToPreviousSession();
+	}
+	
+	/**
+	 * Switch current tab page to the last session.
+	 */
+	public void switchToLastSession() {
+		view.switchToLastSession();
 	}
 	
 	/**
@@ -364,6 +385,13 @@ public class Model {
 	 */
 	public void reopenSession(final SessionPane session) {
 		view.reopenSession(session);
+	}
+	
+	/**
+	 * Reopen current session.
+	 */
+	public void reopenCurrentSession() {
+		view.reopenCurrentSession();
 	}
 
 	/**
@@ -671,6 +699,7 @@ public class Model {
 	 */
 	public void hideMenuBar() {
 		view.removeMenuBar();
+		view.updateSize();
 	}
 	
 	/**
@@ -678,5 +707,6 @@ public class Model {
 	 */
 	public void showMenuBar() {
 		view.showMenuBar();
+		view.updateSize();
 	}
 }

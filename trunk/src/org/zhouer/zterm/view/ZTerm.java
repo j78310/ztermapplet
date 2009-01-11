@@ -30,35 +30,34 @@ import org.zhouer.zterm.model.Site;
 /**
  * ZTerm is view for Java applet, and also entrance of program.
  * 
- * @author h45
+ * @author Chin-Chang Yang
  */
 public class ZTerm extends JApplet {
 
 	private static final long	serialVersionUID	= 1L;
 
-	protected BufferedImage			terminalImage;
-	protected JMenuItem				big5Item, utf8Item, copyItem, pasteItem,
+	private BufferedImage			terminalImage;
+	private JMenuItem				big5Item, utf8Item, copyItem, pasteItem,
 			colorCopyItem, colorPasteItem, openItem, closeItem, reopenItem,
 			popupCopyItem, popupPasteItem, popupColorCopyItem,
 			popupColorPasteItem, popupCopyLinkItem, popupCloseItem, preferenceItem,
 			siteManagerItem, usageItem, faqItem, aboutItem, hideMenuBarItem,
 			showMenuBarItem;
-	protected JMenuItem[]			favoriteItems, languageItems;
+	private JMenuItem[]			favoriteItems, languageItems;
 
 	// popup 選單
-	protected JPopupMenu			popupMenu;
+	private JPopupMenu			popupMenu;
 
 	// 分頁
-	protected JTabbedPane			tabbedPane;
+	private JTabbedPane			tabbedPane;
 
 	// 分頁 icon
-	protected final ImageIcon		tryingIcon, connectedIcon, closedIcon,
+	private final ImageIcon		tryingIcon, connectedIcon, closedIcon,
 			bellIcon;
 
 	private final ActionHandler		actionController	= new ActionHandler();
 	private final ChangeHandler		changeController	= new ChangeHandler();
 	private final ComponentHandler	componentController	= new ComponentHandler();
-	private final MouseHandler		mouseController		= new MouseHandler();
 	private final KeyEventHandler	keyEventController	= new KeyEventHandler();
 
 	private JMenu					fileMenu, editMenu, viewMenu, toolsMenu,
@@ -101,7 +100,7 @@ public class ZTerm extends JApplet {
 	 * @param index
 	 *            the index of session to be showed on the screen.
 	 */
-	public void changeSession(final int index) {
+	public void switchSessionTo(final int index) {
 		if ((0 <= index) && (index < tabbedPane.getTabCount())) {
 
 			// 取得焦點的工作
@@ -188,6 +187,7 @@ public class ZTerm extends JApplet {
 			favoriteItems[i] = new JMenuItem(fa.getName());
 			favoriteItems[i].setToolTipText(fa.getHost() + ":" + fa.getPort()); //$NON-NLS-1$
 			favoriteItems[i].addActionListener(actionController);
+			favoriteItems[i].setActionCommand(ActionCommand.CONNECT_COMMAND);
 			historyMenu.add(favoriteItems[i]);
 		}
 	}
@@ -258,6 +258,13 @@ public class ZTerm extends JApplet {
 				this.connect(session.getSite(), -1);
 			}
 		}
+	}
+	
+	/**
+	 * Reopen selected session.
+	 */
+	public void reopenCurrentSession() {
+		reopenSession((SessionPane) tabbedPane.getSelectedComponent());
 	}
 
 	/**
@@ -416,16 +423,11 @@ public class ZTerm extends JApplet {
 		setVisible(true);
 
 		// 設定事件控制器的目標主題
-		actionController.setView(this);
 		actionController.setModel(model);
-		changeController.setView(this);
 		changeController.setModel(model);
-		keyEventController.setView(this);
 		keyEventController.setModel(model);
 		componentController.setView(this);
 		componentController.setModel(model);
-		mouseController.setView(this);
-		mouseController.setModel(model);
 
 		// 設定系統核心的目標介面
 		model.setView(this);
@@ -592,7 +594,6 @@ public class ZTerm extends JApplet {
 		tabbedPane = new JTabbedPane(SwingConstants.TOP,
 			JTabbedPane.SCROLL_TAB_LAYOUT);
 		tabbedPane.addChangeListener(changeController);
-		tabbedPane.addMouseListener(mouseController);
 		getContentPane().add(tabbedPane, BorderLayout.CENTER);
 	}
 
@@ -608,5 +609,26 @@ public class ZTerm extends JApplet {
 			menuBar.setVisible(true);
 			popupMenu.remove(showMenuBarItem);
 		}
+	}
+
+	/**
+	 * Switch current tab page to the next session.
+	 */
+	public void switchToNextSession() {
+		switchSessionTo(tabbedPane.getSelectedIndex() + 1);
+	}
+
+	/**
+	 * Switch current tab page to the previous session. 
+	 */
+	public void switchToPreviousSession() {
+		switchSessionTo(tabbedPane.getSelectedIndex() - 1);
+	}
+
+	/**
+	 * Switch current tab page to the last session. 
+	 */
+	public void switchToLastSession() {
+		switchSessionTo(tabbedPane.getTabCount() - 1);
 	}
 }
