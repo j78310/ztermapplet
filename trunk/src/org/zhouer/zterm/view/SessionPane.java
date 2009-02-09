@@ -77,7 +77,7 @@ public class SessionPane extends JPanel implements Runnable, Application,
 
 	// 防閒置用
 	private boolean antiidle;
-	private final Convertor conv;
+	private final Convertor conv = Convertor.getInstance();
 
 	// 這個 session 是否擁有一個 tab, 可能 session 還沒結束，但 tab 已被關閉。
 	private boolean hasTab;
@@ -106,7 +106,6 @@ public class SessionPane extends JPanel implements Runnable, Application,
 	public SessionPane(final Site site, final BufferedImage image) {
 		this.site = site;
 		this.resource = Resource.getInstance();
-		this.conv = Convertor.getInstance();
 		this.model = Model.getInstance();
 
 		// 設定擁有一個分頁
@@ -115,7 +114,7 @@ public class SessionPane extends JPanel implements Runnable, Application,
 		this.setBackground(Color.BLACK);
 
 		// VT100
-		this.vt = new VT100(this, this.resource, this.conv, image);
+		this.vt = new VT100(this, this.resource, image);
 
 		// FIXME: 是否應該在這邊設定？
 		this.vt.setEncoding(this.site.getEncoding());
@@ -172,6 +171,10 @@ public class SessionPane extends JPanel implements Runnable, Application,
 		}
 	}
 
+	/**
+	 * Close the connection.
+	 * @param fromRemote true, if disconnection from remote server; false, if disconnection from client user
+	 */
 	public void close(final boolean fromRemote) {
 		if (this.isClosed()) {
 			return;

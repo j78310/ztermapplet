@@ -25,46 +25,7 @@ import org.zhouer.utils.TextUtils;
 import org.zhouer.utils.UrlRecognizer;
 
 public class VT100 extends JComponent {
-	class RepaintTask implements ActionListener {
-		public void actionPerformed(final ActionEvent e) {
-			int prow;
-			boolean r = false;
-
-			text_blink_count++;
-			cursor_blink_count++;
-
-			// FIXME: magic number
-			// 游標閃爍
-			if (resource.getBooleanValue(Config.CURSOR_BLINK)) {
-				if (cursor_blink_count % 2 == 0) {
-					cursor_blink = !cursor_blink;
-					setRepaint(crow, ccol);
-					r = true;
-				}
-			}
-
-			// FIXME: magic number
-			// 文字閃爍
-			// 只需要檢查畫面上有沒有閃爍字，不需要全部都檢查
-			if (text_blink_count % 3 == 0) {
-				text_blink = !text_blink;
-				for (int i = 1; i <= maxrow; i++) {
-					for (int j = 1; j <= maxcol; j++) {
-						prow = physicalRow(i - scrolluprow);
-						if ((attributes[prow][j - 1] & VT100.BLINK) != 0) {
-							setRepaintPhysical(prow, j - 1);
-							r = true;
-						}
-					}
-				}
-			}
-
-			if (r) {
-				VT100.this.repaint();
-			}
-		}
-	}
-
+	
 	public static final int APPLICATION_KEYPAD = 2;
 
 	public static final int NUMERIC_KEYPAD = 1;
@@ -114,7 +75,7 @@ public class VT100 extends JComponent {
 	private int ccol, crow;
 	private byte cfgcolor, cbgcolor;
 	// 轉碼用
-	private final Convertor conv;
+	private final Convertor conv = Convertor.getInstance();
 
 	private String emulation;
 
@@ -182,7 +143,7 @@ public class VT100 extends JComponent {
 	private int textBufPos;
 
 	// 重繪用的 Timer
-	private Timer ti;
+	private Timer repaintTimer;
 	private int topmargin, buttommargin, leftmargin, rightmargin;
 	private int toprow; // 第一 row 所在位置
 
@@ -197,14 +158,18 @@ public class VT100 extends JComponent {
 	// 畫面的寬與高
 	private int width, height;
 
-	public VT100(final Application p, final Config c, final Convertor cv,
-			final BufferedImage b) {
+	/**
+	 * Constructor with an application, configuration, and an image
+	 * @param app application is the parent of VT100
+	 * @param config VT100 configuration
+	 * @param image VT100 screen
+	 */
+	public VT100(final Application app, final Config config, final BufferedImage image) {
 		super();
 
-		parent = p;
-		resource = c;
-		conv = cv;
-		bi = b;
+		parent = app;
+		resource = config;
+		bi = image;
 
 		// 初始化一些變數、陣列
 		initValue();
@@ -216,12 +181,10 @@ public class VT100 extends JComponent {
 		// TODO: 應該還有其他東西應該收尾
 
 		// 停止重繪用的 timer
-		ti.stop();
+		repaintTimer.stop();
 
 		// 停止反應來自使用者的事件
 		removeKeyListener(user);
-		removeMouseListener(user);
-		removeMouseMotionListener(user);
 	}
 
 	/**
@@ -475,6 +438,47 @@ public class VT100 extends JComponent {
 		parent.writeChars(cArr, 0, cArr.length);
 	}
 
+	/**
+	 * Repaint the VT100.
+	 */
+	public void repaint() {
+		int prow;
+		boolean r = false;
+
+		text_blink_count++;
+		cursor_blink_count++;
+
+		// FIXME: magic number
+		// 游標閃爍
+		if (resource.getBooleanValue(Config.CURSOR_BLINK)) {
+			if (cursor_blink_count % 2 == 0) {
+				cursor_blink = !cursor_blink;
+				setRepaint(crow, ccol);
+				r = true;
+			}
+		}
+
+		// FIXME: magic number
+		// 文字閃爍
+		// 只需要檢查畫面上有沒有閃爍字，不需要全部都檢查
+		if (text_blink_count % 3 == 0) {
+			text_blink = !text_blink;
+			for (int i = 1; i <= maxrow; i++) {
+				for (int j = 1; j <= maxcol; j++) {
+					prow = physicalRow(i - scrolluprow);
+					if ((attributes[prow][j - 1] & VT100.BLINK) != 0) {
+						setRepaintPhysical(prow, j - 1);
+						r = true;
+					}
+				}
+			}
+		}
+
+		if (r) {
+			super.repaint();
+		}
+	}
+	
 	/**
 	 * 重設選取區域
 	 */
@@ -1203,8 +1207,15 @@ public class VT100 extends JComponent {
 		init_ready = false;
 
 		// 啟動閃爍控制 thread
-		ti = new Timer(250, new RepaintTask());
-		ti.start();
+		final ActionListener repaintTask = new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				VT100.this.repaint();
+			}			
+		};
+		
+		repaintTimer = new Timer(250, repaintTask);
+		repaintTimer.start();
 
 		// 取消 focus traversal key, 這樣才能收到 tab.
 		setFocusTraversalKeysEnabled(false);
@@ -2099,4 +2110,5 @@ public class VT100 extends JComponent {
 
 		repaintSet.add(new Integer((prow << 8) | pcol));
 	}
+	
 }
