@@ -139,19 +139,19 @@ public class ZTerm extends JApplet {
 	 * Close current tab which is showing on the screen.
 	 */
 	public void closeCurrentTab() {
-		final SessionPane session = getCurrentSession();
+		final SessionPane sessionPanel = getCurrentSession();
 
-		if (session != null) {
+		if (sessionPanel != null) {
 
 			// 連線中則詢問是否要斷線
-			if (!session.isClosed()) {
+			if (!sessionPanel.isClosed()) {
 				if (model.showConfirm(
 					InternationalMessages.getString("ZTerm.Message_Confirm_Close"), InternationalMessages.getString("ZTerm.Title_Confirm_Close"), JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) { //$NON-NLS-1$ //$NON-NLS-2$
 					return;
 				}
 
 				// 通知 session 要中斷連線了
-				session.close(false);
+				sessionPanel.close(false);
 
 				if (!resource.getBooleanValue(Resource.REMOVE_MANUAL_DISCONNECT)) {
 					return;
@@ -159,10 +159,10 @@ public class ZTerm extends JApplet {
 			}
 
 			// 通知 session 要被移除了
-			session.remove();
+			sessionPanel.remove();
 
-			tabbedPane.remove(session);
-			model.getSessions().remove(session);
+			tabbedPane.remove(sessionPanel);
+			model.getSessions().remove(sessionPanel);
 
 			// 刪除分頁會影響分頁編號
 			model.updateTabTitle();
