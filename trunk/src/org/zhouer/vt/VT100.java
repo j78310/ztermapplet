@@ -157,6 +157,8 @@ public class VT100 extends JComponent {
 
 	// 畫面的寬與高
 	private int width, height;
+	
+	private UrlChecker urlChecker = UrlChecker.getInstance();
 
 	/**
 	 * Constructor with an application, configuration, and an image
@@ -504,30 +506,15 @@ public class VT100 extends JComponent {
 		}
 	}
 
+	/**
+	 * Launch every repaint process.
+	 */
 	public void run() {
 		// 連線後自動取得 focus
 		this.requestFocusInWindow();
 
 		// 至此應該所有的初始化動作都完成了
 		init_ready = true;
-		
-		// FIXME checker cannot be finalized and may create many zombie instances. 
-		Thread urlChecker = new Thread() {
-			public void run() {
-				while (true) {
-					try {
-						synchronized(this) {
-							wait();
-						}
-					} catch (InterruptedException e) {
-						// 檢查在螢幕上面的 URL 連結
-						checkURLOnScreen();
-					}					
-				}
-			}
-		};
-		
-		urlChecker.start();
 
 		try {
 			while (!parent.isClosed()) {
@@ -536,7 +523,8 @@ public class VT100 extends JComponent {
 				// buffer 裡的東西都處理完才重繪
 				if (isBufferEmpty()) {
 					this.repaint();
-					urlChecker.interrupt();
+					this.urlChecker.setVt100(this);
+					this.urlChecker.interrupt();
 				}
 			}
 		} catch (IOException e) {
@@ -864,7 +852,7 @@ public class VT100 extends JComponent {
 		parent.bell();
 	}
 	
-	private void checkURLOnScreen() {
+	public void checkURLOnScreen() {
 		for (int i = 0; i < maxrow; i++) {
 			final int prow = physicalRow(i - scrolluprow + 1);
 			final String message = String.valueOf(text[prow]);
@@ -1245,6 +1233,10 @@ public class VT100 extends JComponent {
 		addKeyListener(user);
 		addMouseListener(user);
 		addMouseMotionListener(user);
+		
+		if (!urlChecker.isAlive()) {
+			urlChecker.start();
+		}
 	}
 
 	private void initValue() {
