@@ -408,7 +408,7 @@ public class SessionPane extends JPanel implements Runnable, Application,
 		final Point p = this.vt.getLocationOnScreen();
 		String link;
 
-		if (this.vt.coverURL(x, y)) {
+		if (this.vt.isOverURL(x, y)) {
 			link = this.vt.getURL(x, y);
 		} else {
 			link = null;

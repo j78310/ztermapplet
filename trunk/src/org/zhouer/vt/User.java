@@ -197,7 +197,7 @@ public class User implements KeyListener, MouseListener, MouseMotionListener {
 	public void mouseClicked(final MouseEvent e) {
 		if (e.getButton() == MouseEvent.BUTTON1) {
 			// 左鍵
-			if (this.vt.coverURL(e.getX(), e.getY())) {
+			if (this.vt.isOverURL(e.getX(), e.getY())) {
 				// click
 				// 開啟瀏覽器
 				final String url = this.vt.getURL(e.getX(), e.getY());
@@ -258,7 +258,7 @@ public class User implements KeyListener, MouseListener, MouseMotionListener {
 	}
 
 	public void mouseMoved(final MouseEvent e) {
-		final boolean cover = this.vt.coverURL(e.getX(), e.getY());
+		final boolean cover = this.vt.isOverURL(e.getX(), e.getY());
 
 		// 只有滑鼠游標需改變時才 setCursor
 		if (this.isDefaultCursor && cover) {
