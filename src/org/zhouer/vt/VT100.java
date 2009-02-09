@@ -68,7 +68,7 @@ public class VT100 extends JComponent {
 
 	private byte[][] bgcolors; // 背景色
 	// 畫面
-	private BufferedImage bi;
+	private BufferedImage image;
 	// 目前的屬性及前景、背景色
 	private byte cattribute;
 	// 目前、上次、儲存的游標所在位址
@@ -169,7 +169,7 @@ public class VT100 extends JComponent {
 
 		parent = app;
 		resource = config;
-		bi = image;
+		this.image = image;
 
 		// 初始化一些變數、陣列
 		initValue();
@@ -188,13 +188,13 @@ public class VT100 extends JComponent {
 	}
 
 	/**
-	 * 滑鼠游標是否在網址上
+	 * 判斷 (x,y) 是否在網址上
 	 * 
-	 * @param x
-	 * @param y
-	 * @return
+	 * @param x x element of (x,y) of location of a mouse
+	 * @param y y element of (x,y) of location of a mouse
+	 * @return true if (x, y) is over a URL; false, otherwise
 	 */
-	public boolean coverURL(int x, int y) {
+	public boolean isOverURL(int x, int y) {
 		int c, r;
 		int prow;
 
@@ -214,23 +214,34 @@ public class VT100 extends JComponent {
 		return isurl[prow][c - 1];
 	}
 
-	public String getEmulation() {
+	/**
+	 * Getter of the emulation name
+	 * @return emulation
+	 */
+	public String getEmulationName() {
 		return emulation;
 	}
 
+	/**
+	 * Getter of the encoding
+	 * @return encoding
+	 */
 	public String getEncoding() {
 		return encoding;
 	}
 
+	/**
+	 * Getter of the keypad mode
+	 * @return keypadmode
+	 */
 	public int getKeypadMode() {
 		return keypadmode;
 	}
 
-	public Dimension getPreferredSize() {
-		// FIXME: magic number
-		return new Dimension(800, 600);
-	}
-
+	/**
+	 * Get the selected text with color.
+	 * @return the selected color text
+	 */
 	public String getSelectedColorText() {
 		// TODO: 這裡寫的不太好，應該再改進
 		int i, j, k, last;
@@ -282,12 +293,11 @@ public class VT100 extends JComponent {
 					}
 				}
 			}
-			if (true) {
-				a.addElement(new Byte((byte) 0));
-				b.addElement(new Byte((byte) 0x0d));
-				fg.addElement(new Byte(VT100.defFg));
-				bg.addElement(new Byte(VT100.defBg));
-			}
+			
+			a.addElement(new Byte((byte) 0));
+			b.addElement(new Byte((byte) 0x0d));
+			fg.addElement(new Byte(VT100.defFg));
+			bg.addElement(new Byte(VT100.defBg));
 		}
 
 		return makePasteText(a, b, fg, bg);
@@ -296,7 +306,7 @@ public class VT100 extends JComponent {
 	/**
 	 * 複製選取的文字
 	 * 
-	 * @return
+	 * @return the selected text
 	 */
 	public String getSelectedText() {
 		// TODO: 這裡寫的不太好，應該再改進
@@ -350,9 +360,9 @@ public class VT100 extends JComponent {
 	/**
 	 * 取得滑鼠游標處的網址
 	 * 
-	 * @param x
-	 * @param y
-	 * @returnp
+	 * @param x x element of (x,y) of location of a mouse
+	 * @param y y element of (x,y) of location of a mouse
+	 * @return the URL at (x,y)
 	 */
 	public String getURL(int x, int y) {
 		final StringBuffer sb = new StringBuffer();
@@ -377,6 +387,7 @@ public class VT100 extends JComponent {
 		for (i = c; (i > 0) && isurl[prow][i - 1]; i--) {
 			;
 		}
+		
 		for (i++; (i <= maxcol) && isurl[prow][i - 1]; i++) {
 			if (mbc[prow][i - 1] == 1) {
 				sb.append(text[prow][i - 1]);
@@ -390,7 +401,7 @@ public class VT100 extends JComponent {
 	 * Paste the messages as color text to the session.
 	 * 
 	 * @param str
-	 *            color text
+	 *            color text to paste
 	 */
 	public void pasteColorText(final String str) {
 		final byte[] tmp = new byte[str.length()];
@@ -405,7 +416,7 @@ public class VT100 extends JComponent {
 	/**
 	 * 貼上文字
 	 * 
-	 * @param str
+	 * @param str text to paste
 	 */
 	public void pasteText(String str) {
 		char[] cArr;
@@ -500,6 +511,7 @@ public class VT100 extends JComponent {
 		// 至此應該所有的初始化動作都完成了
 		init_ready = true;
 		
+		// FIXME checker cannot be finalized and may create many zombie instances. 
 		Thread urlChecker = new Thread() {
 			public void run() {
 				while (true) {
@@ -806,7 +818,7 @@ public class VT100 extends JComponent {
 	}
 
 	public void updateImage(final BufferedImage b) {
-		bi = b;
+		image = b;
 	}
 
 	/**
@@ -842,7 +854,7 @@ public class VT100 extends JComponent {
 		// 偶爾呼叫一次而不只是在顯示前才呼叫應該可以增進顯示速度。
 		draw();
 
-		g.drawImage(bi, 0, 0, null);
+		g.drawImage(image, 0, 0, null);
 	}
 
 	/**
@@ -948,7 +960,7 @@ public class VT100 extends JComponent {
 		Graphics2D g;
 		boolean show_cursor, show_text, show_underline;
 
-		g = bi.createGraphics();
+		g = image.createGraphics();
 		g.setFont(font);
 
 		// 畫面置中
