@@ -491,7 +491,7 @@ public class SiteManager extends JOptionPane {
 		// s.autologin = autoLoginCheckBox.isSelected();
 		this.updateFavorite(s);
 		this.resource.setFavorites(this.favorites);
-		this.resource.writeFile();
+		this.resource.writeRcFile();
 		Model.getInstance().updateFavoriteMenu();
 	}
 }

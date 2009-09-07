@@ -86,13 +86,13 @@ public class ActionHandler implements ActionListener {
 		} else if (source == this.view.utf8Item) {
 			this.model.updateEncoding("UTF-8"); //$NON-NLS-1$
 		} else if (source == this.view.languageItems[0]) {
-			this.model.setLocale(Locale.ENGLISH);
+			resource.setLocale(Locale.ENGLISH);
 			model.refreshMessages();
-			this.resource.writeFile();
+			this.resource.writeRcFile();
 		} else if (source == this.view.languageItems[1]) {
-			this.model.setLocale(Locale.TAIWAN);
+			resource.setLocale(Locale.TAIWAN);
 			model.refreshMessages();
-			this.resource.writeFile();
+			this.resource.writeRcFile();
 		} else {
 			// 我的最愛列表
 			for (int i = 0; i < this.view.favoriteItems.length; i++) {
