@@ -526,7 +526,7 @@ public class Model {
 	public void showPreference() {
 		final JDialog dialog = preferencePane.createDialog(view, Messages
 				.getString("Preference.Title"));
-		dialog.setSize(620, 300);
+		dialog.setSize(620, 350);
 		dialog.setVisible(true);
 
 		if (preferencePane.getValue() != null) {
