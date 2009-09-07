@@ -1,0 +1,5 @@
+1.16
+- Right-click tab title to show pop-up menu.
+
+Further work
+- Automatically save articles to files.
