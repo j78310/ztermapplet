@@ -241,7 +241,7 @@ public class VT100 extends JComponent {
 	 * 
 	 * @param x
 	 * @param y
-	 * @return
+	 * @return true if (x,y) is on a URL; false, otherwise
 	 */
 	public boolean coverURL(int x, int y) {
 		int c, r;
@@ -346,7 +346,7 @@ public class VT100 extends JComponent {
 	/**
 	 * 複製選取的文字
 	 * 
-	 * @return
+	 * @return the selected text
 	 */
 	public String getSelectedText() {
 		// TODO: 這裡寫的不太好，應該再改進
@@ -402,7 +402,7 @@ public class VT100 extends JComponent {
 	 * 
 	 * @param x
 	 * @param y
-	 * @returnp
+	 * @return the URL on (x,y)
 	 */
 	public String getURL(int x, int y) {
 		final StringBuffer sb = new StringBuffer();
