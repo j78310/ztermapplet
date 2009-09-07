@@ -34,7 +34,7 @@ import org.zhouer.vt.Config;
  * PreferencePane is an option pane which provides control items which enable
  * user to modify settings for ZTerm applet.
  * 
- * @author h45
+ * @author Chin-Chang Yang
  */
 public class PreferencePane extends JOptionPane implements
 		TreeSelectionListener {
@@ -118,6 +118,75 @@ public class PreferencePane extends JOptionPane implements
 		}
 		splitPanel.setDividerLocation(120);
 	}
+	
+	public void refreshText() {
+		refreshTreeNodeText();
+		refreshWelcomeText();
+		apperancePanel.refreshText();
+		connectionPanel.refreshText();
+		fontPanel.refreshText();
+		generalPanel.refreshText();
+	}
+	
+	/**
+	 * Refresh the text in the tree node.
+	 */
+	private void refreshTreeNodeText() {
+		rootNode.setUserObject(Messages
+				.getString("Preference.Tree_RootNode_Text")); //$NON-NLS-1$
+		generalNode.setUserObject(Messages
+				.getString("Preference.Tree_GeneralNode_Text")); //$NON-NLS-1$
+		connectionNode.setUserObject(Messages
+				.getString("Preference.Tree_ConnectionNode_Text")); //$NON-NLS-1$
+		appearanceNode.setUserObject(Messages
+				.getString("Preference.Tree_AppearanceNode_Text")); //$NON-NLS-1$
+		fontNode.setUserObject(Messages
+				.getString("Preference.Tree_FontNode_Text")); //$NON-NLS-1$
+	}
+
+	private void refreshWelcomeText() {
+		welcomeLabel.setText(Messages
+				.getString("Preference.Welcome_Label_Text"));
+		welcomeTextArea.setText(Messages
+				.getString("Preference.Welcome_Description_Text"));
+	}
+	
+	public void reloadSettings() {
+		resource.readRcFile();
+		generalPanel.browserField.setText(resource.getStringValue(Resource.EXTERNAL_BROWSER));
+		generalPanel.copyOnSelectCheckBox.setSelected(resource.getBooleanValue(Config.COPY_ON_SELECT));
+		generalPanel.clearAfterCopyCheckBox.setSelected(resource.getBooleanValue(Config.CLEAR_AFTER_COPY));
+		generalPanel.removeManualCheckBox.setSelected(resource.getBooleanValue(Resource.REMOVE_MANUAL_DISCONNECT));
+		generalPanel.linebreakCheckBox.setSelected(resource.getBooleanValue(Config.AUTO_LINE_BREAK));
+		generalPanel.breaklengthModel.setValue(resource.getIntValue(Config.AUTO_LINE_BREAK_LENGTH));
+		generalPanel.customBellCheckBox.setSelected(resource.getBooleanValue(Resource.USE_CUSTOM_BELL));
+		generalPanel.bellPathField.setText(resource.getStringValue(Resource.CUSTOM_BELL_PATH));
+		generalPanel.settingFileField.setText(resource.getStringValue(Resource.RESOURCE_LOCATION));
+		connectionPanel.autoReconnectCheckBox.setSelected(resource.getBooleanValue(Resource.AUTO_RECONNECT));
+		connectionPanel.reconnectTimeModel.setValue(resource.getIntValue(Resource.AUTO_RECONNECT_TIME));
+		connectionPanel.reconnectIntervalModel.setValue(resource.getIntValue(Resource.AUTO_RECONNECT_INTERVAL));
+		connectionPanel.antiIdleCheckBox.setSelected(resource.getBooleanValue(Resource.ANTI_IDLE));
+		connectionPanel.antiIdleModel.setValue(resource.getIntValue(Resource.ANTI_IDLE_INTERVAL));
+		connectionPanel.antiIdleStringField.setText(resource.getStringValue(Resource.ANTI_IDLE_STRING));
+		apperancePanel.systemLookFeelCheckBox.setSelected(resource.getBooleanValue(Resource.SYSTEM_LOOK_FEEL));
+		apperancePanel.showToolbarCheckBox.setSelected(resource.getBooleanValue(Resource.SHOW_TOOLBAR));
+		apperancePanel.cursorBlinkCheckBox.setSelected(resource.getBooleanValue(Config.CURSOR_BLINK));
+		apperancePanel.widthModel.setValue(resource.getIntValue(Resource.GEOMETRY_WIDTH));
+		apperancePanel.heightModel.setValue(resource.getIntValue(Resource.GEOMETRY_HEIGHT));
+		apperancePanel.scrollModel.setValue(resource.getIntValue(Config.TERMINAL_SCROLLS));
+		apperancePanel.terminalColumnsModel.setValue(resource.getIntValue(Config.TERMINAL_COLUMNS));
+		apperancePanel.terminalRowsModel.setValue(resource.getIntValue(Config.TERMINAL_ROWS));
+		apperancePanel.tabNumberCheckBox.setSelected(resource.getBooleanValue(Resource.TAB_NUMBER));
+		apperancePanel.showScrollBarCheckBox.setSelected(resource.getBooleanValue(Resource.SHOW_SCROLL_BAR));
+		fontPanel.familyCombo.setSelectedItem(resource.getStringValue(Config.FONT_FAMILY));
+		fontPanel.sizeModel.setValue(resource.getIntValue(Config.FONT_SIZE));
+		fontPanel.boldCheck.setSelected(resource.getBooleanValue(Config.FONT_BOLD));
+		fontPanel.italyCheck.setSelected(resource.getBooleanValue(Config.FONT_ITALY));
+		fontPanel.aaCheck.setSelected(resource.getBooleanValue(Config.FONT_ANTIALIAS));
+		fontPanel.fontVerticalGapModel.setValue(resource.getIntValue(Config.FONT_VERTICLAL_GAP));
+		fontPanel.fontHorizontalGapModel.setValue(resource.getIntValue(Config.FONT_HORIZONTAL_GAP));
+		fontPanel.fontDescentAdjustModel.setValue(resource.getIntValue(Config.FONT_DESCENT_ADJUST));
+	}
 
 	protected void submit() {
 		resource.setValue(Resource.EXTERNAL_BROWSER, generalPanel.browserField.getText());
@@ -135,6 +204,7 @@ public class PreferencePane extends JOptionPane implements
 				.isSelected());
 		resource
 				.setValue(Resource.CUSTOM_BELL_PATH, generalPanel.bellPathField.getText());
+		resource.setValue(Resource.RESOURCE_LOCATION, generalPanel.settingFileField.getText());
 
 		resource.setValue(Resource.AUTO_RECONNECT, connectionPanel.autoReconnectCheckBox
 				.isSelected());
@@ -189,7 +259,7 @@ public class PreferencePane extends JOptionPane implements
 				.getValue().toString());
 
 		// 將修改寫回設定檔
-		resource.writeFile();
+		resource.writeRcFile();
 
 		Model.getInstance().updateLookAndFeel();
 		Model.getInstance().updateBounds();
@@ -406,6 +476,34 @@ class ApperancePanel extends JPanel {
 		c.gridx = 1;
 		this.add(showScrollBarCheckBox, c);
 	}
+
+	/**
+	 * Refresh text in appearance panel because the locale might be modified.
+	 */
+	public void refreshText() {
+		systemLookFeelLabel.setText(Messages
+				.getString("Preference.SystemLookFeel_Label_Text")); //$NON-NLS-1$
+
+		showToolbarLabel.setText(Messages
+				.getString("Preference.ShowToolbar_Label_Text")); //$NON-NLS-1$
+		cursorBlinkLabel.setText(Messages
+				.getString("Preference.CursorBlink_Label_Text")); //$NON-NLS-1$
+		widthLabel.setText(Messages
+				.getString("Preference.WindowWidth_Label_Text")); //$NON-NLS-1$
+
+		heightLabel.setText(Messages
+				.getString("Preference.WindowHeight_Label_Text")); //$NON-NLS-1$
+		scrollLabel.setText(Messages
+				.getString("Preference.Scroll_Label_Text")); //$NON-NLS-1$
+		terminalColumnsLabel.setText(Messages
+				.getString("Preference.TerminalColumns_Label_Text")); //$NON-NLS-1$
+		terminalRowsLabel.setText(Messages
+				.getString("Preference.TerminalRows_Label_Text")); //$NON-NLS-1$
+		tabNumberLabel.setText(Messages
+				.getString("Preference.TabNumber_Label_Text")); //$NON-NLS-1$
+		showScrollBarLabel.setText(Messages
+				.getString("Preference.ShowScrollBar_Label_Text")); //$NON-NLS-1$
+	}
 }
 
 class ConnectionPanel extends JPanel implements ActionListener {
@@ -513,6 +611,24 @@ class ConnectionPanel extends JPanel implements ActionListener {
 		this.add(antiIdleStringLabel, c);
 		c.gridx = 1;
 		this.add(antiIdleStringField, c);
+	}
+
+	/**
+	 * Refresh the text in the connection panel because the locale might be modified.
+	 */
+	public void refreshText() {
+		autoReconnectLabel.setText(Messages
+				.getString("Preference.AutoReconnect_Label_Text")); //$NON-NLS-1$
+		reconnectTimeLabel.setText(Messages
+				.getString("Preference.ReconnectTime_Label_Text")); //$NON-NLS-1$
+		reconnectIntervalLabel.setText(Messages
+				.getString("Preference.ReconnectInterval_Label_Text")); //$NON-NLS-1$
+		antiIdleLabel.setText(Messages
+				.getString("Preference.AntiIdle_Label_Text")); //$NON-NLS-1$
+		antiIdleTimeLabel.setText(Messages
+				.getString("Preference.AntiIdleTime_Label_Text")); //$NON-NLS-1$
+		antiIdleStringLabel.setText(Messages
+				.getString("Preference.AntiIdleString_Label_Text")); //$NON-NLS-1$
 	}
 
 	public void actionPerformed(final ActionEvent ae) {
@@ -652,6 +768,28 @@ class FontPanel extends JPanel {
 		c.gridx = 1;
 		this.add(fontDescentAdjustSpinner, c);
 	}
+
+	/**
+	 * Refresh the text in the font panel because the locale might be changed.
+	 */
+	public void refreshText() {
+		familyLabel.setText(Messages
+				.getString("Preference.FontFamily_Label_Text")); //$NON-NLS-1$
+		sizeLabel.setText(Messages
+				.getString("Preference.FontSize_Label_Text")); //$NON-NLS-1$
+		boldLabel.setText(Messages
+				.getString("Preference.FontBold_Label_Text")); //$NON-NLS-1$
+		italyLabel.setText(Messages
+				.getString("Preference.FontItaly_Label_Text")); //$NON-NLS-1$
+		aaLabel.setText(Messages
+				.getString("Preference.FontAntiAliasing_Label_Text")); //$NON-NLS-1$
+		fontVerticalGapLabel.setText(Messages
+				.getString("Preference.FontVerticalGap_Label_Text")); //$NON-NLS-1$
+		fontHorizontalGapLabel.setText(Messages
+				.getString("Preference.FontHorizontalGap_Label_Text")); //$NON-NLS-1$		
+		fontDescentAdjustLabel.setText(Messages
+				.getString("Preference.FontDescentAdjust_Label_Text")); //$NON-NLS-1$
+	}
 }
 
 class GeneralPanel extends JPanel implements ActionListener {
@@ -676,15 +814,29 @@ class GeneralPanel extends JPanel implements ActionListener {
 
 	public JCheckBox customBellCheckBox;
 	public JLabel customBellLabel;
-	private JFileChooser jfc;
+	
+	// Spot the location of file for settings
+	protected JLabel settingFileLabel;
+	
+	// Indicate the location of file for settings 
+	protected JTextField settingFileField;
+	
+	// Choose the location of file for settings
+	protected JButton settingFileButton;
 
-	private String parentDirectory;
+	private StringBuffer bellPathParentDirectory = new StringBuffer("");
+	private StringBuffer settingFileParentDirectory = new StringBuffer("");;
 	private final Resource resource;
-	private File selectedFile;
 
 	public GeneralPanel(final Resource r) {
 		super();
 		resource = r;
+		
+		settingFileLabel = new JLabel(Messages
+				.getString("Preference.SettingFileLocation_Label"));
+		settingFileField = new JTextField(resource.getStringValue(Resource.RESOURCE_LOCATION));
+		settingFileButton = new JButton("...");
+		settingFileButton.addActionListener(this);
 
 		browserLabel = new JLabel(Messages
 				.getString("Preference.BrowserCommand_Label_Text")); //$NON-NLS-1$
@@ -802,27 +954,90 @@ class GeneralPanel extends JPanel implements ActionListener {
 		this.add(bellPathField, c);
 		c.gridx = 2;
 		this.add(bellPathButton, c);
+		
+		c.gridx = 0;
+		c.gridy = 9;
+		this.add(settingFileLabel, c);
+		c.gridx = 1;
+		this.add(settingFileField, c);
+		c.gridx = 2;
+		this.add(settingFileButton, c);
 	}
 
-	public void actionPerformed(final ActionEvent ae) {
-		if (ae.getSource() == linebreakCheckBox) {
+	/**
+	 * Refresh the text
+	 */
+	public void refreshText() {
+		settingFileLabel.setText(Messages
+				.getString("Preference.SettingFileLocation_Label"));
+		browserLabel.setText(Messages
+				.getString("Preference.BrowserCommand_Label_Text")); //$NON-NLS-1$
+		copyOnSelectLabel.setText(Messages
+				.getString("Preference.CopyOnSelect_Label_Text")); //$NON-NLS-1$
+		clearAfterCopyLabel.setText(Messages
+				.getString("Preference.ClearAfterCopy_Label_Text")); //$NON-NLS-1$
+		removeManualLabel.setText(Messages
+				.getString("Preference.RemoveManual_Label_Text")); //$NON-NLS-1$
+		linebreakLabel.setText(Messages
+				.getString("Preference.LineBreak_Label_Text")); //$NON-NLS-1$
+		breaklengthLabel.setText(Messages
+				.getString("Preference.BreakLength_Label_Text")); //$NON-NLS-1$
+		customBellLabel.setText(Messages
+				.getString("Preference.CustomBell_Label_Text")); //$NON-NLS-1$
+		bellPathLabel.setText(Messages
+				.getString("Preference.BellPath_Label_Text")); //$NON-NLS-1$
+		bellPathButton.setText(Messages
+				.getString("Preference.BellPath_Button_Text")); //$NON-NLS-1$
+	}
+
+	public void actionPerformed(final ActionEvent event) {
+		if (event.getSource() == linebreakCheckBox) {
 			breaklengthSpinner.setEnabled(linebreakCheckBox.isSelected());
-		} else if (ae.getSource() == customBellCheckBox) {
+		} else if (event.getSource() == customBellCheckBox) {
 			bellPathField.setEnabled(customBellCheckBox.isSelected());
 			bellPathButton.setEnabled(customBellCheckBox.isSelected());
-		} else if (ae.getSource() == bellPathButton) {
-
-			if (parentDirectory != null) {
-				jfc = new JFileChooser(parentDirectory);
-			} else {
-				jfc = new JFileChooser();
-			}
-
-			if (jfc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-				selectedFile = jfc.getSelectedFile();
-				parentDirectory = selectedFile.getParent();
-				bellPathField.setText(selectedFile.getAbsolutePath());
-			}
+		} else if (event.getSource() == bellPathButton) {
+			askFileLocationAndUpdateIt(bellPathField, bellPathParentDirectory);
+		} else if (event.getSource() == settingFileButton) {
+			askFileLocationAndUpdateIt(settingFileField, settingFileParentDirectory);
+			resource.setResourceLocation(settingFileField.getText());
+			Model.getInstance().updatePreferencePane();
+			Model.getInstance().refreshMessages();
 		}
+	}
+	
+	private void askFileLocationAndUpdateIt(
+			final JTextField pathField, 
+			final StringBuffer parentDirectory) {		
+
+		final JFileChooser fileChooser = createFileChooser(parentDirectory.toString());
+		final int response = fileChooser.showOpenDialog(this);
+
+		if (response == JFileChooser.APPROVE_OPTION) {
+			UpdatePathField(fileChooser, pathField, parentDirectory);
+		}
+	}
+	
+	private void UpdatePathField(
+			final JFileChooser fileChooser, 
+			final JTextField pathField, 
+			final StringBuffer parentDirectory) {
+
+		final File selectedFile = fileChooser.getSelectedFile();
+		pathField.setText(selectedFile.getAbsolutePath());
+		parentDirectory.delete(0, parentDirectory.length());
+		parentDirectory.append(selectedFile.getParent());
+	}
+	
+	private JFileChooser createFileChooser(final String parentDirectory) {
+		JFileChooser fileChooser;
+		
+		if ("".equals(parentDirectory)) {
+			fileChooser = new JFileChooser();
+		} else {
+			fileChooser = new JFileChooser(parentDirectory.toString());
+		}
+		
+		return fileChooser;
 	}
 }

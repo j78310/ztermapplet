@@ -70,13 +70,6 @@ public class Model {
 		preferencePane = new PreferencePane();
 	}
 
-	public void setLocale(final Locale locale) {
-		Locale.setDefault(locale);
-		resource.setValue(Resource.LOCALE_COUNTRY, locale.getCountry());
-		resource.setValue(Resource.LOCALE_LANGUAGE, locale.getLanguage());
-		resource.setValue(Resource.LOCALE_VARIANT, locale.getVariant());
-	}
-
 	/**
 	 * Automatically connect to predefined sites according to resource.
 	 */
@@ -627,6 +620,13 @@ public class Model {
 	public void updateLookAndFeel() {
 		view.updateLookAndFeel();
 	}
+	
+	/**
+	 * Reload resource and update the settings displayed in preference panel.
+	 */
+	public void updatePreferencePane() {
+		preferencePane.reloadSettings();
+	}
 
 	/**
 	 * Update size to resource, and also user interface.
@@ -784,8 +784,9 @@ public class Model {
 	 * Refresh messages on the user interface.
 	 */
 	public void refreshMessages() {
+		Locale.setDefault(resource.getLocale());
 		Messages.restartBundle();
 		this.view.updateText();
-		this.preferencePane = new PreferencePane();
+		this.preferencePane.refreshText();
 	}
 }
