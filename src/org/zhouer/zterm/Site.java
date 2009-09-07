@@ -1,4 +1,4 @@
-package org.zhouer.zterm.model;
+package org.zhouer.zterm;
 
 import java.util.Date;
 import java.util.Map;
@@ -11,49 +11,49 @@ import org.zhouer.utils.TextUtils;
 /**
  * Site is preference management or said collection of preference set by user.
  * 
- * @author Chin-Chang Yang
+ * @author h45
  */
-public class Site implements Comparable {
-
-	public final static String DEFAULT_EMULATION = "vt100"; //$NON-NLS-1$
-	public final static String DEFAULT_ENCODING = "Big5"; //$NON-NLS-1$
-	public final static String DEFAULT_PROTOCOL = Protocol.TELNET;
+public class Site implements Comparable<Site> {
 
 	// 別名
-	private String alias;
+	protected String alias;
 
 	// 自動連線
-	private boolean autoconnect;
+	protected boolean autoconnect;
 	// 連線後自動登入
-	private boolean autologin;
+	protected boolean autologin;
+
+	protected final String defEmulation = "vt100"; //$NON-NLS-1$
+
+	protected final String defEncoding = "Big5"; //$NON-NLS-1$
+	protected final String defProtocol = Protocol.TELNET;
 
 	// 終端機模擬
-	private String emulation;
+	protected String emulation;
 	// 文字編碼
-	private String encoding;
+	protected String encoding;
 
 	// hostname and port
-	private String host;
-	
+	protected String host;
 	// 最近連線時間。
-	private long lastvisit;
+	protected long lastvisit;
 
 	// 識別名稱
-	private String name;
+	protected String name;
 
-	private int port;
+	protected int port;
 
 	// 登入前以及登入後該自動輸入的字串。
-	// private String prelogin, postlogin;
+	protected String prelogin, postlogin;
 
 	// 通訊協定 (telnet or ssh)
-	private String protocol;
+	protected String protocol;
 
 	// 連線總次數
-	private int total;
+	protected int total;
 
 	// 使用者帳號、密碼及其提示字串。
-	// private String usernameprompt, username, userpassprompt, userpass;
+	protected String usernameprompt, username, userpassprompt, userpass;
 
 	/**
 	 * 沒有任何參數的 Site constructor
@@ -70,59 +70,59 @@ public class Site implements Comparable {
 	 *            CSV
 	 */
 	public Site(final String h) {
-		final Map m = TextUtils.getCsvParameters(h);
+		final Map<String, String> m = TextUtils.getCsvParameters(h);
 
 		// name, host, port 是必要的，一定會有
-		this.name = (String) m.get("name"); //$NON-NLS-1$
-		this.host = (String) m.get("host"); //$NON-NLS-1$
-		this.port = Integer.parseInt((String) m.get("port")); //$NON-NLS-1$
+		this.name = m.get("name"); //$NON-NLS-1$
+		this.host = m.get("host"); //$NON-NLS-1$
+		this.port = Integer.parseInt(m.get("port")); //$NON-NLS-1$
 
 		if (m.containsKey("protocol")) { //$NON-NLS-1$
-			this.protocol = (String) m.get("protocol"); //$NON-NLS-1$
+			this.protocol = m.get("protocol"); //$NON-NLS-1$
 		} else {
-			this.protocol = DEFAULT_PROTOCOL;
+			this.protocol = this.defProtocol;
 		}
 
 		if (m.containsKey("alias")) { //$NON-NLS-1$
-			this.alias = (String) m.get("alias"); //$NON-NLS-1$
+			this.alias = m.get("alias"); //$NON-NLS-1$
 		} else {
 			this.alias = ""; //$NON-NLS-1$
 		}
 
 		if (m.containsKey("encoding")) { //$NON-NLS-1$
-			this.encoding = (String) m.get("encoding"); //$NON-NLS-1$
+			this.encoding = m.get("encoding"); //$NON-NLS-1$
 		} else {
-			this.encoding = DEFAULT_ENCODING;
+			this.encoding = this.defEncoding;
 		}
 
 		if (m.containsKey("emulation")) { //$NON-NLS-1$
-			this.emulation = (String) m.get("emulation"); //$NON-NLS-1$
+			this.emulation = m.get("emulation"); //$NON-NLS-1$
 		} else {
-			this.emulation = DEFAULT_EMULATION;
+			this.emulation = this.defEmulation;
 		}
 
 		if (m.containsKey("lastvisit")) { //$NON-NLS-1$
-			this.lastvisit = Long.parseLong((String) m.get("lastvisit")); //$NON-NLS-1$
+			this.lastvisit = Long.parseLong(m.get("lastvisit")); //$NON-NLS-1$
 		} else {
 			this.lastvisit = 0;
 		}
 
 		if (m.containsKey("total")) { //$NON-NLS-1$
-			this.total = Integer.parseInt((String) m.get("total")); //$NON-NLS-1$
+			this.total = Integer.parseInt(m.get("total")); //$NON-NLS-1$
 		} else {
 			this.total = 0;
 		}
 
 		if (m.containsKey("autoconnect")) { //$NON-NLS-1$
-			final String message = (String) m.get("autoconnect"); //$NON-NLS-1$
-			this.autoconnect = message.equalsIgnoreCase("true"); //$NON-NLS-1$
+			this.autoconnect = m.get("autoconnect") //$NON-NLS-1$
+					.equalsIgnoreCase("true"); //$NON-NLS-1$
 		} else {
 			this.autoconnect = false;
 		}
 
 		if (m.containsKey("autologin")) { //$NON-NLS-1$
-			final String message = (String) m.get("autologin"); //$NON-NLS-1$
-			this.autologin = message.equalsIgnoreCase("true"); //$NON-NLS-1$
+			this.autologin = m.get("autologin") //$NON-NLS-1$
+					.equalsIgnoreCase("true"); //$NON-NLS-1$
 		} else {
 			this.autologin = false;
 		}
@@ -148,8 +148,8 @@ public class Site implements Comparable {
 
 		// 以下使用預設值
 		this.alias = ""; //$NON-NLS-1$
-		this.encoding = DEFAULT_ENCODING;
-		this.emulation = DEFAULT_EMULATION;
+		this.encoding = this.defEncoding;
+		this.emulation = this.defEmulation;
 		this.lastvisit = 0;
 		this.total = 0;
 		this.autoconnect = false;
@@ -161,8 +161,7 @@ public class Site implements Comparable {
 	 * 
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
-	public int compareTo(final Object o) {
-		final Site site = (Site) o;
+	public int compareTo(final Site site) {
 		if (this.total == site.total) {
 			return (int) (site.lastvisit - this.lastvisit);
 		}
@@ -170,6 +169,7 @@ public class Site implements Comparable {
 		return site.total - this.total;
 	}
 
+	@Override
 	public boolean equals(final Object o) {
 		if (o instanceof Site) {
 			final Site site = (Site) o;
@@ -200,8 +200,9 @@ public class Site implements Comparable {
 		return url;
 	}
 
+	@Override
 	public String toString() {
-		final Vector v = new Vector();
+		final Vector<String> v = new Vector<String>();
 
 		v.addElement("name=" + this.name); //$NON-NLS-1$
 		v.addElement("host=" + this.host); //$NON-NLS-1$
@@ -234,69 +235,5 @@ public class Site implements Comparable {
 	public void update() {
 		this.total++;
 		this.lastvisit = new Date().getTime();
-	}
-
-	public String getHost() {
-		return host;
-	}
-
-	public void setHost(String host) {
-		this.host = host;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public int getPort() {
-		return port;
-	}
-
-	public void setPort(int port) {
-		this.port = port;
-	}
-
-	public String getAlias() {
-		return alias;
-	}
-
-	public void setAlias(String alias) {
-		this.alias = alias;
-	}
-
-	public String getEmulation() {
-		return emulation;
-	}
-
-	public void setEmulation(String emulation) {
-		this.emulation = emulation;
-	}
-
-	public String getEncoding() {
-		return encoding;
-	}
-
-	public void setEncoding(String encoding) {
-		this.encoding = encoding;
-	}
-
-	public String getProtocol() {
-		return protocol;
-	}
-
-	public void setProtocol(String protocol) {
-		this.protocol = protocol;
-	}
-
-	public boolean isAutoconnect() {
-		return autoconnect;
-	}
-
-	public void setAutoconnect(boolean autoconnect) {
-		this.autoconnect = autoconnect;
 	}
 }

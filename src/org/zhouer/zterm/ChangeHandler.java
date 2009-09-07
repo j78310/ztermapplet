@@ -1,19 +1,18 @@
-package org.zhouer.zterm.view;
+package org.zhouer.zterm;
 
-import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
-import org.zhouer.zterm.model.Model;
 
 /**
  * ChangeHandler is a change controller for ZTerm Applet.
  * 
- * @author Chin-Chang Yang
+ * @author h45
  */
 public class ChangeHandler implements ChangeListener {
 
 	private Model model;
+
+	private ZTerm view;
 
 	/**
 	 * Setter of model
@@ -25,9 +24,19 @@ public class ChangeHandler implements ChangeListener {
 		this.model = model;
 	}
 
-	public void stateChanged(final ChangeEvent e) {		
+	/**
+	 * Setter of view
+	 * 
+	 * @param view
+	 *            the view to set
+	 */
+	public void setView(final ZTerm view) {
+		this.view = view;
+	}
+
+	public void stateChanged(final ChangeEvent e) {
 		// 切換分頁，更新視窗標題、畫面
-		if (e.getSource() instanceof JTabbedPane) {
+		if (e.getSource() == this.view.tabbedPane) {
 			this.model.updateTab();
 		}
 	}

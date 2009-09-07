@@ -12,9 +12,7 @@ import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Vector;
 
 import javax.swing.JComponent;
@@ -25,98 +23,148 @@ import org.zhouer.utils.TextUtils;
 import org.zhouer.utils.UrlRecognizer;
 
 public class VT100 extends JComponent {
-	
-	public static final int APPLICATION_KEYPAD = 2;
+	class CursorRepaintTask implements ActionListener {
+		public void actionPerformed(final ActionEvent e) {
+			cursorBlink.toggleVisible();
 
-	public static final int NUMERIC_KEYPAD = 1;
+			// 游標閃爍
+			if (resource.getBooleanValue(Config.CURSOR_BLINK)) {
+				setRepaint(crow, ccol);
+				VT100.this.repaint();
+			}
+		}
+	}
 
-	private static final byte BACKGROUND = 1;
-	private static final byte BLINK = 16;
+	class TextRepaintTask implements ActionListener {
+		public void actionPerformed(final ActionEvent e) {
+			int prow;
+			boolean isNeedRepaint = false;
+
+			textBlink.toggleVisible();
+
+			// 文字閃爍
+			for (int i = 1; i <= maxrow; i++) {
+				for (int j = 1; j <= maxcol; j++) {
+					prow = physicalRow(i - scrolluprow);
+					if ((attributes[prow][j - 1] & VT100.BLINK) != 0) {
+						setRepaintPhysical(prow, j - 1);
+						isNeedRepaint = true;
+					}
+				}
+			}
+
+			if (isNeedRepaint) {
+				VT100.this.repaint();
+			}
+		}
+	}
+
+	public static final int			APPLICATION_KEYPAD	= 2;
+
+	public static final int			NUMERIC_KEYPAD		= 1;
+
+	private static final byte		BACKGROUND			= 1;
+	private static final byte		BLINK				= 16;
 	// 各種屬性
-	private static final byte BOLD = 1;
-	private static final byte CURSOR = 2;
-	private static Color cursorColor = Color.GREEN;
+	private static final byte		BOLD				= 1;
+	private static final byte		CURSOR				= 2;
+	private static Color			cursorColor			= Color.GREEN;
+	private final static boolean	DEBUG				= false;
 
-	private static byte defAttr = 0;
+	private static byte				defAttr				= 0;
 
-	private static byte defBg = 0;
+	private static byte				defBg				= 0;
 
 	// 預設顏色設定，前景、背景、游標色
-	private static byte defFg = 7;
+	private static byte				defFg				= 7;
 	// 取得色彩用的一些狀態
-	private static final byte FOREGROUND = 0;
-	private static Color[] highlight_colors = { new Color(128, 128, 128),
-			new Color(255, 0, 0), new Color(0, 255, 0), new Color(255, 255, 0),
-			new Color(0, 0, 255), new Color(255, 0, 255),
-			new Color(0, 255, 255), new Color(255, 255, 255), };
+	private static final byte		FOREGROUND			= 0;
+	private static Color[]			highlight_colors	= {
+			new Color(128, 128, 128),
+			new Color(255, 0, 0),
+			new Color(0, 255, 0),
+			new Color(255, 255, 0),
+			new Color(0, 0, 255),
+			new Color(255, 0, 255),
+			new Color(0, 255, 255),
+			new Color(255, 255, 255),
+														};
 
 	// 調色盤
-	private static Color[] normal_colors = { new Color(0, 0, 0),
-			new Color(128, 0, 0), new Color(0, 128, 0), new Color(128, 128, 0),
-			new Color(0, 0, 128), new Color(128, 0, 128),
-			new Color(0, 128, 128), new Color(192, 192, 192), };
+	private static Color[]			normal_colors		= {
+			new Color(0, 0, 0),
+			new Color(128, 0, 0),
+			new Color(0, 128, 0),
+			new Color(128, 128, 0),
+			new Color(0, 0, 128),
+			new Color(128, 0, 128),
+			new Color(0, 128, 128),
+			new Color(192, 192, 192),
+														};
 
-	private static final byte REVERSE = 64;
+	private static final byte		REVERSE				= 64;
 
-	private static final long serialVersionUID = -5704767444883397941L;
+	private static final long		serialVersionUID	= -5704767444883397941L;
 
-	private static final byte UNDERLINE = 8;
-	private static final byte URL = 3;
-	private static Color urlColor = Color.ORANGE;
-	private byte[] attrBuf, fgBuf, bgBuf;
-	private byte[][] attributes; // 屬性
+	private static final byte		UNDERLINE			= 8;
+	private static final byte		URL					= 3;
+	private static Color			urlColor			= Color.ORANGE;
+	private byte[]					attrBuf, fgBuf, bgBuf;
+	private byte[][]				attributes;									// 屬性
 
-	private byte[][] bgcolors; // 背景色
+	private byte[][]				bgcolors;										// 背景色
 	// 畫面
-	private BufferedImage image;
+	private BufferedImage			bi;
 	// 目前的屬性及前景、背景色
-	private byte cattribute;
+	private byte					cattribute;
 	// 目前、上次、儲存的游標所在位址
-	private int ccol, crow;
-	private byte cfgcolor, cbgcolor;
+	private int						ccol, crow;
+	private byte					cfgcolor, cbgcolor;
 	// 轉碼用
-	private final Convertor conv = Convertor.getInstance();
+	private final Convertor			conv;
 
-	private String emulation;
+	private int						debug_counter		= 0;
+	private String					emulation;
 
-	private String encoding;
-	private byte[][] fgcolors; // 前景色
+	private String					encoding;
+	private byte[][]				fgcolors;										// 前景色
 
 	// 各種字型參數
-	private Font font;
-	private int fontsize;
+	private Font					font;
+	private int						fontsize;
 	// 字元的垂直與水平間距
-	private int fontverticalgap, fonthorizontalgap, fontdescentadj;
-	private int fontwidth, fontheight, fontdescent;
+	private int						fontverticalgap, fonthorizontalgap,
+			fontdescentadj;
+	private int						fontwidth, fontheight, fontdescent;
 
 	// 紀錄是否所有初始化動作皆已完成
-	private boolean init_ready;
+	private boolean					init_ready;
 	// 判斷畫面上的網址
-	private boolean[][] isurl;
+	private boolean[][]				isurl;
 
-	private int keypadmode;
-	private int lcol, lrow;
+	private int						keypadmode;
+	private int						lcol, lrow;
 	// 記錄游標是否位於最後一個字上，非最後一個字的下一個
-	private boolean linefull;
+	private boolean					linefull;
 
 	// 模擬螢幕的相關資訊
-	private int maxrow, maxcol; // terminal 的大小
+	private int						maxrow, maxcol;								// terminal 的大小
 
-	private int[][] mbc; // multibyte character 的第幾個 byte
+	private int[][]					mbc;											// multibyte character 的第幾個 byte
 	// 把從 nvt 來的資料暫存起來
-	private byte[] nvtBuf;
-	private int nvtBufPos, nvtBufLen;
+	private byte[]					nvtBuf;
+	private int						nvtBufPos, nvtBufLen;
 
-	private final Application parent;
-	
+	private final Application		parent;
+	private Object					repaintLock;
 	// 記錄螢幕上何處需要 repaint
-	private List repaintSet;
+	private FIFOSet					repaintSet;
 
 	// 各種參數
-	private final Config resource;
-	private int scol, srow;
-	private int scrolllines; // scroll buffer 的行數
-	private int scrolluprow; // 往上捲的行數
+	private final Config			resource;
+	private int						scol, srow;
+	private int						scrolllines;									// scroll buffer 的行數
+	private int						scrolluprow;									// 往上捲的行數
 
 	// ASCII
 	// private static final byte BEL = 7;
@@ -129,49 +177,47 @@ public class VT100 extends JComponent {
 	// private static final byte SO = 14;
 	// private static final byte SI = 15;
 
-	private boolean[][] selected; // 是否被滑鼠選取
+	// 是否被滑鼠選取
+	private boolean[][]				selected;
 	// 儲存螢幕上的相關資訊
-	private char[][] text; // 轉碼後的 char
-
-	private boolean text_blink, cursor_blink;
+	private char[][]				text;											// 轉碼後的 char
 
 	// 閃爍用
-	private int text_blink_count, cursor_blink_count;
+	private final Blink				textBlink			= new Blink();
+	private final Blink				cursorBlink			= new Blink();
 
 	// multibytes char 暫存
-	private byte[] textBuf;
-	private int textBufPos;
+	private byte[]					textBuf;
+	private int						textBufPos;
 
 	// 重繪用的 Timer
-	private Timer repaintTimer;
-	private int topmargin, buttommargin, leftmargin, rightmargin;
-	private int toprow; // 第一 row 所在位置
+	private Timer					cursorBlinkTimer, textBlinkTimer;
+	private int						topmargin, buttommargin, leftmargin,
+			rightmargin;
 
-	private int totalrow, totalcol; // 總 row, col 數，包含 scroll buffer
+	// 第一 row 所在位置
+	private int						toprow;
+
+	// 總 row, col 數，包含 scroll buffer
+	private int						totalrow, totalcol;
 
 	// 螢幕 translate 的座標
-	private int transx, transy;
+	private int						transx, transy;
 
 	// 處理來自使用者的事件
-	private User user;
+	private User					user;
 
 	// 畫面的寬與高
-	private int width, height;
-	
-	private UrlChecker urlChecker = UrlChecker.getInstance();
+	private int						width, height;
 
-	/**
-	 * Constructor with an application, configuration, and an image
-	 * @param app application is the parent of VT100
-	 * @param config VT100 configuration
-	 * @param image VT100 screen
-	 */
-	public VT100(final Application app, final Config config, final BufferedImage image) {
+	public VT100(final Application p, final Config c, final Convertor cv,
+			final BufferedImage b) {
 		super();
 
-		parent = app;
-		resource = config;
-		this.image = image;
+		parent = p;
+		resource = c;
+		conv = cv;
+		bi = b;
 
 		// 初始化一些變數、陣列
 		initValue();
@@ -180,23 +226,24 @@ public class VT100 extends JComponent {
 	}
 
 	public void close() {
-		// TODO: 應該還有其他東西應該收尾
-
 		// 停止重繪用的 timer
-		repaintTimer.stop();
+		cursorBlinkTimer.stop();
+		textBlinkTimer.stop();
 
 		// 停止反應來自使用者的事件
 		removeKeyListener(user);
+		removeMouseListener(user);
+		removeMouseMotionListener(user);
 	}
 
 	/**
-	 * 判斷 (x,y) 是否在網址上
+	 * 滑鼠游標是否在網址上
 	 * 
-	 * @param x x element of (x,y) of location of a mouse
-	 * @param y y element of (x,y) of location of a mouse
-	 * @return true if (x, y) is over a URL; false, otherwise
+	 * @param x
+	 * @param y
+	 * @return
 	 */
-	public boolean isOverURL(int x, int y) {
+	public boolean coverURL(int x, int y) {
 		int c, r;
 		int prow;
 
@@ -216,34 +263,24 @@ public class VT100 extends JComponent {
 		return isurl[prow][c - 1];
 	}
 
-	/**
-	 * Getter of the emulation name
-	 * @return emulation
-	 */
-	public String getEmulationName() {
+	public String getEmulation() {
 		return emulation;
 	}
 
-	/**
-	 * Getter of the encoding
-	 * @return encoding
-	 */
 	public String getEncoding() {
 		return encoding;
 	}
 
-	/**
-	 * Getter of the keypad mode
-	 * @return keypadmode
-	 */
 	public int getKeypadMode() {
 		return keypadmode;
 	}
 
-	/**
-	 * Get the selected text with color.
-	 * @return the selected color text
-	 */
+	@Override
+	public Dimension getPreferredSize() {
+		// FIXME: magic number
+		return new Dimension(800, 600);
+	}
+
 	public String getSelectedColorText() {
 		// TODO: 這裡寫的不太好，應該再改進
 		int i, j, k, last;
@@ -295,11 +332,12 @@ public class VT100 extends JComponent {
 					}
 				}
 			}
-			
-			a.addElement(new Byte((byte) 0));
-			b.addElement(new Byte((byte) 0x0d));
-			fg.addElement(new Byte(VT100.defFg));
-			bg.addElement(new Byte(VT100.defBg));
+			if (true) {
+				a.addElement(new Byte((byte) 0));
+				b.addElement(new Byte((byte) 0x0d));
+				fg.addElement(new Byte(VT100.defFg));
+				bg.addElement(new Byte(VT100.defBg));
+			}
 		}
 
 		return makePasteText(a, b, fg, bg);
@@ -308,7 +346,7 @@ public class VT100 extends JComponent {
 	/**
 	 * 複製選取的文字
 	 * 
-	 * @return the selected text
+	 * @return
 	 */
 	public String getSelectedText() {
 		// TODO: 這裡寫的不太好，應該再改進
@@ -362,9 +400,9 @@ public class VT100 extends JComponent {
 	/**
 	 * 取得滑鼠游標處的網址
 	 * 
-	 * @param x x element of (x,y) of location of a mouse
-	 * @param y y element of (x,y) of location of a mouse
-	 * @return the URL at (x,y)
+	 * @param x
+	 * @param y
+	 * @returnp
 	 */
 	public String getURL(int x, int y) {
 		final StringBuffer sb = new StringBuffer();
@@ -389,7 +427,6 @@ public class VT100 extends JComponent {
 		for (i = c; (i > 0) && isurl[prow][i - 1]; i--) {
 			;
 		}
-		
 		for (i++; (i <= maxcol) && isurl[prow][i - 1]; i++) {
 			if (mbc[prow][i - 1] == 1) {
 				sb.append(text[prow][i - 1]);
@@ -403,7 +440,7 @@ public class VT100 extends JComponent {
 	 * Paste the messages as color text to the session.
 	 * 
 	 * @param str
-	 *            color text to paste
+	 *            color text
 	 */
 	public void pasteColorText(final String str) {
 		final byte[] tmp = new byte[str.length()];
@@ -418,7 +455,7 @@ public class VT100 extends JComponent {
 	/**
 	 * 貼上文字
 	 * 
-	 * @param str text to paste
+	 * @param str
 	 */
 	public void pasteText(String str) {
 		char[] cArr;
@@ -452,47 +489,6 @@ public class VT100 extends JComponent {
 	}
 
 	/**
-	 * Repaint the VT100.
-	 */
-	public void repaint() {
-		int prow;
-		boolean r = false;
-
-		text_blink_count++;
-		cursor_blink_count++;
-
-		// FIXME: magic number
-		// 游標閃爍
-		if (resource.getBooleanValue(Config.CURSOR_BLINK)) {
-			if (cursor_blink_count % 2 == 0) {
-				cursor_blink = !cursor_blink;
-				setRepaint(crow, ccol);
-				r = true;
-			}
-		}
-
-		// FIXME: magic number
-		// 文字閃爍
-		// 只需要檢查畫面上有沒有閃爍字，不需要全部都檢查
-		if (text_blink_count % 3 == 0) {
-			text_blink = !text_blink;
-			for (int i = 1; i <= maxrow; i++) {
-				for (int j = 1; j <= maxcol; j++) {
-					prow = physicalRow(i - scrolluprow);
-					if ((attributes[prow][j - 1] & VT100.BLINK) != 0) {
-						setRepaintPhysical(prow, j - 1);
-						r = true;
-					}
-				}
-			}
-		}
-
-		if (r) {
-			super.repaint();
-		}
-	}
-	
-	/**
 	 * 重設選取區域
 	 */
 	public void resetSelected() {
@@ -506,9 +502,6 @@ public class VT100 extends JComponent {
 		}
 	}
 
-	/**
-	 * Launch every repaint process.
-	 */
 	public void run() {
 		// 連線後自動取得 focus
 		this.requestFocusInWindow();
@@ -516,21 +509,13 @@ public class VT100 extends JComponent {
 		// 至此應該所有的初始化動作都完成了
 		init_ready = true;
 
-		try {
-			while (!parent.isClosed()) {
-				parse();
+		while (!parent.isClosed()) {
+			parse();
 
-				// buffer 裡的東西都處理完才重繪
-				if (isBufferEmpty()) {
-					this.repaint();
-					this.urlChecker.setVt100(this);
-					this.urlChecker.interrupt();
-				}
+			// buffer 裡的東西都處理完才重繪
+			if (isBufferEmpty()) {
+				this.repaint();
 			}
-		} catch (IOException e) {
-			// e.printStackTrace();
-			// 可能是正常中斷，也可能是異常中斷
-			parent.close(true);
 		}
 	}
 
@@ -610,6 +595,7 @@ public class VT100 extends JComponent {
 		}
 	}
 
+	@Override
 	public void setBounds(final int x, final int y, final int w, final int h) {
 		// layout manager 或其他人可能會透過 setBound 來改變 component 的大小，
 		// 此時要一併更新 component
@@ -617,6 +603,7 @@ public class VT100 extends JComponent {
 		updateSize();
 	}
 
+	@Override
 	public void setBounds(final Rectangle r) {
 		super.setBounds(r);
 		updateSize();
@@ -652,23 +639,6 @@ public class VT100 extends JComponent {
 		// System.out.println( "scroll up " + scroll + " lines" );
 		// TODO: 應改可以不用每次都重繪整個畫面
 		updateScreen();
-	}
-	
-	/**
-	 * 設定選取所有可見區域
-	 */
-	public void setSelectedAll() {
-		for (int i = 1; i <= maxrow; i++) {
-			for (int j = 1; j <= maxcol; j++) {
-				final int prow = physicalRow(i - scrolluprow);
-				final boolean originalSelected = selected[prow][j - 1];
-				selected[prow][j - 1] = true;
-
-				if (selected[prow][j - 1] != originalSelected) {
-					setRepaintPhysical(prow, j - 1);
-				}
-			}
-		}
 	}
 
 	/**
@@ -717,7 +687,7 @@ public class VT100 extends JComponent {
 		}
 
 		resetSelected();
-		
+
 		// TODO: 只能選取當前畫面的內容，不會自動捲頁
 		for (i = 1; i <= maxrow; i++) {
 			for (j = 1; j <= maxcol; j++) {
@@ -744,6 +714,23 @@ public class VT100 extends JComponent {
 			}
 		}
 
+	}
+
+	/**
+	 * 設定選取所有可見區域
+	 */
+	public void setSelectedAll() {
+		for (int i = 1; i <= maxrow; i++) {
+			for (int j = 1; j <= maxcol; j++) {
+				final int prow = physicalRow(i - scrolluprow);
+				final boolean originalSelected = selected[prow][j - 1];
+				selected[prow][j - 1] = true;
+
+				if (selected[prow][j - 1] != originalSelected) {
+					setRepaintPhysical(prow, j - 1);
+				}
+			}
+		}
 	}
 
 	/**
@@ -806,7 +793,7 @@ public class VT100 extends JComponent {
 	}
 
 	public void updateImage(final BufferedImage b) {
-		image = b;
+		bi = b;
 	}
 
 	/**
@@ -830,6 +817,7 @@ public class VT100 extends JComponent {
 		updateScreen();
 	}
 
+	@Override
 	protected void paintComponent(final Graphics g) {
 		// 因為多個分頁共用一張 image, 因此只有在前景的分頁才有繪圖的權利，
 		// 不在前景時不重繪，以免干擾畫面。
@@ -837,12 +825,15 @@ public class VT100 extends JComponent {
 		if (!parent.isTabForeground() || !init_ready) {
 			return;
 		}
-		
+
+		// 檢查在螢幕上面的 URL 連結
+		checkURLOnScreen();
+
 		// TODO: 考慮 draw 是否一定要擺在這邊，或是是否只在這裡呼叫？
 		// 偶爾呼叫一次而不只是在顯示前才呼叫應該可以增進顯示速度。
 		draw();
 
-		g.drawImage(image, 0, 0, null);
+		g.drawImage(bi, 0, 0, null);
 	}
 
 	/**
@@ -851,22 +842,22 @@ public class VT100 extends JComponent {
 	private void bell() {
 		parent.bell();
 	}
-	
-	public void checkURLOnScreen() {
+
+	private void checkURLOnScreen() {
 		for (int i = 0; i < maxrow; i++) {
 			final int prow = physicalRow(i - scrolluprow + 1);
 			final String message = String.valueOf(text[prow]);
-			
+
 			for (int j = 0; j < maxcol; j++) {
 				final boolean originalIsURL = isurl[prow][j];
-				
+
 				// 判斷 (prow, j) 座標上的字元是否落於一個 http://xxx.xxx 字串裡面
-				if (UrlRecognizer.isPartOfHttp(message, j) || UrlRecognizer.isPartOfHttps(message, j) || UrlRecognizer.isPartOfFtp(message, j)) {
+				if (UrlRecognizer.isPartOfHttp(message, j)) {
 					isurl[prow][j] = true;
 				} else {
 					isurl[prow][j] = false;
 				}
-				
+
 				final boolean updatedIsURL = isurl[prow][j];
 				if (originalIsURL != updatedIsURL) {
 					setRepaintPhysical(prow, j);
@@ -948,7 +939,7 @@ public class VT100 extends JComponent {
 		Graphics2D g;
 		boolean show_cursor, show_text, show_underline;
 
-		g = image.createGraphics();
+		g = bi.createGraphics();
 		g.setFont(font);
 
 		// 畫面置中
@@ -957,14 +948,16 @@ public class VT100 extends JComponent {
 		// 設定 Anti-alias
 		if (resource.getBooleanValue(Config.FONT_ANTIALIAS)) {
 			g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-					RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		}
 
 		while (!repaintSet.isEmpty()) {
 			// 取得下一個需要重繪的位置
-			v = ((Integer) repaintSet.remove(0)).intValue();
-			prow = v >> 8;
-			pcol = v & 0xff;
+			synchronized (repaintLock) {
+				v = repaintSet.remove();
+				prow = v >> 8;
+				pcol = v & 0xff;
+			}
 
 			// 取得待重繪的字在畫面上的位置
 			// 加上捲動的判斷
@@ -982,9 +975,9 @@ public class VT100 extends JComponent {
 
 			// 閃爍控制與色彩屬性
 			show_text = ((attributes[prow][pcol] & VT100.BLINK) == 0)
-					|| text_blink;
+					|| textBlink.isVisible();
 			show_cursor = (physicalRow(crow) == prow) && (ccol == col)
-					&& cursor_blink;
+					&& cursorBlink.isVisible();
 			show_underline = (attributes[prow][pcol] & VT100.UNDERLINE) != 0;
 
 			// 填滿背景色
@@ -1141,9 +1134,8 @@ public class VT100 extends JComponent {
 	 * 取得下一個需要被處理的 byte
 	 * 
 	 * @return
-	 * @throws IOException 
 	 */
-	private byte getNextByte() throws IOException {
+	private byte getNextByte() {
 		// buffer 用光了，再跟下層拿。
 		// 應該用 isBufferEmpty() 判斷的，但為了效率直接判斷。
 		if (nvtBufPos == nvtBufLen) {
@@ -1181,7 +1173,8 @@ public class VT100 extends JComponent {
 
 		// 初始化記載重繪位置用 FIFOSet
 		// XXX: 假設 column 數小於 256
-		repaintSet = new LinkedList();
+		repaintSet = new FIFOSet(totalrow << 8);
+		repaintLock = new Object();
 
 		for (i = 0; i < totalrow; i++) {
 			for (j = 0; j < totalcol; j++) {
@@ -1207,15 +1200,11 @@ public class VT100 extends JComponent {
 		init_ready = false;
 
 		// 啟動閃爍控制 thread
-		final ActionListener repaintTask = new ActionListener() {
+		cursorBlinkTimer = new Timer(500, new CursorRepaintTask());
+		cursorBlinkTimer.start();
 
-			public void actionPerformed(ActionEvent e) {
-				VT100.this.repaint();
-			}			
-		};
-		
-		repaintTimer = new Timer(250, repaintTask);
-		repaintTimer.start();
+		textBlinkTimer = new Timer(1000, new TextRepaintTask());
+		textBlinkTimer.start();
 
 		// 取消 focus traversal key, 這樣才能收到 tab.
 		setFocusTraversalKeysEnabled(false);
@@ -1233,10 +1222,6 @@ public class VT100 extends JComponent {
 		addKeyListener(user);
 		addMouseListener(user);
 		addMouseMotionListener(user);
-		
-		if (!urlChecker.isAlive()) {
-			urlChecker.start();
-		}
 	}
 
 	private void initValue() {
@@ -1269,11 +1254,6 @@ public class VT100 extends JComponent {
 		cfgcolor = VT100.defFg;
 		cbgcolor = VT100.defBg;
 		cattribute = VT100.defAttr;
-
-		text_blink_count = 0;
-		cursor_blink_count = 0;
-		text_blink = true;
-		cursor_blink = true;
 
 		linefull = false;
 
@@ -1341,7 +1321,7 @@ public class VT100 extends JComponent {
 		// 一個 char 可能對應數個 bytes, 但在顯示及儲存時最雙寬字多佔兩格，單寬字最多佔一格，
 		// 紀錄 char 後要把對應的屬性及色彩等資料從 buffer 複製過來，並設定重繪。
 		final int prow = physicalRow(crow);
-		text[prow][ccol - 1] = c; // FIXME may cause array index out of bounds exception: 80
+		text[prow][ccol - 1] = c;
 
 		// 紀錄暫存的資料，寬字元每個字最多用兩個 bytes，一般字元每字一個 byte
 		for (int i = 0; i < (isWide ? Math.min(textBufPos, 2) : 1); i++) {
@@ -1534,8 +1514,18 @@ public class VT100 extends JComponent {
 		return sb.toString();
 	}
 
-	private void parse() throws IOException {
-		byte b = getNextByte();
+	private void parse() {
+		byte b;
+
+		b = getNextByte();
+
+		if (DEBUG) {
+			System.out.print((char) b);
+
+			if (debug_counter++ % 100 == 99) {
+				System.out.println();
+			}
+		}
 
 		// 先把原來的游標位置存下來
 		lcol = ccol;
@@ -1561,8 +1551,7 @@ public class VT100 extends JComponent {
 		if ((lcol != ccol) || (lrow != crow)) {
 
 			// 移動後游標應該是可見的
-			cursor_blink_count = 0;
-			cursor_blink = true;
+			cursorBlink.setVisible(true);
 
 			// 新的游標位置需要重繪
 			setRepaint(crow, ccol);
@@ -1575,7 +1564,7 @@ public class VT100 extends JComponent {
 		}
 	}
 
-	private void parse_control(final byte b) throws IOException {
+	private void parse_control(final byte b) {
 		switch (b) {
 		case 0: // NUL (Null)
 			// TODO:
@@ -1658,7 +1647,7 @@ public class VT100 extends JComponent {
 		}
 	}
 
-	private void parse_csi() throws IOException {
+	private void parse_csi() {
 		int i, argc;
 		int arg;
 		final int[] argv = new int[256];
@@ -1835,7 +1824,7 @@ public class VT100 extends JComponent {
 		}
 	}
 
-	private void parse_esc() throws IOException {
+	private void parse_esc() {
 		byte b;
 
 		b = getNextByte();
@@ -1876,7 +1865,7 @@ public class VT100 extends JComponent {
 		}
 	}
 
-	private void parse_scs(final byte a) throws IOException {
+	private void parse_scs(final byte a) {
 		byte b;
 		// TODO:
 		b = getNextByte();
@@ -2097,7 +2086,9 @@ public class VT100 extends JComponent {
 		}
 
 		final int prow = physicalRow(row);
-		repaintSet.add(new Integer((prow << 8) | (col - 1)));
+		synchronized (repaintLock) {
+			repaintSet.add((prow << 8) | (col - 1));
+		}
 	}
 
 	/**
@@ -2112,7 +2103,66 @@ public class VT100 extends JComponent {
 			return;
 		}
 
-		repaintSet.add(new Integer((prow << 8) | pcol));
+		synchronized (repaintLock) {
+			repaintSet.add((prow << 8) | pcol);
+		}
 	}
-	
+}
+
+class FIFOSet {
+	boolean[]	contain;
+	int			front, rear;
+	int[]		set;
+
+	/**
+	 * @param range
+	 *            Set 的值域 1...(range - 1)
+	 */
+	public FIFOSet(final int range) {
+		front = rear = 0;
+
+		// 假設最多 256 column
+		contain = new boolean[range];
+		set = new int[range];
+
+		for (int i = 0; i < contain.length; i++) {
+			contain[i] = false;
+		}
+	}
+
+	public void add(final int v) {
+		if (contain[v] == true) {
+			return;
+		}
+
+		// XXX: 沒有檢查空間是否足夠
+
+		set[rear] = v;
+		contain[v] = true;
+
+		if (++rear == set.length) {
+			rear = 0;
+		}
+	}
+
+	public boolean isEmpty() {
+		return (front == rear);
+	}
+
+	public int remove() {
+		int v;
+
+		if (front == rear) {
+			throw new NoSuchElementException();
+		}
+
+		v = set[front];
+		contain[v] = false;
+
+		if (++front == set.length) {
+			front = 0;
+		}
+
+		return v;
+	}
 }

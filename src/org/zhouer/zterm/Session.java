@@ -1,4 +1,4 @@
-package org.zhouer.zterm.view;
+package org.zhouer.zterm;
 
 import java.awt.Adjustable;
 import java.awt.BorderLayout;
@@ -30,11 +30,8 @@ import org.zhouer.utils.TextUtils;
 import org.zhouer.vt.Application;
 import org.zhouer.vt.Config;
 import org.zhouer.vt.VT100;
-import org.zhouer.zterm.model.Model;
-import org.zhouer.zterm.model.Resource;
-import org.zhouer.zterm.model.Site;
 
-public class SessionPane extends JPanel implements Runnable, Application,
+public class Session extends JPanel implements Runnable, Application,
 		AdjustmentListener, MouseWheelListener {
 
 	private class AntiIdleTask implements ActionListener {
@@ -42,19 +39,19 @@ public class SessionPane extends JPanel implements Runnable, Application,
 			// 如果超過 antiIdelInterval milliseconds 沒有送出東西，
 			// lastInputTime 在 writeByte, writeBytes 會被更新。
 			final long now = new Date().getTime();
-			if (SessionPane.this.antiidle
-					&& SessionPane.this.isConnected()
-					&& (now - SessionPane.this.lastInputTime > SessionPane.this.antiIdleInterval)) {
+			if (Session.this.antiidle
+					&& Session.this.isConnected()
+					&& (now - Session.this.lastInputTime > Session.this.antiIdleInterval)) {
 				// System.out.println( "Sent antiidle char" );
 				// TODO: 設定 antiidle 送出的字元
-				if (SessionPane.this.site.getProtocol()
+				if (Session.this.site.protocol
 						.equalsIgnoreCase(Protocol.TELNET)) {
 
 					final String buf = TextUtils
-							.BSStringToString(SessionPane.this.resource
+							.BSStringToString(Session.this.resource
 									.getStringValue(Resource.ANTI_IDLE_STRING));
 					final char[] ca = buf.toCharArray();
-					SessionPane.this.writeChars(ca, 0, ca.length);
+					Session.this.writeChars(ca, 0, ca.length);
 
 					// 較正規的防閒置方式
 					// writeByte( Telnet.IAC );
@@ -64,24 +61,24 @@ public class SessionPane extends JPanel implements Runnable, Application,
 		}
 	}
 
-	// 連線狀態常數
 	public static final int STATE_ALERT = 4;
 	public static final int STATE_CLOSED = 3;
-	public static final int STATE_CONNECTED = 2;	
+	public static final int STATE_CONNECTED = 2;
+	// 連線狀態常數
 	public static final int STATE_TRYING = 1;
-	
+
 	private static final long serialVersionUID = 2180544188833033537L;
-	
 	// 連線狀態
-	private int state;
+	public int state;
 
 	// 防閒置用
 	private boolean antiidle;
-	private final Convertor conv = Convertor.getInstance();
+	private final Convertor conv;
 
 	// 這個 session 是否擁有一個 tab, 可能 session 還沒結束，但 tab 已被關閉。
 	private boolean hasTab;
 
+	private String iconname;
 	private InputStream is;
 	private long lastInputTime, antiIdleInterval;
 
@@ -103,24 +100,35 @@ public class SessionPane extends JPanel implements Runnable, Application,
 
 	private final VT100 vt;
 
-	public SessionPane(final Site site, final BufferedImage image) {
-		this.site = site;
-		this.resource = Resource.getInstance();
-		this.model = Model.getInstance();
+	private String windowtitle;
+
+	public Session(final Site s, final Resource r, final Convertor c,
+			final BufferedImage bi, final Model model) {
+		super();
+
+		this.site = s;
+		this.resource = r;
+		this.conv = c;
+		this.model = model;
 
 		// 設定擁有一個分頁
 		this.hasTab = true;
 
+		// FIXME: 預設成 host
+		this.windowtitle = this.site.host;
+		this.iconname = this.site.host;
+
+		// FIXME: magic number
 		this.setBackground(Color.BLACK);
 
 		// VT100
-		this.vt = new VT100(this, this.resource, image);
+		this.vt = new VT100(this, this.resource, this.conv, bi);
 
 		// FIXME: 是否應該在這邊設定？
-		this.vt.setEncoding(this.site.getEncoding());
-		this.vt.setEmulation(this.site.getEmulation());
+		this.vt.setEncoding(this.site.encoding);
+		this.vt.setEmulation(this.site.emulation);
 
-		// 設定 layout 並把 vt 及 scrollbar 放進去
+		// 設定 layout 並把 vt 及 scrollbar 放進去，
 		this.setLayout(new BorderLayout());
 		this.add(this.vt, BorderLayout.CENTER);
 
@@ -152,7 +160,7 @@ public class SessionPane extends JPanel implements Runnable, Application,
 		this.model.bell(this);
 	}
 
-	public void bell(final SessionPane s) {
+	public void bell(final Session s) {
 		if (this.resource.getBooleanValue(Resource.USE_CUSTOM_BELL)) {
 			try {
 				java.applet.Applet.newAudioClip(
@@ -167,14 +175,10 @@ public class SessionPane extends JPanel implements Runnable, Application,
 		}
 
 		if (!this.model.isTabForeground(s)) {
-			s.setState(SessionPane.STATE_ALERT);
+			s.setState(Session.STATE_ALERT);
 		}
 	}
 
-	/**
-	 * Close the connection.
-	 * @param fromRemote true, if disconnection from remote server; false, if disconnection from client user
-	 */
 	public void close(final boolean fromRemote) {
 		if (this.isClosed()) {
 			return;
@@ -197,7 +201,7 @@ public class SessionPane extends JPanel implements Runnable, Application,
 		}
 
 		// 將連線狀態改為斷線
-		this.setState(SessionPane.STATE_CLOSED);
+		this.setState(Session.STATE_CLOSED);
 
 		// 若遠端 server 主動斷線則判斷是否需要重連
 		final boolean autoreconnect = this.resource
@@ -237,8 +241,13 @@ public class SessionPane extends JPanel implements Runnable, Application,
 	}
 
 	public String getEmulation() {
-		return this.site.getEmulation();
+		return this.site.emulation;
 	}
+
+	public String getIconName() {
+		return this.iconname;
+	}
+
 	public String getSelectedColorText() {
 		return this.vt.getSelectedColorText();
 	}
@@ -253,6 +262,10 @@ public class SessionPane extends JPanel implements Runnable, Application,
 
 	public String getURL() {
 		return this.site.getURL();
+	}
+
+	public String getWindowTitle() {
+		return this.windowtitle;
 	}
 
 	public boolean isClosed() {
@@ -299,8 +312,19 @@ public class SessionPane extends JPanel implements Runnable, Application,
 		this.vt.pasteText(str);
 	}
 
-	public int readBytes(final byte[] buf) throws IOException {
-		return this.is.read(buf);
+	/*
+	 * 自己的
+	 */
+
+	public int readBytes(final byte[] buf) {
+		try {
+			return this.is.read(buf);
+		} catch (final IOException e) {
+			// e.printStackTrace();
+			// 可能是正常中斷，也可能是異常中斷，在下層沒有區分
+			this.close(true);
+			return -1;
+		}
 	}
 
 	public void remove() {
@@ -308,6 +332,7 @@ public class SessionPane extends JPanel implements Runnable, Application,
 		this.hasTab = false;
 	}
 
+	@Override
 	public boolean requestFocusInWindow() {
 		return this.vt.requestFocusInWindow();
 	}
@@ -318,23 +343,24 @@ public class SessionPane extends JPanel implements Runnable, Application,
 
 	public void run() {
 		// 設定連線狀態為 trying
-		this.setState(SessionPane.STATE_TRYING);
+		this.setState(Session.STATE_TRYING);
 
 		// 新建連線
-		if (this.site.getProtocol().equalsIgnoreCase(Protocol.TELNET)) {
-			this.network = new Telnet(this.site.getHost(), this.site.getPort());
-			this.network.setTerminalType(this.site.getEmulation());
-		} else if (this.site.getProtocol().equalsIgnoreCase(Protocol.SSH)) {
-			this.network = new SSH2(this.site.getHost(), this.site.getPort());
-			this.network.setTerminalType(this.site.getEmulation());
+		if (this.site.protocol.equalsIgnoreCase(Protocol.TELNET)) {
+			this.network = new Telnet(this.site.host, this.site.port);
+			this.network.setTerminalType(this.site.emulation);
+		} else if (this.site.protocol.equalsIgnoreCase(Protocol.SSH)) {
+			this.network = new SSH2(this.site.host, this.site.port);
+			this.network.setTerminalType(this.site.emulation);
 		} else {
-			System.err.println("Unknown protocol: " + this.site.getProtocol()); //$NON-NLS-1$
+			System.err.println("Unknown protocol: " + this.site.protocol); //$NON-NLS-1$
 		}
 
 		// 連線失敗
 		if (this.network.connect() == false) {
 			// 設定連線狀態為 closed
-			this.setState(SessionPane.STATE_CLOSED);
+			this.setState(Session.STATE_CLOSED);
+			this.showMessage(Messages.getString("Session.ConnectionFailed")); //$NON-NLS-1$
 			return;
 		}
 
@@ -344,7 +370,7 @@ public class SessionPane extends JPanel implements Runnable, Application,
 		// TODO: 如果需要 input filter or trigger 可以在這邊套上
 
 		// 設定連線狀態為 connected
-		this.setState(SessionPane.STATE_CONNECTED);
+		this.setState(Session.STATE_CONNECTED);
 
 		// 連線成功，更新或新增連線紀錄
 		this.resource.addFavorite(this.site);
@@ -367,7 +393,7 @@ public class SessionPane extends JPanel implements Runnable, Application,
 	}
 
 	public void setEmulation(final String emu) {
-		site.setEmulation(emu);
+		this.site.emulation = emu;
 
 		// 通知遠端 terminal type 已改變
 		this.network.setTerminalType(emu);
@@ -376,8 +402,8 @@ public class SessionPane extends JPanel implements Runnable, Application,
 	}
 
 	public void setEncoding(final String enc) {
-		site.setEncoding(enc);
-		this.vt.setEncoding(this.site.getEncoding());
+		this.site.encoding = enc;
+		this.vt.setEncoding(this.site.encoding);
 		requestScreenData();
 	}
 	
@@ -386,14 +412,23 @@ public class SessionPane extends JPanel implements Runnable, Application,
 		this.writeChar((char) CTRL_L);
 	}
 
+	public void setIconName(final String in) {
+		// TODO: 未完成
+		this.iconname = in;
+		this.model.updateTab();
+	}
+
 	public void setState(final int s) {
 		this.state = s;
 		this.model.updateTabState(s, this);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.zhouer.vt.Application#showMessage(java.lang.String)
-	 */
+	public void setWindowTitle(final String wt) {
+		// TODO: 未完成
+		this.windowtitle = wt;
+		this.model.updateTab();
+	}
+
 	public void showMessage(final String msg) {
 		// 當分頁仍存在時才會顯示訊息
 		if (this.hasTab) {
@@ -401,14 +436,11 @@ public class SessionPane extends JPanel implements Runnable, Application,
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.zhouer.vt.Application#showPopup(int, int)
-	 */
 	public void showPopup(final int x, final int y) {
 		final Point p = this.vt.getLocationOnScreen();
 		String link;
 
-		if (this.vt.isOverURL(x, y)) {
+		if (this.vt.coverURL(x, y)) {
 			link = this.vt.getURL(x, y);
 		} else {
 			link = null;
@@ -465,7 +497,7 @@ public class SessionPane extends JPanel implements Runnable, Application,
 	public void writeChar(final char c) {
 		byte[] buf;
 
-		buf = this.conv.charToBytes(c, this.site.getEncoding());
+		buf = this.conv.charToBytes(c, this.site.encoding);
 
 		this.writeBytes(buf, 0, buf.length);
 	}
@@ -477,21 +509,12 @@ public class SessionPane extends JPanel implements Runnable, Application,
 		byte[] tmp2;
 
 		for (int i = 0; i < len; i++) {
-			tmp2 = this.conv.charToBytes(buf[offset + i], this.site.getEncoding());
+			tmp2 = this.conv.charToBytes(buf[offset + i], this.site.encoding);
 			for (int j = 0; j < tmp2.length; j++) {
 				tmp[count++] = tmp2[j];
 			}
 		}
 
 		this.writeBytes(tmp, 0, count);
-	}
-
-	/**
-	 * Getter of state
-	 *
-	 * @return the state
-	 */
-	public int getState() {
-		return state;
 	}
 }

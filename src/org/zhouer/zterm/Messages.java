@@ -1,25 +1,24 @@
-package org.zhouer.utils;
+package org.zhouer.zterm;
 
 import java.io.UnsupportedEncodingException;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 /**
- * International messages is created automatically by Eclipse used to manage internal strings
+ * Messages is created automatically by Eclipse used to manage internal strings
  * in source code.
  * 
  * @author h45
  */
-public class InternationalMessages {
-	
-	private static final String BUNDLE_NAME = "res.lang.messages"; //$NON-NLS-1$
+public class Messages {
+	private static final String BUNDLE_NAME = "org.zhouer.zterm.lang.messages"; //$NON-NLS-1$
 
 	private static ResourceBundle RESOURCE_BUNDLE = ResourceBundle
-			.getBundle(InternationalMessages.BUNDLE_NAME);
+			.getBundle(Messages.BUNDLE_NAME);
 
 	public static void restartBundle() {
-		InternationalMessages.RESOURCE_BUNDLE = ResourceBundle
-				.getBundle(InternationalMessages.BUNDLE_NAME);
+		Messages.RESOURCE_BUNDLE = ResourceBundle
+				.getBundle(Messages.BUNDLE_NAME);
 	}
 
 	/**
@@ -31,7 +30,7 @@ public class InternationalMessages {
 	 */
 	public static String getString(final String key) {
 		try {
-			return new String(InternationalMessages.RESOURCE_BUNDLE.getString(key).getBytes(
+			return new String(Messages.RESOURCE_BUNDLE.getString(key).getBytes(
 					"ISO-8859-1"), "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
@@ -42,7 +41,7 @@ public class InternationalMessages {
 		return '!' + key + '!';
 	}
 
-	private InternationalMessages() {
+	private Messages() {
 		// This class shouldn't be instanced.
 	}
 }

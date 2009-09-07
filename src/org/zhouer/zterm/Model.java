@@ -1,5 +1,7 @@
-package org.zhouer.zterm.model;
+package org.zhouer.zterm;
 
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -8,20 +10,14 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Vector;
 
+import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import org.zhouer.protocol.Protocol;
-import org.zhouer.utils.ClipUtils;
-import org.zhouer.utils.InternationalMessages;
+import org.zhouer.utils.Convertor;
 import org.zhouer.vt.Config;
-import org.zhouer.zterm.view.HtmlPane;
-import org.zhouer.zterm.view.PasswordPane;
-import org.zhouer.zterm.view.PreferencePane;
-import org.zhouer.zterm.view.SessionPane;
-import org.zhouer.zterm.view.SiteManager;
-import org.zhouer.zterm.view.ZTerm;
 
 /**
  * Model is collection of behaviors requested by controllers which registered in
@@ -50,7 +46,11 @@ public class Model {
 		return Model.model;
 	}
 
+	private final Clip clip;
+
 	private String colorText = null; // 複製下來的彩色文字
+
+	private final Convertor conv;
 
 	private final Resource resource;
 
@@ -62,37 +62,24 @@ public class Model {
 
 	private PreferencePane preferencePane;
 
-	public String getCopiedLink() {
-		return copiedLink;
-	}
-
-	public void setCopiedLink(String copiedLink) {
-		this.copiedLink = copiedLink;
-	}
-
 	private Model() {
 		sessions = Sessions.getInstance(); // 各個連線
 		resource = Resource.getInstance(); // 各種設定
+		conv = new Convertor(); // 轉碼用
+		clip = new Clip(); // 與系統剪貼簿溝通的橋樑
 		preferencePane = new PreferencePane();
-	}
-
-	public void setLocale(final Locale locale) {
-		Locale.setDefault(locale);
-		resource.setValue(Resource.LOCALE_COUNTRY, locale.getCountry());
-		resource.setValue(Resource.LOCALE_LANGUAGE, locale.getLanguage());
-		resource.setValue(Resource.LOCALE_VARIANT, locale.getVariant());
 	}
 
 	/**
 	 * Automatically connect to predefined sites according to resource.
 	 */
 	public void autoconnect() {
-		final Vector favorite = resource.getFavorites();
-		final Iterator favoriteIterator = favorite.iterator();
+		final Vector<Site> favorite = resource.getFavorites();
+		final Iterator<Site> favoriteIterator = favorite.iterator();
 
 		while (favoriteIterator.hasNext()) {
-			final Site site = (Site) favoriteIterator.next();
-			if (site.isAutoconnect()) {
+			final Site site = favoriteIterator.next();
+			if (site.autoconnect) {
 				// XXX: here's magic number, -1.
 				this.connect(site, -1);
 			}
@@ -105,7 +92,7 @@ public class Model {
 	 * @param session
 	 *            sound an alert from this session.
 	 */
-	public void bell(final SessionPane session) {
+	public void bell(final Session session) {
 		if (resource.getBooleanValue(Resource.USE_CUSTOM_BELL)) {
 			try {
 				java.applet.Applet.newAudioClip(
@@ -120,7 +107,7 @@ public class Model {
 		}
 
 		if (!isTabForeground(session)) {
-			session.setState(SessionPane.STATE_ALERT);
+			session.setState(Session.STATE_ALERT);
 		}
 	}
 
@@ -130,67 +117,74 @@ public class Model {
 	 * @param index
 	 *            the index of session to be showed on the screen.
 	 */
-	public void switchSessionTo(final int index) {
-		view.switchSessionTo(index);
-	}
-	
-	/**
-	 * Switch current tab page to the next session. 
-	 */
-	public void switchToNextSession() {
-		view.switchToNextSession();
-	}
-	
-	/**
-	 * Switch current tab page to the previous session. 
-	 */
-	public void switchToPreviousSession() {
-		view.switchToPreviousSession();
-	}
-	
-	/**
-	 * Switch current tab page to the last session.
-	 */
-	public void switchToLastSession() {
-		view.switchToLastSession();
-	}
-	
-	/**
-	 * Request focus to the current session.
-	 */
-	public void requestFocusToCurrentSession() {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				final SessionPane session = getCurrentSession();
-				
-				if (session != null) {
-					getCurrentSession().requestFocusInWindow();
+	public void changeSession(final int index) {
+		if ((0 <= index) && (index < view.tabbedPane.getTabCount())) {
+			
+			// 取得焦點的工作
+			final Runnable sessionFocuser = new Runnable() {
+				public void run() {
+					sessions.get(index).requestFocusInWindow();
 				}
-			}
-		});
-	}
-	
-	/**
-	 * Getter of the current session which is able to be viewed 
-	 * 
-	 * @return the current session
-	 */
-	public SessionPane getCurrentSession() {
-		return view.getCurrentSession();
+			};
+			
+			// 切換分頁的工作 （包含取得焦點的工作）
+			final Runnable tabbedSwitcher = new Runnable() {
+				public void run() {
+					view.tabbedPane.setSelectedIndex(index);
+					SwingUtilities.invokeLater(sessionFocuser);
+				}
+			};
+			
+			// 啟動切換分頁的工作
+			SwingUtilities.invokeLater(tabbedSwitcher);
+		}
 	}
 
 	/**
 	 * Close current tab which is showing on the screen.
 	 */
 	public void closeCurrentTab() {
-		view.closeCurrentTab();
+		final Session session = (Session) view.tabbedPane
+				.getSelectedComponent();
+
+		if (session != null) {
+
+			// 連線中則詢問是否要斷線
+			if (!session.isClosed()) {
+				if (showConfirm(
+						Messages.getString("ZTerm.Message_Confirm_Close"), Messages.getString("ZTerm.Title_Confirm_Close"), JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) { //$NON-NLS-1$ //$NON-NLS-2$
+					return;
+				}
+
+				// 通知 session 要中斷連線了
+				session.close(false);
+
+				if (!resource
+						.getBooleanValue(Resource.REMOVE_MANUAL_DISCONNECT)) {
+					return;
+				}
+			}
+
+			// 通知 session 要被移除了
+			session.remove();
+
+			view.tabbedPane.remove(session);
+			getSessions().remove(session);
+
+			// 刪除分頁會影響分頁編號
+			updateTabTitle();
+
+			// 讓現在被選取的分頁取得 focus.
+			updateTab();
+		}
 	}
 
 	/**
 	 * Do color copying.
 	 */
 	public void colorCopy() {
-		final SessionPane session = getCurrentSession();
+		final Session session = (Session) view.tabbedPane
+				.getSelectedComponent();
 
 		if (session != null) {
 			final String str = session.getSelectedColorText();
@@ -208,7 +202,8 @@ public class Model {
 	 * Do color pasting.
 	 */
 	public void colorPaste() {
-		final SessionPane session = getCurrentSession();
+		final Session session = (Session) view.tabbedPane
+				.getSelectedComponent();
 		if ((session != null) && (colorText != null)) {
 			session.pasteColorText(colorText);
 		}
@@ -223,19 +218,48 @@ public class Model {
 	 *            the index of tab page corresponding to this site.
 	 */
 	public void connect(final Site site, final int index) {
-		view.connect(site, index);
+		Session session;
+
+		session = new Session(site, resource, conv, view.bi, this);
+
+		// index 為連線後放在第幾個分頁，若為 -1 表開新分頁。
+		if (index == -1) {
+			getSessions().add(session);
+
+			// 一開始預設 icon 是連線中斷
+			final ImageIcon icon = view.closedIcon;
+
+			// chitsaou.070726: 分頁編號
+			if (resource.getBooleanValue(Resource.TAB_NUMBER)) {
+				// 分頁 title 會顯示分頁編號加站台名稱，tip 會顯示 hostname.
+				view.tabbedPane.addTab((view.tabbedPane.getTabCount() + 1)
+						+ ". " + site.name, icon, session, site.host); //$NON-NLS-1$
+			} else {
+				// chitsaou:070726: 不要標號
+				view.tabbedPane.addTab(site.name, icon, session, site.host);
+			}
+
+			view.tabbedPane.setSelectedIndex(view.tabbedPane.getTabCount() - 1);
+		} else {
+			getSessions().setElementAt(session, index);
+			view.tabbedPane.setComponentAt(index, session);
+		}
+
+		// 每個 session 都是一個 thread, 解決主程式被 block 住的問題。
+		new Thread(session).start();
 	}
 
 	/**
 	 * Do text copying to clip.
 	 */
 	public void copy() {
-		final SessionPane session = getCurrentSession();
+		final Session session = (Session) view.tabbedPane
+				.getSelectedComponent();
 
 		if (session != null) {
 			final String str = session.getSelectedText();
 			if (str.length() != 0) {
-				ClipUtils.setContent(str);
+				clip.setContent(str);
 			}
 			if (resource.getBooleanValue(Config.CLEAR_AFTER_COPY)) {
 				session.resetSelected();
@@ -249,7 +273,7 @@ public class Model {
 	 */
 	public void copyLink() {
 		if (copiedLink != null) {
-			ClipUtils.setContent(copiedLink);
+			clip.setContent(copiedLink);
 		}
 	}
 
@@ -260,23 +284,23 @@ public class Model {
 	 *            key word for site to be searched.
 	 * @return candidate sites.
 	 */
-	public Vector getCandidateSites(final String keyWordSite) {
-		final Vector candidateSites = new Vector();
+	public Vector<Site> getCandidateSites(final String keyWordSite) {
+		final Vector<Site> candidateSites = new Vector<Site>();
 
 		// 如果關鍵字是空字串，那就什麼都不要回
 		if (keyWordSite.length() == 0) {
 			return candidateSites;
 		}
 
-		Iterator siteIterator;
+		Iterator<Site> siteIterator;
 		Site site;
 
 		// 加入站台列表中符合的
 		siteIterator = resource.getFavorites().iterator();
 		while (siteIterator.hasNext()) {
-			site = (Site) siteIterator.next();
-			if ((site.getName().indexOf(keyWordSite) != -1)
-					|| (site.getAlias().indexOf(keyWordSite) != -1)
+			site = siteIterator.next();
+			if ((site.name.indexOf(keyWordSite) != -1)
+					|| (site.alias.indexOf(keyWordSite) != -1)
 					|| (site.getURL().indexOf(keyWordSite) != -1)) {
 				candidateSites.addElement(site);
 			}
@@ -294,8 +318,8 @@ public class Model {
 	 * @return password from user.
 	 */
 	public String getPassword() {
-		return PasswordPane.showPasswordDialog(view, InternationalMessages
-				.getString("Model.Password_Text"), InternationalMessages
+		return PasswordPane.showPasswordDialog(view, Messages
+				.getString("Model.Password_Text"), Messages
 				.getString("Model.Password_Title")); 
 	}
 
@@ -304,7 +328,7 @@ public class Model {
 	 * 
 	 * @return the sessions
 	 */
-	public Vector getSessions() {
+	public Vector<Session> getSessions() {
 		return sessions;
 	}
 
@@ -317,7 +341,7 @@ public class Model {
 		return JOptionPane
 				.showInputDialog(
 						view,
-						InternationalMessages.getString("Model.User_Name_Text"), InternationalMessages.getString("Model.User_Name_Title"), //$NON-NLS-1$ //$NON-NLS-2$
+						Messages.getString("Model.User_Name_Text"), Messages.getString("Model.User_Name_Title"), //$NON-NLS-1$ //$NON-NLS-2$
 						JOptionPane.QUESTION_MESSAGE);
 	}
 
@@ -327,17 +351,17 @@ public class Model {
 	 * @param session
 	 * @return true if the session is selected on tab page; false, otherwise.
 	 */
-	public boolean isTabForeground(final SessionPane session) {
-		return view.isTabForeground(session);
+	public boolean isTabForeground(final Session session) {
+		return (view.tabbedPane.indexOfComponent(session) == view.tabbedPane
+				.getSelectedIndex());
 	}
 
 	/**
 	 * Ask user host and open the site which user enters to dialog.
 	 */
 	public void open() {
-		final String site = JOptionPane.showInputDialog(view, InternationalMessages
+		final String site = JOptionPane.showInputDialog(view, Messages
 				.getString("ZTerm.Message_Input_Site")); //$NON-NLS-1$
-		
 		this.connect(site);
 	}
 
@@ -350,7 +374,7 @@ public class Model {
 	public void openExternalBrowser(final String url) {
 		String cmd = resource.getStringValue(Resource.EXTERNAL_BROWSER);
 		if (cmd == null) {
-			showMessage(InternationalMessages
+			showMessage(Messages
 					.getString("ZTerm.Message_Wrong_Explorer_Command")); //$NON-NLS-1$
 			return;
 		}
@@ -358,7 +382,7 @@ public class Model {
 		// 把 %u 置換成給定的 url
 		final int urlIndex = cmd.indexOf("%u"); //$NON-NLS-1$
 		if (urlIndex == -1) {
-			showMessage(InternationalMessages
+			showMessage(Messages
 					.getString("ZTerm.Message_Wrong_Explorer_Command")); //$NON-NLS-1$
 			return;
 		}
@@ -368,12 +392,23 @@ public class Model {
 	}
 
 	/**
+	 * Open new tab and connect to the site where typed on the text field in
+	 * user interface.
+	 */
+	public void openNewTab() {
+		final String site = view.siteText.getText();
+		view.siteModel.removeAllElements();
+		this.connect(site);
+	}
+
+	/**
 	 * Do paste at current session.
 	 */
 	public void paste() {
-		final SessionPane session = getCurrentSession();
+		final Session session = (Session) view.tabbedPane
+				.getSelectedComponent();
 		if (session != null) {
-			session.pasteText(ClipUtils.getContent());
+			session.pasteText(clip.getContent());
 		}
 	}
 
@@ -383,15 +418,16 @@ public class Model {
 	 * @param session
 	 *            session to be reopened.
 	 */
-	public void reopenSession(final SessionPane session) {
-		view.reopenSession(session);
-	}
-	
-	/**
-	 * Reopen current session.
-	 */
-	public void reopenCurrentSession() {
-		view.reopenCurrentSession();
+	public void reopenSession(final Session session) {
+		if (session != null) {
+			// 若連線中則開新分頁，已斷線則重連。
+			if (session.isClosed()) {
+				this.connect(session.getSite(), view.tabbedPane
+						.indexOfComponent(session));
+			} else {
+				this.connect(session.getSite(), -1);
+			}
+		}
 	}
 
 	/**
@@ -422,7 +458,7 @@ public class Model {
 	 * Show about dialog.
 	 */
 	public void showAbout() {
-		showMessage(InternationalMessages.getString("ZTerm.Message_About")); //$NON-NLS-1$
+		showMessage(Messages.getString("ZTerm.Message_About")); //$NON-NLS-1$
 	}
 
 	/**
@@ -448,7 +484,7 @@ public class Model {
 	public void showFAQ() {
 		final HtmlPane faqHtmlDialog = new HtmlPane(ZTerm.class
 				.getResource("docs/faq.html")); //$NON-NLS-1$ 
-		final JDialog dialog = faqHtmlDialog.createDialog(view, InternationalMessages
+		final JDialog dialog = faqHtmlDialog.createDialog(view, Messages
 				.getString("ZTerm.Title_FAQ")); //$NON-NLS-1$
 		dialog.setSize(640, 400);
 		dialog.setVisible(true);
@@ -475,14 +511,20 @@ public class Model {
 	 *            the link which is selected.
 	 */
 	public void showPopup(final int x, final int y, final String link) {
-		view.showPopup(x, y, link);
+		final Point viewLocation = view.getLocationOnScreen();
+
+		view.popupCopyLinkItem.setEnabled(link != null);
+		copiedLink = link;
+
+		// 傳進來的是滑鼠相對於視窗左上角的座標，減去主視窗相對於螢幕左上角的座標，可得滑鼠相對於主視窗的座標。
+		view.popupMenu.show(view, x - viewLocation.x, y - viewLocation.y);
 	}
 
 	/**
 	 * Show preference dialog.
 	 */
 	public void showPreference() {
-		final JDialog dialog = preferencePane.createDialog(view, InternationalMessages
+		final JDialog dialog = preferencePane.createDialog(view, Messages
 				.getString("Preference.Title"));
 		dialog.setSize(620, 300);
 		dialog.setVisible(true);
@@ -522,7 +564,7 @@ public class Model {
 	public void showUsage() {
 		final HtmlPane usageHtmlDialog = new HtmlPane(ZTerm.class
 				.getResource("docs/usage.html")); //$NON-NLS-1$ 
-		final JDialog dialog = usageHtmlDialog.createDialog(view, InternationalMessages
+		final JDialog dialog = usageHtmlDialog.createDialog(view, Messages
 				.getString("ZTerm.Title_Manual")); //$NON-NLS-1$
 		dialog.setSize(640, 400);
 		dialog.setVisible(true);
@@ -533,14 +575,12 @@ public class Model {
 	 */
 	public void updateAntiIdleTime() {
 		for (int i = 0; i < sessions.size(); i++) {
-			final SessionPane session = (SessionPane) sessions.elementAt(i);
-			session.updateAntiIdleTime();
+			(sessions.elementAt(i)).updateAntiIdleTime();
 		}
 	}
 
 	/**
 	 * Update bounds to resource, and also set the bounds of user interface.
-	 * @deprecated applet should never update bounds because of embedded in a browser.
 	 */
 	public void updateBounds() {
 		int locationx, locationy, width, height;
@@ -560,7 +600,8 @@ public class Model {
 	 *            the encode name to be updated.
 	 */
 	public void updateEncoding(final String encoding) {
-		final SessionPane session = getCurrentSession();
+		final Session session = (Session) view.tabbedPane
+				.getSelectedComponent();
 		if (session != null) {
 			session.setEncoding(encoding);
 		}
@@ -574,10 +615,32 @@ public class Model {
 	}
 
 	/**
+	 * Update look and feel which is related to UI manager.
+	 */
+	public void updateLookAndFeel() {
+		view.updateLookAndFeel();
+	}
+	
+	/**
+	 * Reload resource and update the settings displayed in preference panel.
+	 */
+	public void updatePreferencePane() {
+		preferencePane.reloadSettings();
+	}
+
+	/**
 	 * Update size to resource, and also user interface.
 	 */
 	public void updateSize() {
-		preferencePane.updateSize();
+		final Rectangle bounds = view.getBounds();
+		resource.setValue(Resource.GEOMETRY_X, (int) bounds.getX());
+		resource.setValue(Resource.GEOMETRY_Y, (int) bounds.getY());
+		resource.setValue(Resource.GEOMETRY_WIDTH, (int) bounds.getWidth());
+		resource.setValue(Resource.GEOMETRY_HEIGHT, (int) bounds.getHeight());
+		
+		preferencePane.apperancePanel.widthSpinner.setValue((int) bounds.getWidth());
+		preferencePane.apperancePanel.heightSpinner.setValue((int) bounds.getHeight());
+
 		view.updateSize();
 	}
 
@@ -585,12 +648,22 @@ public class Model {
 	 * Update tab page.
 	 */
 	public void updateTab() {
-		final SessionPane session = getCurrentSession();
+		// 為了下面 invokeLater 的關係，這邊改成 final
+		final Session session = (Session) view.tabbedPane
+				.getSelectedComponent();
 
 		if (session != null) {
+			// 修改視窗標題列
+			// setTitle( "ZTerm - " + s.getWindowTitle() ); //$NON-NLS-1$
+
+			// 修改位置列
+			view.siteText.setText(session.getURL());
+			view.siteText.select(0, 0);
+			view.siteField.hidePopup();
+
 			// 切換到 alert 的 session 時設定狀態為 connected, 以取消 bell.
-			if (session.getState() == SessionPane.STATE_ALERT) {
-				session.setState(SessionPane.STATE_CONNECTED);
+			if (session.state == Session.STATE_ALERT) {
+				session.setState(Session.STATE_CONNECTED);
 			}
 
 			// 因為全部的連線共用一張 BufferedImage, 切換分頁時需重繪內容。
@@ -602,6 +675,8 @@ public class Model {
 					session.requestFocusInWindow();
 				}
 			});
+		} else {
+			view.siteText.setText(""); //$NON-NLS-1$
 		}
 	}
 
@@ -613,7 +688,7 @@ public class Model {
 	 * @param session
 	 *            the session of which tab state to be updated.
 	 */
-	public void updateTabState(final int state, final SessionPane session) {
+	public void updateTabState(final int state, final Session session) {
 		view.updateTabState(state, session);
 	}
 
@@ -621,7 +696,27 @@ public class Model {
 	 * Update tab title to each tab page.
 	 */
 	public void updateTabTitle() {
-		view.updateTabTitle();
+		for (int i = 0; i < view.tabbedPane.getTabCount(); i++) {
+			view.tabbedPane.setTitleAt(i, (i + 1)
+					+ ". " + getSessions().elementAt(i).getSite().name); //$NON-NLS-1$
+
+			// FIXME: need revise
+			view.tabbedPane.setTitleAt(i,
+					((resource.getBooleanValue(Resource.TAB_NUMBER)) ? (i + 1)
+							+ ". " : "") //$NON-NLS-1$ //$NON-NLS-2$
+							+ getSessions().elementAt(i).getSite().name);
+		}
+	}
+
+	/**
+	 * Update tool bar.
+	 * 
+	 * @param isShowToolbar
+	 *            true, show tool bar; false, hide tool bar.
+	 */
+	public void updateToolbar(final boolean isShowToolbar) {
+		preferencePane.apperancePanel.showToolbarCheckBox.setSelected(isShowToolbar);
+		view.updateToolbar(isShowToolbar);
 	}
 
 	private void connect(String url) {
@@ -652,7 +747,7 @@ public class Model {
 						Protocol.TELNET)) {
 					protocol = Protocol.TELNET;
 				} else {
-					showMessage(InternationalMessages
+					showMessage(Messages
 							.getString("ZTerm.Message_Wrong_Protocal")); //$NON-NLS-1$
 					return;
 				}
@@ -689,24 +784,9 @@ public class Model {
 	 * Refresh messages on the user interface.
 	 */
 	public void refreshMessages() {
-		InternationalMessages.restartBundle();
+		Locale.setDefault(resource.getLocale());
+		Messages.restartBundle();
 		this.view.updateText();
-		this.preferencePane = new PreferencePane();
-	}
-	
-	/**
-	 * Hide the menu bar.
-	 */
-	public void hideMenuBar() {
-		view.removeMenuBar();
-		view.updateSize();
-	}
-	
-	/**
-	 * Show the menu bar.
-	 */
-	public void showMenuBar() {
-		view.showMenuBar();
-		view.updateSize();
+		this.preferencePane.refreshText();
 	}
 }

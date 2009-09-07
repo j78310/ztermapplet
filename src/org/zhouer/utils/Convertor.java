@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class Convertor {
-	
 	public static boolean isValidBig5(final byte[] b, final int offset,
 			final int limit) {
 		// TODO: 改為較嚴謹的 Big5 規格
@@ -88,29 +87,12 @@ public class Convertor {
 	}
 
 	private final byte[] big5bytes;
+
 	private final byte[] ucs2bytes;
+
 	private final char[] ucs2chars;
 
-	private volatile static Convertor convertor = null;
-
-	/**
-	 * Getter of instance in Singleton pattern
-	 * 
-	 * @return singleton instance of model.
-	 */
-	public static Convertor getInstance() {
-		if (Convertor.convertor == null) {
-			synchronized (Convertor.class) {
-				if (Convertor.convertor == null) {
-					Convertor.convertor = new Convertor();
-				}
-			}
-		}
-
-		return Convertor.convertor;
-	}
-	
-	private Convertor() {
+	public Convertor() {
 		int i1, i2;
 
 		this.ucs2bytes = new byte[64 * 1024];

@@ -1,4 +1,4 @@
-package org.zhouer.zterm.view;
+package org.zhouer.zterm;
 
 import java.io.IOException;
 import java.net.URL;

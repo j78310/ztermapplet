@@ -1,9 +1,7 @@
-package org.zhouer.zterm.view;
+package org.zhouer.zterm;
 
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-
-import org.zhouer.zterm.model.Model;
 
 /**
  * ComponentHandler is a component controller for ZTerm applet.
@@ -16,10 +14,10 @@ public class ComponentHandler extends ComponentAdapter {
 
 	private ZTerm view;
 
+	@Override
 	public void componentResized(final ComponentEvent ce) {
 		this.view.validate();
 		this.model.updateSize();
-		model.requestFocusToCurrentSession();
 	}
 
 	/**

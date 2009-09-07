@@ -12,7 +12,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 
-import org.zhouer.zterm.model.Model;
+import org.zhouer.zterm.Model;
 
 import ch.ethz.ssh2.InteractiveCallback;
 
@@ -278,14 +278,17 @@ class SSH2InputStream extends InputStream {
 		this.ssh2 = s;
 	}
 
+	@Override
 	public int read() throws IOException {
 		return this.ssh2.readByte();
 	}
 
+	@Override
 	public int read(final byte[] buf) throws IOException {
 		return this.ssh2.readBytes(buf);
 	}
 
+	@Override
 	public int read(final byte[] buf, final int offset, final int length)
 			throws IOException {
 		return this.ssh2.readBytes(buf, offset, length);
@@ -299,15 +302,18 @@ class SSH2OutputStream extends OutputStream {
 		this.ssh2 = s;
 	}
 
+	@Override
 	public void write(final byte[] b) throws IOException {
 		this.ssh2.writeBytes(b);
 	}
 
+	@Override
 	public void write(final byte[] b, final int offset, final int length)
 			throws IOException {
 		this.ssh2.writeBytes(b, offset, length);
 	}
 
+	@Override
 	public void write(final int b) throws IOException {
 		this.ssh2.writeByte((byte) b);
 	}

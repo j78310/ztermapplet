@@ -1,4 +1,4 @@
-package org.zhouer.zterm.model;
+package org.zhouer.zterm;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
 import org.zhouer.vt.Config;
 
 public class Resource implements Config {
+	public static final String RESOURCE_LOCATION = "resource.location";
 	public static final String LOCALE_COUNTRY = "locale.country";
 	public static final String LOCALE_LANGUAGE = "locale.language";
 	public static final String LOCALE_VARIANT = "locale.variant";
@@ -62,6 +63,7 @@ public class Resource implements Config {
 	}
 
 	private final HashMap defmap, map;
+	private final String defaultResourceLocation;
 
 	public Locale getLocale() {
 		final String country = this.getValue(Resource.LOCALE_COUNTRY);
@@ -73,16 +75,20 @@ public class Resource implements Config {
 	}
 	
 	private Resource() {
-		final File rc = this.getRcFile();
+		
+		// Default location: $HOME/.ztermrc
+		defaultResourceLocation = getDefaultResourceLocation();
 		this.map = new HashMap();
 		this.defmap = new HashMap();
+		
+		final File rc = this.getDefaultRcFile();
 
 		// 載入預設值
 		this.loadDefault();
 
 		// 從設定檔讀取設定，若不存在則新建設定檔
 		if (rc.exists()) {
-			this.readFile();
+			this.readDefaultRcFile();
 		} else {
 			try {
 				rc.createNewFile();
@@ -94,6 +100,10 @@ public class Resource implements Config {
 		// Exception, it must disable system look and feel to ensure the program
 		// works correct initially.
 		this.setValue(Resource.SYSTEM_LOOK_FEEL, false);
+	}
+	
+	private String getDefaultResourceLocation() {
+		return System.getProperty("user.home") + File.separator + ".ztermrc";
 	}
 
 	public void addFavorite(final Site site) {
@@ -111,8 +121,8 @@ public class Resource implements Config {
 		this.setFavorites(favorites);
 	}
 
-	public synchronized Vector getArray(final String name) {
-		final Vector v = new Vector();
+	public synchronized Vector<Site> getArray(final String name) {
+		final Vector<Site> v = new Vector<Site>();
 		String s;
 
 		// 應該是連號的，找不到就結束
@@ -140,7 +150,7 @@ public class Resource implements Config {
 		while (iter.hasNext()) {
 			fa = (Site) iter.next();
 			// 尋找時可用 name 或是 alias
-			if (id.equalsIgnoreCase(fa.getName()) || id.equalsIgnoreCase(fa.getAlias())) {
+			if (id.equalsIgnoreCase(fa.name) || id.equalsIgnoreCase(fa.alias)) {
 				return fa;
 			}
 		}
@@ -148,8 +158,8 @@ public class Resource implements Config {
 		return null;
 	}
 
-	public Vector getFavorites() {
-		final Vector favorites = this.getArray("favorite");
+	public Vector<Site> getFavorites() {
+		final Vector<Site> favorites = this.getArray("favorite");
 
 		for (int i = 0; i < favorites.size(); i++) {
 			favorites.setElementAt(new Site(favorites.elementAt(i).toString()),
@@ -167,14 +177,40 @@ public class Resource implements Config {
 		return this.getValue(key);
 	}
 
-	public void readFile() {
-		final File rc = this.getRcFile();
+	/**
+	 * Read default resource file
+	 */
+	public void readDefaultRcFile() {
+		final File defaultRcFile = this.getDefaultRcFile();
+		readRcFile(defaultRcFile);
+	}
+	
+	public File getRcFile() {
+		final String resourceLocation = getResourceLocation();
+		return new File(resourceLocation);
+	}
+	
+	public void readRcFile() {
+		final File rcFile = getRcFile();
+		readRcFile(rcFile);
+	}
+	
+	public void writeRcFile() {
+		final File rcFile = getRcFile();
+		writeRcFile(rcFile);
+	}
+	
+	/**
+	 * Read the specified resource file
+	 * @param file the specified resource file
+	 */
+	private void readRcFile(File file) {
 		BufferedReader br;
 		String buf;
 
 		try {
 			br = new BufferedReader(new InputStreamReader(new FileInputStream(
-					rc), "UTF8"));
+					file), "UTF8"));
 
 			while ((buf = br.readLine()) != null) {
 				this.parseLine(buf);
@@ -227,8 +263,12 @@ public class Resource implements Config {
 		this.map.put(key, value);
 	}
 
-	public void writeFile() {
-		final File rc = this.getRcFile();
+	public void writeDefaultRcFile() {
+		final File defaultRcFile = this.getDefaultRcFile();
+		writeRcFile(defaultRcFile);
+	}
+	
+	private void writeRcFile(File file) {
 		TreeSet ts;
 		Iterator iter;
 		String str;
@@ -240,7 +280,7 @@ public class Resource implements Config {
 
 		try {
 			pw = new PrintWriter(new OutputStreamWriter(
-					new FileOutputStream(rc), "UTF8"));
+					new FileOutputStream(file), "UTF8"));
 
 			while (iter.hasNext()) {
 				str = iter.next().toString();
@@ -253,16 +293,10 @@ public class Resource implements Config {
 		} catch (final IOException e) {
 			e.printStackTrace();
 		}
-
 	}
 
-	private File getRcFile() {
-		File f;
-		final String home = System.getProperty("user.home");
-		final String rcfile = ".ztermrc";
-		f = new File(home + File.separator + rcfile);
-		// System.out.println( f );
-		return f;
+	private File getDefaultRcFile() {
+		return new File(defaultResourceLocation);
 	}
 
 	private synchronized String getValue(final String key) {
@@ -343,6 +377,7 @@ public class Resource implements Config {
 		this.defmap.put(Config.AUTO_LINE_BREAK_LENGTH, "72");
 		this.defmap.put(Resource.USE_CUSTOM_BELL, "false");
 		this.defmap.put(Resource.CUSTOM_BELL_PATH, "");
+		this.defmap.put(Resource.RESOURCE_LOCATION, defaultResourceLocation);
 	}
 
 	private void parseLine(final String line) {
@@ -358,5 +393,27 @@ public class Resource implements Config {
 		if (argv[0].length() > 0) {
 			this.map.put(argv[0], argv[1]);
 		}
+	}
+
+	/**
+	 * Getter of resourceLocation
+	 * @return the resourceLocation
+	 */
+	public String getResourceLocation() {
+		return getStringValue(Resource.RESOURCE_LOCATION);
+	}
+
+	/**
+	 * Setter of resourceLocation
+	 * @param resourceLocation the resourceLocation to set
+	 */
+	public void setResourceLocation(String resourceLocation) {
+		setValue(Resource.RESOURCE_LOCATION, resourceLocation);
+	}
+	
+	public void setLocale(final Locale locale) {
+		resource.setValue(Resource.LOCALE_COUNTRY, locale.getCountry());
+		resource.setValue(Resource.LOCALE_LANGUAGE, locale.getLanguage());
+		resource.setValue(Resource.LOCALE_VARIANT, locale.getVariant());
 	}
 }

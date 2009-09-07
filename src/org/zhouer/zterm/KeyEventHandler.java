@@ -1,27 +1,25 @@
-package org.zhouer.zterm.view;
+package org.zhouer.zterm;
 
 import java.awt.KeyEventDispatcher;
 import java.awt.event.KeyEvent;
 
-import org.zhouer.zterm.model.Model;
-
 /**
  * KeyEventHandler is a key event controller for ZTerm applet.
  * 
- * @author Chin-Chang Yang
+ * @author h45
  */
 public class KeyEventHandler implements KeyEventDispatcher {
 
 	private Model model;
 
+	private ZTerm view;
+
 	public boolean dispatchKeyEvent(final KeyEvent keyEvent) {
-		
-		// 非按下的狀況，繼續往下送。
+		// 只處理按下的狀況
 		if (keyEvent.getID() != KeyEvent.KEY_PRESSED) {
 			return false;
 		}
 
-		// 按下的狀況，若是功能鍵，則判斷要做些什麼事情。
 		if (keyEvent.isAltDown() || keyEvent.isMetaDown()) {
 
 			if (keyEvent.getKeyCode() == KeyEvent.VK_O) {
@@ -30,33 +28,48 @@ public class KeyEventHandler implements KeyEventDispatcher {
 				this.model.colorCopy();
 			} else if (keyEvent.getKeyCode() == KeyEvent.VK_I) {
 				this.model.colorPaste();
+			} else if (keyEvent.getKeyCode() == KeyEvent.VK_D) {
+				this.view.siteText.selectAll();
+				this.view.siteField.requestFocusInWindow();
 			} else if (keyEvent.getKeyCode() == KeyEvent.VK_Q) {
 				this.model.open();
 			} else if (keyEvent.getKeyCode() == KeyEvent.VK_R) {
-				this.model.reopenCurrentSession();
+				this.model.reopenSession((Session) this.view.tabbedPane
+						.getSelectedComponent());
+			} else if (keyEvent.getKeyCode() == KeyEvent.VK_S) {
+				this.view.siteText.setText("ssh://"); //$NON-NLS-1$
+				this.view.siteField.requestFocusInWindow();
+			} else if (keyEvent.getKeyCode() == KeyEvent.VK_L) {
+				this.view.siteText.setText("telnet://"); //$NON-NLS-1$
+				this.view.siteField.requestFocusInWindow();
 			} else if (keyEvent.getKeyCode() == KeyEvent.VK_P) {
 				this.model.paste();
 			} else if (keyEvent.getKeyCode() == KeyEvent.VK_W) {
 				this.model.closeCurrentTab();
 			} else if ((KeyEvent.VK_1 <= keyEvent.getKeyCode())
 					&& (keyEvent.getKeyCode() <= KeyEvent.VK_9)) {
-				this.model.switchSessionTo(keyEvent.getKeyCode() - KeyEvent.VK_1);
+				this.model.changeSession(keyEvent.getKeyCode() - KeyEvent.VK_1);
 			} else if ((keyEvent.getKeyCode() == KeyEvent.VK_LEFT)
 					|| (keyEvent.getKeyCode() == KeyEvent.VK_UP)
 					|| (keyEvent.getKeyCode() == KeyEvent.VK_Z)) {
 				// meta-left,up,z 切到上一個連線視窗
 				// index 是否合法在 changeSession 內會判斷
-				model.switchToPreviousSession();
+
+				this.model.changeSession(this.view.tabbedPane
+						.getSelectedIndex() - 1);
 			} else if ((keyEvent.getKeyCode() == KeyEvent.VK_RIGHT)
 					|| (keyEvent.getKeyCode() == KeyEvent.VK_DOWN)
 					|| (keyEvent.getKeyCode() == KeyEvent.VK_X)) {
 				// meta-right,up,x 切到下一個連線視窗
 				// index 是否合法在 changeSession 內會判斷
-				model.switchToNextSession();
+
+				this.model.changeSession(this.view.tabbedPane
+						.getSelectedIndex() + 1);
 			} else if (keyEvent.getKeyCode() == KeyEvent.VK_HOME) {
-				this.model.switchSessionTo(0);
+				this.model.changeSession(0);
 			} else if (keyEvent.getKeyCode() == KeyEvent.VK_END) {
-				model.switchToLastSession();
+				this.model
+						.changeSession(this.view.tabbedPane.getTabCount() - 1);
 			} else if (keyEvent.getKeyCode() == KeyEvent.VK_COMMA) {
 				// alt-, 開啟偏好設定
 				this.model.showPreference();
@@ -86,4 +99,15 @@ public class KeyEventHandler implements KeyEventDispatcher {
 	public void setModel(final Model model) {
 		this.model = model;
 	}
+
+	/**
+	 * Setter of view
+	 * 
+	 * @param view
+	 *            the view to set
+	 */
+	public void setView(final ZTerm view) {
+		this.view = view;
+	}
+
 }

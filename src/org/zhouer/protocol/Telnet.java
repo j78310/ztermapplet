@@ -1,7 +1,5 @@
 package org.zhouer.protocol;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -78,8 +76,8 @@ public class Telnet implements Protocol {
 			// 設定 keep alive
 			this.sock.setKeepAlive(true);
 
-			this.is = new BufferedInputStream(this.sock.getInputStream());
-			this.os = new BufferedOutputStream(this.sock.getOutputStream());
+			this.is = this.sock.getInputStream();
+			this.os = this.sock.getOutputStream();
 		} catch (final UnknownHostException e) {
 			// 可能是未連線或連線位置錯誤
 			// e.printStackTrace();
@@ -369,14 +367,17 @@ class TelnetInputStream extends InputStream {
 		this.telnet = tel;
 	}
 
+	@Override
 	public int read() throws IOException {
 		return this.telnet.readByte();
 	}
 
+	@Override
 	public int read(final byte[] buf) throws IOException {
 		return this.telnet.readBytes(buf);
 	}
 
+	@Override
 	public int read(final byte[] buf, final int offset, final int length)
 			throws IOException {
 		return this.telnet.readBytes(buf, offset, length);
@@ -390,15 +391,18 @@ class TelnetOutputStream extends OutputStream {
 		this.telnet = tel;
 	}
 
+	@Override
 	public void write(final byte[] buf) throws IOException {
 		this.telnet.writeBytes(buf);
 	}
 
+	@Override
 	public void write(final byte[] buf, final int offset, final int length)
 			throws IOException {
 		this.telnet.writeBytes(buf, offset, length);
 	}
 
+	@Override
 	public void write(final int b) throws IOException {
 		// java doc: The 24 high-order bits of b are ignored.
 		this.telnet.writeByte((byte) b);

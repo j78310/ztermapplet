@@ -1,4 +1,4 @@
-package org.zhouer.zterm.view;
+package org.zhouer.zterm;
 
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
@@ -29,10 +29,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.zhouer.protocol.Protocol;
-import org.zhouer.utils.InternationalMessages;
-import org.zhouer.zterm.model.Model;
-import org.zhouer.zterm.model.Resource;
-import org.zhouer.zterm.model.Site;
 
 /**
  * SiteManager is an option pane for users to modify their favorite site.
@@ -83,17 +79,17 @@ public class SiteManager extends JOptionPane {
 			this.setLayout(new GridBagLayout());
 			final GridBagConstraints c = new GridBagConstraints();
 
-			this.nameLabel = new JLabel(InternationalMessages.getString("SiteManager.Name")); //$NON-NLS-1$
-			this.hostLabel = new JLabel(InternationalMessages.getString("SiteManager.Host")); //$NON-NLS-1$
-			this.portLabel = new JLabel(InternationalMessages.getString("SiteManager.Port")); //$NON-NLS-1$
-			this.aliasLabel = new JLabel(InternationalMessages.getString("SiteManager.Alias")); //$NON-NLS-1$
-			this.protocolLabel = new JLabel(InternationalMessages
+			this.nameLabel = new JLabel(Messages.getString("SiteManager.Name")); //$NON-NLS-1$
+			this.hostLabel = new JLabel(Messages.getString("SiteManager.Host")); //$NON-NLS-1$
+			this.portLabel = new JLabel(Messages.getString("SiteManager.Port")); //$NON-NLS-1$
+			this.aliasLabel = new JLabel(Messages.getString("SiteManager.Alias")); //$NON-NLS-1$
+			this.protocolLabel = new JLabel(Messages
 					.getString("SiteManager.Protocal")); //$NON-NLS-1$
-			this.encodingLabel = new JLabel(InternationalMessages
+			this.encodingLabel = new JLabel(Messages
 					.getString("SiteManager.Encoding")); //$NON-NLS-1$
-			this.emulationLabel = new JLabel(InternationalMessages
+			this.emulationLabel = new JLabel(Messages
 					.getString("SiteManager.Emulation")); //$NON-NLS-1$
-			this.autoConnectLabel = new JLabel(InternationalMessages
+			this.autoConnectLabel = new JLabel(Messages
 					.getString("SiteManager.AutoConnect")); //$NON-NLS-1$
 
 			// autoLoginLabel = new JLabel("自動登入");
@@ -111,10 +107,10 @@ public class SiteManager extends JOptionPane {
 			this.aliasField = new JTextField(15);
 			this.aliasField.addKeyListener(this);
 
-			this.telnetButton = new JRadioButton(InternationalMessages
+			this.telnetButton = new JRadioButton(Messages
 					.getString("SiteManager.TelnetButtonText")); //$NON-NLS-1$
 			this.telnetButton.addActionListener(this);
-			this.sshButton = new JRadioButton(InternationalMessages
+			this.sshButton = new JRadioButton(Messages
 					.getString("SiteManager.SSHButtonText")); //$NON-NLS-1$
 			this.sshButton.addActionListener(this);
 
@@ -236,40 +232,41 @@ public class SiteManager extends JOptionPane {
 		
 		private void update() {
 			final Site s = new Site();
-			s.setName(nameField.getText());
-			s.setHost(hostField.getText());
-			s.setPort(Integer.parseInt(portField.getText()));
-			s.setAlias(aliasField.getText());
+			s.name = nameField.getText();
+			s.host = hostField.getText();
+			s.port = Integer.parseInt(portField.getText());
+			s.alias = aliasField.getText();
 
 			if (telnetButton.isSelected()) {
-				s.setProtocol(Protocol.TELNET);
+				s.protocol = Protocol.TELNET;
 			} else if (sshButton.isSelected()) {
-				s.setProtocol(Protocol.SSH);
+				s.protocol = Protocol.SSH;
 			}
 
-			s.setEncoding(encodingCombo.getSelectedItem().toString());
-			s.setEmulation(emulationCombo.getSelectedItem().toString());
-			s.setAutoconnect(autoConnectCheckBox.isSelected());
+			s.encoding = encodingCombo.getSelectedItem().toString();
+			s.emulation = emulationCombo.getSelectedItem().toString();
+
+			s.autoconnect = autoConnectCheckBox.isSelected();
 			// s.autologin = autoLoginCheckBox.isSelected();
 			parent.updateFavorite(s);
 		}
 
 		public void updateParameter(final Site s) {
-			this.nameField.setText(s.getName());
-			this.hostField.setText(s.getHost());
-			this.portField.setText(Integer.toString(s.getPort()));
-			this.aliasField.setText(s.getAlias());
+			this.nameField.setText(s.name);
+			this.hostField.setText(s.host);
+			this.portField.setText(Integer.toString(s.port));
+			this.aliasField.setText(s.alias);
 
-			if (s.getProtocol().equalsIgnoreCase(Protocol.TELNET)) {
+			if (s.protocol.equalsIgnoreCase(Protocol.TELNET)) {
 				this.telnetButton.setSelected(true);
-			} else if (s.getProtocol().equalsIgnoreCase(Protocol.SSH)) {
+			} else if (s.protocol.equalsIgnoreCase(Protocol.SSH)) {
 				this.sshButton.setSelected(true);
 			}
 
-			this.encodingCombo.setSelectedItem(s.getEncoding());
-			this.emulationCombo.setSelectedItem(s.getEmulation());
+			this.encodingCombo.setSelectedItem(s.encoding);
+			this.emulationCombo.setSelectedItem(s.emulation);
 
-			this.autoConnectCheckBox.setSelected(s.isAutoconnect());
+			this.autoConnectCheckBox.setSelected(s.autoconnect);
 		}
 
 		public void keyPressed(KeyEvent e) {
@@ -285,7 +282,7 @@ public class SiteManager extends JOptionPane {
 		private static final long serialVersionUID = 6399807179665067907L;
 
 		private JButton addButton, removeButton, upButton, downButton;
-		private final Vector favorites;
+		private final Vector<Site> favorites;
 
 		private JPanel modifyPanel;
 		private final SiteManager parent;
@@ -293,7 +290,7 @@ public class SiteManager extends JOptionPane {
 		private JList siteList;
 		private DefaultListModel siteListModel;
 
-		public SitePanel(final SiteManager siteManager, final Vector favorite) {
+		public SitePanel(final SiteManager siteManager, final Vector<Site> favorite) {
 			super();
 
 			this.parent = siteManager;
@@ -325,7 +322,7 @@ public class SiteManager extends JOptionPane {
 				if (i > 0) {
 					final Site tmp;
 
-					tmp = (Site) this.favorites.elementAt(i);
+					tmp = this.favorites.elementAt(i);
 					this.favorites.removeElementAt(i);
 					this.favorites.insertElementAt(tmp, i - 1);
 
@@ -341,7 +338,7 @@ public class SiteManager extends JOptionPane {
 				if (i < this.siteListModel.size() - 1) {
 					final Site tmp;
 
-					tmp = (Site) this.favorites.elementAt(i);
+					tmp = this.favorites.elementAt(i);
 					this.favorites.removeElementAt(i);
 					this.favorites.insertElementAt(tmp, i + 1);
 
@@ -358,7 +355,7 @@ public class SiteManager extends JOptionPane {
 		public void updateFavorite(final Site f) {
 			final int index = this.siteList.getSelectedIndex();
 			if (index != -1) {
-				this.siteListModel.setElementAt(f.getName(), index);
+				this.siteListModel.setElementAt(f.name, index);
 				this.favorites.setElementAt(f, index);
 			}
 		}
@@ -366,17 +363,16 @@ public class SiteManager extends JOptionPane {
 		public void valueChanged(final ListSelectionEvent lse) {
 			final int index = this.siteList.getSelectedIndex();
 			if (index != -1) {
-				this.parent.updateParameter((Site) this.favorites.elementAt(index));
+				this.parent.updateParameter(this.favorites.elementAt(index));
 			}
 		}
 
 		private void makeList() {
-			final Iterator iter = this.favorites.iterator();
+			final Iterator<Site> iter = this.favorites.iterator();
 			this.siteListModel = new DefaultListModel();
 
 			while (iter.hasNext()) {
-				final Site site = (Site) iter.next();
-				this.siteListModel.addElement(site.getName());
+				this.siteListModel.addElement(iter.next().name);
 			}
 
 			this.siteList = new JList(this.siteListModel);
@@ -389,16 +385,16 @@ public class SiteManager extends JOptionPane {
 			this.modifyPanel = new JPanel();
 			this.modifyPanel.setLayout(new GridLayout(0, 2, 3, 3));
 
-			this.addButton = new JButton(InternationalMessages
+			this.addButton = new JButton(Messages
 					.getString("SiteManager.AddButtonText")); //$NON-NLS-1$
 			this.addButton.addActionListener(this);
-			this.removeButton = new JButton(InternationalMessages
+			this.removeButton = new JButton(Messages
 					.getString("SiteManager.RemoveButtonText")); //$NON-NLS-1$
 			this.removeButton.addActionListener(this);
-			this.upButton = new JButton(InternationalMessages
+			this.upButton = new JButton(Messages
 					.getString("SiteManager.UpButtonText")); //$NON-NLS-1$
 			this.upButton.addActionListener(this);
-			this.downButton = new JButton(InternationalMessages
+			this.downButton = new JButton(Messages
 					.getString("SiteManager.DownButtonText")); //$NON-NLS-1$
 			this.downButton.addActionListener(this);
 
@@ -411,7 +407,7 @@ public class SiteManager extends JOptionPane {
 	
 	private static final long serialVersionUID = 3644901803388220764L;
 
-	private final Vector favorites;
+	private final Vector<Site> favorites;
 	private final JSplitPane jsp;
 
 	private final ParameterPanel parameterPanel;
@@ -472,31 +468,30 @@ public class SiteManager extends JOptionPane {
 		this.parameterPanel.updateParameter(site);
 	}
 
-	public void submit() {
+	protected void submit() {
 		// 將修改更新後寫回設定檔
 		final Site s = new Site();
-		s.setName(this.parameterPanel.nameField.getText());
-		s.setHost(this.parameterPanel.hostField.getText());
-		s.setPort(Integer.parseInt(this.parameterPanel.portField.getText()));
-		s.setAlias(this.parameterPanel.aliasField.getText());
+		s.name = this.parameterPanel.nameField.getText();
+		s.host = this.parameterPanel.hostField.getText();
+		s.port = Integer.parseInt(this.parameterPanel.portField.getText());
+		s.alias = this.parameterPanel.aliasField.getText();
 
 		if (this.parameterPanel.telnetButton.isSelected()) {
-			s.setProtocol(Protocol.TELNET);
+			s.protocol = Protocol.TELNET;
 		} else if (this.parameterPanel.sshButton.isSelected()) {
-			s.setProtocol(Protocol.SSH);
+			s.protocol = Protocol.SSH;
 		}
 
-		s.setEncoding(this.parameterPanel.encodingCombo.getSelectedItem()
-				.toString());
-		
-		s.setEmulation(this.parameterPanel.emulationCombo.getSelectedItem()
-				.toString());
+		s.encoding = this.parameterPanel.encodingCombo.getSelectedItem()
+				.toString();
+		s.emulation = this.parameterPanel.emulationCombo.getSelectedItem()
+				.toString();
 
-		s.setAutoconnect(this.parameterPanel.autoConnectCheckBox.isSelected());
+		s.autoconnect = this.parameterPanel.autoConnectCheckBox.isSelected();
 		// s.autologin = autoLoginCheckBox.isSelected();
 		this.updateFavorite(s);
 		this.resource.setFavorites(this.favorites);
-		this.resource.writeFile();
+		this.resource.writeRcFile();
 		Model.getInstance().updateFavoriteMenu();
 	}
 }

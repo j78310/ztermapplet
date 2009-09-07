@@ -1,4 +1,4 @@
-package org.zhouer.zterm.model;
+package org.zhouer.zterm;
 
 import java.util.Vector;
 
@@ -7,7 +7,7 @@ import java.util.Vector;
  * 
  * @author Chin-Chang Yang
  */
-public class Sessions extends Vector {
+public class Sessions extends Vector<Session> {
 	private static final long serialVersionUID = -4458258447638659749L;
 	private volatile static Sessions sessions = null;
 
