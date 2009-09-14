@@ -1,5 +1,6 @@
 1.16
-- Right-click tab title to show pop-up menu.
+- [Rejected] Toolkit not supported: Right-click tab title to show pop-up menu.
+- [New] Press enter to reconnect while the session is disconnected.
 
-Further work
+Future works
 - Automatically save articles to files.
