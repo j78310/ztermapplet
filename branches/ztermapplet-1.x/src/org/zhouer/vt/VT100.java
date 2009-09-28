@@ -852,7 +852,7 @@ public class VT100 extends JComponent {
 				final boolean originalIsURL = isurl[prow][j];
 
 				// 判斷 (prow, j) 座標上的字元是否落於一個 http://xxx.xxx 字串裡面
-				if (UrlRecognizer.isPartOfHttp(message, j)) {
+				if (UrlRecognizer.isPartOfHttp(message, j) || UrlRecognizer.isPartOfHttps(message, j)) {
 					isurl[prow][j] = true;
 				} else {
 					isurl[prow][j] = false;
