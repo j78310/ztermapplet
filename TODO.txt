@@ -1,7 +1,6 @@
 1.16
 - [New] Press enter to reconnect while the session is disconnected.
 - [New] Separate CLOSE and DISCONNECT action.
-- [New] Set anti-aliasing in font preference as enable to the default settings.
 
 Future works
 - Automatically save articles to files.
