@@ -348,13 +348,7 @@ public class Resource implements Config {
 		this.defmap.put(Config.FONT_SIZE, "0");
 		this.defmap.put(Config.FONT_BOLD, "false");
 		this.defmap.put(Config.FONT_ITALY, "false");
-
-		if (Pattern.matches(".*Windows.*", os)) {
-			this.defmap.put(Config.FONT_ANTIALIAS, "false");
-		} else {
-			this.defmap.put(Config.FONT_ANTIALIAS, "true");
-		}
-
+		this.defmap.put(Config.FONT_ANTIALIAS, "true");
 		this.defmap.put(Config.FONT_VERTICLAL_GAP, "0");
 		this.defmap.put(Config.FONT_HORIZONTAL_GAP, "0");
 		this.defmap.put(Config.FONT_DESCENT_ADJUST, "0");
@@ -369,6 +363,7 @@ public class Resource implements Config {
 		} else {
 			this.defmap.put(Resource.EXTERNAL_BROWSER, "mozilla %u");
 		}
+		
 		this.defmap.put(Resource.SYSTEM_LOOK_FEEL, "false");
 		this.defmap.put(Config.COPY_ON_SELECT, "false");
 		this.defmap.put(Config.CLEAR_AFTER_COPY, "true");
