@@ -49,6 +49,7 @@ public class ZTerm extends JApplet {
 
 	protected JMenuItem popupCopyItem, popupPasteItem, popupColorCopyItem,
 			popupColorPasteItem, popupCopyLinkItem;
+	
 	// popup 選單
 	protected JPopupMenu popupMenu;
 	protected JMenuItem preferenceItem, siteManagerItem, showToolbarItem;
@@ -133,14 +134,17 @@ public class ZTerm extends JApplet {
 	}
 	
 	private void makeLanguageMenu() {
-		final int languageAmount = 2;
+		final int languageAmount = 3;
 		languageItems = new JMenuItem[languageAmount];
 		languageItems[0] = new JMenuItem(Messages.getString("ZTerm.Language_English_Item"));
 		languageItems[0].setToolTipText(Messages.getString("ZTerm.Language_English_ToolTip"));
 		languageItems[0].addActionListener(actionController);
-		languageItems[1] = new JMenuItem(Messages.getString("ZTerm.Language_TraditionalChinese_Item"));
-		languageItems[1].setToolTipText(Messages.getString("ZTerm.Language_TraditionalChinese_ToolTip"));
+		languageItems[1] = new JMenuItem(Messages.getString("ZTerm.Language_SimplifiedChinese_Item"));
+		languageItems[1].setToolTipText(Messages.getString("ZTerm.Language_SimplifiedChinese_ToolTip"));
 		languageItems[1].addActionListener(actionController);
+		languageItems[2] = new JMenuItem(Messages.getString("ZTerm.Language_TraditionalChinese_Item"));
+		languageItems[2].setToolTipText(Messages.getString("ZTerm.Language_TraditionalChinese_ToolTip"));
+		languageItems[2].addActionListener(actionController);
 		
 		for (int i = 0; i < languageItems.length; i++) {
 			languageMenu.add(languageItems[i]);
