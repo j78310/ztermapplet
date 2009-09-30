@@ -90,6 +90,10 @@ public class ActionHandler implements ActionListener {
 			model.refreshMessages();
 			this.resource.writeRcFile();
 		} else if (source == this.view.languageItems[1]) {
+			resource.setLocale(Locale.CHINA);
+			model.refreshMessages();
+			this.resource.writeRcFile();
+		} else if (source == this.view.languageItems[2]) {
 			resource.setLocale(Locale.TAIWAN);
 			model.refreshMessages();
 			this.resource.writeRcFile();
