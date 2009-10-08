@@ -2,6 +2,7 @@ package org.zhouer.utils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 
 public class Convertor {
 	public static boolean isValidBig5(final byte[] b, final int offset,
@@ -155,15 +156,18 @@ public class Convertor {
 
 	public char bytesToChar(final byte[] b, final int from, final int limit,
 			final String encoding) {
-		// FIXME: magic number
 		if (encoding.equalsIgnoreCase("Big5")) {
 			return this.big5BytesToChar(b, from, limit);
 		} else if (encoding.equalsIgnoreCase("UTF-8")) {
 			return this.utf8BytesToChar(b, from, limit);
 		} else {
-			// TODO: 其他的編碼
-			System.out.println("Unknown Encoding: " + encoding);
-			return 0;
+			try {
+				String s = new String(b, from, limit, encoding);
+				return s.charAt(0);
+			} catch (UnsupportedEncodingException e) {
+				System.err.println("Unsupported Encoding: " + encoding);
+				return 0;
+			}
 		}
 	}
 
@@ -191,9 +195,15 @@ public class Convertor {
 		} else if (encoding.equalsIgnoreCase("UTF-8")) {
 			return this.charToUTF8Bytes(c);
 		} else {
-			// TODO: 其他的編碼
-			System.out.println("Unknown Encoding: " + encoding);
-			return null;
+			char[] character = {c};
+			String string = new String(character);
+			try {
+				byte[] bytes = string.getBytes(encoding);
+				return bytes;
+			} catch (UnsupportedEncodingException e) {
+				System.err.println("Unsupported Encoding: " + encoding);
+				return null;
+			}
 		}
 	}
 
@@ -228,15 +238,13 @@ public class Convertor {
 
 	public boolean isValidMultiBytes(final byte[] b, final int from,
 			final int limit, final String encoding) {
-		// FIXME: magic number
 		if (encoding.equalsIgnoreCase("Big5")) {
 			return Convertor.isValidBig5(b, from, limit);
 		} else if (encoding.equalsIgnoreCase("UTF-8")) {
 			return Convertor.isValidUTF8(b, from, limit);
 		} else {
-			// TODO: 其他的編碼
-			System.out.println("Unknown Encoding: " + encoding);
-			return true;
+			// XXX simply try Big5 format.
+			return Convertor.isValidBig5(b, from, limit);
 		}
 	}
 

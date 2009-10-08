@@ -47,7 +47,7 @@ public class SiteManager extends JOptionPane {
 
 		private final JLabel encodingLabel, emulationLabel;
 
-		private final String[] encodingList = { "Big5", "UTF-8" }; //$NON-NLS-1$ //$NON-NLS-2$
+		private final String[] encodingList = { "Big5", "UTF-8", "GB2312" }; //$NON-NLS-1$ //$NON-NLS-2$
 
 		// 名稱, 位置, 埠號, 通訊協定. 帳號提示, 帳號, 密碼提示, 密碼, 自動連線, 自動登入
 		private final JLabel nameLabel, hostLabel, portLabel, protocolLabel,

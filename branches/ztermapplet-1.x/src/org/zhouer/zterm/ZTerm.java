@@ -34,8 +34,12 @@ import org.zhouer.vt.Config;
 public class ZTerm extends JApplet {
 	private static final long serialVersionUID = 6304594468121008572L;
 
+	// Main Screen
 	protected BufferedImage bi;
-	protected JMenuItem big5Item, utf8Item;
+	
+	// Encoding
+	protected JMenuItem big5Item, utf8Item, gb2312Item;
+	
 	// 連線工具列
 	protected JToolBar connectionToolbar;
 	protected JButton copyButton, colorCopyButton, pasteButton,
@@ -45,7 +49,7 @@ public class ZTerm extends JApplet {
 	
 
 	protected JButton openButton, closeButton, reopenButton;
-	protected JMenuItem openItem, closeItem, reopenItem;
+	protected JMenuItem openItem, closeItem, reopenItem, disconnectItem;
 
 	protected JMenuItem popupCopyItem, popupPasteItem, popupColorCopyItem,
 			popupColorPasteItem, popupCopyLinkItem;
@@ -335,6 +339,7 @@ public class ZTerm extends JApplet {
 		this.openItem = new JMenuItem();
 		this.closeItem = new JMenuItem();
 		this.reopenItem = new JMenuItem();
+		disconnectItem = new JMenuItem();
 		this.copyItem = new JMenuItem();
 		this.pasteItem = new JMenuItem();
 		this.colorCopyItem = new JMenuItem();
@@ -345,8 +350,9 @@ public class ZTerm extends JApplet {
 		this.usageItem = new JMenuItem();
 		this.faqItem = new JMenuItem();
 		this.aboutItem = new JMenuItem();
-		this.big5Item = new JMenuItem();
-		this.utf8Item = new JMenuItem();
+		this.big5Item = new JMenuItem("BIG5");
+		this.utf8Item = new JMenuItem("UTF-8");
+		this.gb2312Item = new JMenuItem("GB2312");
 		
 		this.connectMenu.setMnemonic(KeyEvent.VK_F);
 		this.editMenu.setMnemonic(KeyEvent.VK_E);
@@ -358,6 +364,7 @@ public class ZTerm extends JApplet {
 		this.openItem.addActionListener(this.actionController);
 		this.closeItem.addActionListener(this.actionController);
 		this.reopenItem.addActionListener(this.actionController);
+		disconnectItem.addActionListener(actionController);
 		this.copyItem.addActionListener(this.actionController);
 		this.pasteItem.addActionListener(this.actionController);
 		this.colorCopyItem.addActionListener(this.actionController);
@@ -370,6 +377,7 @@ public class ZTerm extends JApplet {
 		this.aboutItem.addActionListener(this.actionController);
 		this.big5Item.addActionListener(this.actionController);
 		this.utf8Item.addActionListener(this.actionController);
+		this.gb2312Item.addActionListener(this.actionController);
 		
 		this.menuBar.add(this.connectMenu);
 		this.menuBar.add(this.editMenu);
@@ -380,12 +388,14 @@ public class ZTerm extends JApplet {
 
 		this.connectMenu.add(this.openItem);
 		this.connectMenu.add(this.reopenItem);
+		connectMenu.add(disconnectItem);
 		this.connectMenu.add(this.closeItem);
 
 		this.updateFavoriteMenu();
 
 		this.encodingMenu.add(this.big5Item);
 		this.encodingMenu.add(this.utf8Item);
+		this.encodingMenu.add(this.gb2312Item);
 
 		this.editMenu.add(this.copyItem);
 		this.editMenu.add(this.pasteItem);
@@ -491,25 +501,17 @@ public class ZTerm extends JApplet {
 
 		this.connectionToolbar.add(this.closeButton);
 		this.connectionToolbar.add(this.reopenButton);
-
 		this.connectionToolbar.add(new JToolBar.Separator());
-
 		this.connectionToolbar.add(this.copyButton);
 		this.connectionToolbar.add(this.pasteButton);
 		this.connectionToolbar.add(this.colorCopyButton);
 		this.connectionToolbar.add(this.colorPasteButton);
-
 		this.connectionToolbar.add(new JToolBar.Separator());
-
 		this.connectionToolbar.add(this.telnetButton);
 		this.connectionToolbar.add(this.sshButton);
-
 		this.connectionToolbar.add(new JToolBar.Separator());
-
 		this.connectionToolbar.add(this.siteField);
-
 		this.connectionToolbar.add(new JToolBar.Separator());
-
 		this.connectionToolbar.add(this.openButton);
 
 		this.getContentPane().add(this.connectionToolbar, BorderLayout.NORTH);
@@ -569,6 +571,8 @@ public class ZTerm extends JApplet {
 		this.reopenItem.setToolTipText(Messages
 				.getString("ZTerm.Reopen_Item_ToolTip")); //$NON-NLS-1$
 
+		disconnectItem.setText(Messages.getString("ZTerm.Disconnect_Item_Text"));
+
 		this.copyItem.setText(Messages
 				.getString("ZTerm.Copy_MenuItem_Text")); //$NON-NLS-1$
 		this.copyItem.setToolTipText(Messages
@@ -609,12 +613,6 @@ public class ZTerm extends JApplet {
 
 		this.aboutItem.setText(Messages
 				.getString("ZTerm.About_MenuItem_Text")); //$NON-NLS-1$
-
-		this.big5Item.setText(Messages
-				.getString("ZTerm.Big5_MenuItem_Text")); //$NON-NLS-1$
-
-		this.utf8Item.setText(Messages
-				.getString("ZTerm.UTF8_MenuItem_Text")); //$NON-NLS-1$
 		
 		this.popupCopyLinkItem.setText(Messages
 				.getString("ZTerm.Popup_CopyLink_MenuItem_Text")); //$NON-NLS-1$

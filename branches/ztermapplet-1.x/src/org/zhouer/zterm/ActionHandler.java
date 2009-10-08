@@ -39,6 +39,8 @@ public class ActionHandler implements ActionListener {
 				|| (source == this.view.reopenButton)) {
 			this.model.reopenSession((Session) this.view.tabbedPane
 					.getSelectedComponent());
+		} else if (source == this.view.disconnectItem) {
+			this.model.disconnectSession((Session) this.view.tabbedPane.getSelectedComponent());
 		} else if ((source == this.view.copyItem)
 				|| (source == this.view.copyButton)
 				|| (source == this.view.popupCopyItem)) {
@@ -85,6 +87,8 @@ public class ActionHandler implements ActionListener {
 			this.model.updateEncoding("Big5"); //$NON-NLS-1$
 		} else if (source == this.view.utf8Item) {
 			this.model.updateEncoding("UTF-8"); //$NON-NLS-1$
+		} else if (source == this.view.gb2312Item) {
+			this.model.updateEncoding("GB2312");
 		} else if (source == this.view.languageItems[0]) {
 			resource.setLocale(Locale.ENGLISH);
 			model.refreshMessages();

@@ -21,6 +21,7 @@ import javax.swing.Timer;
 import org.zhouer.utils.Convertor;
 import org.zhouer.utils.TextUtils;
 import org.zhouer.utils.UrlRecognizer;
+import org.zhouer.zterm.Session;
 
 public class VT100 extends JComponent {
 	class CursorRepaintTask implements ActionListener {
@@ -155,7 +156,7 @@ public class VT100 extends JComponent {
 	private byte[]					nvtBuf;
 	private int						nvtBufPos, nvtBufLen;
 
-	private final Application		parent;
+	private final Session		parent;
 	private Object					repaintLock;
 	// 記錄螢幕上何處需要 repaint
 	private FIFOSet					repaintSet;
@@ -210,7 +211,7 @@ public class VT100 extends JComponent {
 	// 畫面的寬與高
 	private int						width, height;
 
-	public VT100(final Application p, final Config c, final Convertor cv,
+	public VT100(final Session p, final Config c, final Convertor cv,
 			final BufferedImage b) {
 		super();
 
@@ -230,7 +231,7 @@ public class VT100 extends JComponent {
 		cursorBlinkTimer.stop();
 		textBlinkTimer.stop();
 
-		// 停止反應來自使用者的事件
+		// 停止來自使用者的事件
 		removeKeyListener(user);
 		removeMouseListener(user);
 		removeMouseMotionListener(user);
@@ -509,7 +510,7 @@ public class VT100 extends JComponent {
 		// 至此應該所有的初始化動作都完成了
 		init_ready = true;
 
-		while (!parent.isClosed()) {
+		while (!parent.isDisconnected()) {
 			parse();
 
 			// buffer 裡的東西都處理完才重繪
