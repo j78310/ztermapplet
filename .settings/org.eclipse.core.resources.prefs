@@ -1,5 +1,6 @@
-#Wed Oct 07 08:23:53 CST 2009
+#Thu Oct 08 16:56:04 CST 2009
 eclipse.preferences.version=1
 encoding//src/org/zhouer/zterm/lang/messages_en.properties=UTF-8
+encoding//src/org/zhouer/zterm/lang/messages_zh_CN.properties=UTF-8
 encoding//src/org/zhouer/zterm/lang/messages_zh_TW.properties=UTF-8
 encoding/<project>=UTF-8

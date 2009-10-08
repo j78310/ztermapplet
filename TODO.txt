@@ -1,7 +1,5 @@
-1.16
-- [New] Press enter to reconnect while the session is disconnected.
-- [New] Separate CLOSE and DISCONNECT action.
+1.17
+[New] Save articles to files
 
 Future works
-- Automatically save articles to files.
 - Save screen as an image file.

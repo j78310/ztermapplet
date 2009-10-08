@@ -101,6 +101,7 @@ public class Session extends JPanel implements Runnable, Application,
 	private final VT100 vt;
 
 	private String windowtitle;
+	private boolean disconnected;
 
 	public Session(final Site s, final Resource r, final Convertor c,
 			final BufferedImage bi, final Model model) {
@@ -179,53 +180,15 @@ public class Session extends JPanel implements Runnable, Application,
 		}
 	}
 
-	public void close(final boolean fromRemote) {
+	public void close() {
 		if (this.isClosed()) {
 			return;
 		}
 
+		this.disconnect(false);
+		
 		// 移除 listener
 		this.removeMouseWheelListener(this);
-
-		// 中斷連線
-		this.network.disconnect();
-
-		// 停止防閒置用的 timer
-		if (this.ti != null) {
-			this.ti.stop();
-		}
-
-		// 通知 vt 停止運作
-		if (this.vt != null) {
-			this.vt.close();
-		}
-
-		// 將連線狀態改為斷線
-		this.setState(Session.STATE_CLOSED);
-
-		// 若遠端 server 主動斷線則判斷是否需要重連
-		final boolean autoreconnect = this.resource
-				.getBooleanValue(Resource.AUTO_RECONNECT);
-		if (autoreconnect && fromRemote) {
-			final long reopenTime = this.resource
-					.getIntValue(Resource.AUTO_RECONNECT_TIME);
-			final long reopenInterval = this.resource
-					.getIntValue(Resource.AUTO_RECONNECT_INTERVAL);
-			final long now = new Date().getTime();
-
-			// 判斷連線時間距現在時間是否超過自動重連時間
-			// 若設定自動重連時間為 0 則總是自動重連
-			if ((now - this.startTime <= reopenTime * 1000)
-					|| (reopenTime == 0)) {
-				try {
-					Thread.sleep(reopenInterval);
-				} catch (final InterruptedException e) {
-					e.printStackTrace();
-				}
-
-				this.model.reopenSession(this);
-			}
-		}
 	}
 
 	public void colorCopy() {
@@ -312,17 +275,16 @@ public class Session extends JPanel implements Runnable, Application,
 		this.vt.pasteText(str);
 	}
 
-	/*
-	 * 自己的
-	 */
-
 	public int readBytes(final byte[] buf) {
 		try {
 			return this.is.read(buf);
 		} catch (final IOException e) {
 			// e.printStackTrace();
 			// 可能是正常中斷，也可能是異常中斷，在下層沒有區分
-			this.close(true);
+			if (!isDisconnected()) {
+				this.disconnect(true);
+			}
+			
 			return -1;
 		}
 	}
@@ -478,8 +440,54 @@ public class Session extends JPanel implements Runnable, Application,
 		} catch (final IOException e) {
 			// e.printStackTrace();
 			System.out.println("Caught IOException in Session::writeByte(...)"); //$NON-NLS-1$
-			this.close(true);
+			
+			if (!isDisconnected()) {
+				this.disconnect(true);
+			}
 		}
+	}
+
+	/**
+	 * Disconnect this session
+	 */
+	public void disconnect(final boolean fromRemote) {
+		setDisconnected();
+		
+		// 中斷連線
+		this.network.disconnect();
+
+		// 停止防閒置用的 timer
+		if (this.ti != null) {
+			this.ti.stop();
+		}
+
+		// 若遠端 server 主動斷線則判斷是否需要重連
+		final boolean autoreconnect = this.resource
+				.getBooleanValue(Resource.AUTO_RECONNECT);
+		
+		if (autoreconnect && fromRemote) {
+			final long reopenTime = this.resource
+					.getIntValue(Resource.AUTO_RECONNECT_TIME);
+			final long reopenInterval = this.resource
+					.getIntValue(Resource.AUTO_RECONNECT_INTERVAL);
+			final long now = new Date().getTime();
+
+			// 判斷連線時間距現在時間是否超過自動重連時間
+			// 若設定自動重連時間為 0 則總是自動重連
+			if ((now - this.startTime <= reopenTime * 1000)
+					|| (reopenTime == 0)) {
+				try {
+					Thread.sleep(reopenInterval);
+				} catch (final InterruptedException e) {
+					e.printStackTrace();
+				}
+
+				this.model.reopenSession(this);
+			}
+		}
+
+		// 將連線狀態改為斷線
+		this.setState(Session.STATE_CLOSED);
 	}
 
 	public void writeBytes(final byte[] buf, final int offset, final int len) {
@@ -487,10 +495,10 @@ public class Session extends JPanel implements Runnable, Application,
 		try {
 			this.os.write(buf, offset, len);
 		} catch (final IOException e) {
-			// e.printStackTrace();
-			System.out
-					.println("Caught IOException in Session::writeBytes(...)"); //$NON-NLS-1$
-			this.close(true);
+			if (!isDisconnected()) {
+				e.printStackTrace();
+				this.disconnect(true);
+			}
 		}
 	}
 
@@ -516,5 +524,19 @@ public class Session extends JPanel implements Runnable, Application,
 		}
 
 		this.writeBytes(tmp, 0, count);
+	}
+
+	/**
+	 * @return true, if disconnected; false, o.w.
+	 */
+	public boolean isDisconnected() {
+		return disconnected;
+	}
+	
+	/**
+	 * Label this session is disconnected.
+	 */
+	private void setDisconnected() {
+		disconnected = true;
 	}
 }

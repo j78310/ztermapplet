@@ -7,14 +7,17 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
+import org.zhouer.zterm.Model;
+import org.zhouer.zterm.Session;
+
 public class User implements KeyListener, MouseListener, MouseMotionListener {
 	private final Config config;
 	private boolean isDefaultCursor;
-	private final Application parent;
+	private final Session parent;
 	private int pressX, pressY, dragX, dragY;
 	private final VT100 vt;
 
-	public User(final Application p, final VT100 v, final Config c) {
+	public User(final Session p, final VT100 v, final Config c) {
 		this.parent = p;
 		this.vt = v;
 		this.config = c;
@@ -22,6 +25,13 @@ public class User implements KeyListener, MouseListener, MouseMotionListener {
 	}
 
 	public void keyPressed(final KeyEvent e) {
+		
+		if (parent.isDisconnected() && e.getKeyCode() == KeyEvent.VK_ENTER) {
+			Model.getInstance().reopenSession(parent);
+		} else if (parent.isDisconnected()) {
+			return;
+		}
+		
 		int len;
 		final byte[] buf = new byte[4];
 

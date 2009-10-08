@@ -157,7 +157,7 @@ public class Model {
 				}
 
 				// 通知 session 要中斷連線了
-				session.close(false);
+				session.close();
 
 				if (!resource
 						.getBooleanValue(Resource.REMOVE_MANUAL_DISCONNECT)) {
@@ -177,6 +177,14 @@ public class Model {
 			// 讓現在被選取的分頁取得 focus.
 			updateTab();
 		}
+	}
+	
+	/**
+	 * Disconnect the session
+	 * @param session the session to disconnect
+	 */
+	public void disconnectSession(Session session) {
+		session.disconnect(false);
 	}
 
 	/**
